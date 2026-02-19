@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Tool Dojo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #120e24;
+      --bg-2: #1e1b3f;
+      --ink: #f8f7f5;
+      --muted: #cec7b7;
+      --gold: #f4b73f;
+      --red: #ca3a28;
+      --teal: #1eb8c7;
+      --panel: rgba(18, 14, 36, 0.82);
+      --border: rgba(244, 183, 63, 0.45);
+      --shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Barlow", "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(202, 58, 40, 0.22), transparent 24%),
+        radial-gradient(130% 80% at 50% 0%, #3d2a65 0%, var(--bg-2) 42%, var(--bg-1) 100%);
+      line-height: 1.45;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.03) 0,
+          rgba(255, 255, 255, 0.03) 1px,
+          transparent 2px,
+          transparent 5px
+        );
+      mix-blend-mode: soft-light;
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: min(1140px, 92vw);
+      margin: 2.2rem auto 3rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 1.5rem;
+      padding: 1.6rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background:
+        linear-gradient(145deg, rgba(30, 184, 199, 0.12), rgba(202, 58, 40, 0.12)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.06em;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      color: var(--gold);
+      text-transform: uppercase;
+      text-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero p {
+      margin-top: 0.7rem;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.2vw, 1.08rem);
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .badge {
+      font-size: 0.83rem;
+      padding: 0.4rem 0.62rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff8dd;
+    }
+
+    .hero-image-wrap {
+      align-self: stretch;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(244, 183, 63, 0.38);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      background: #0f0d19;
+    }
+
+    .hero-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(1.08) contrast(1.06);
+    }
+
+    .tabs-shell {
+      margin-top: 1.2rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tablist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.42rem;
+      padding: 0.9rem;
+      border-bottom: 1px solid rgba(244, 183, 63, 0.28);
+      background: rgba(0, 0, 0, 0.14);
+    }
+
+    .tab-btn {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.5rem 0.85rem;
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 160ms ease;
+    }
+
+    .tab-btn:hover {
+      border-color: rgba(244, 183, 63, 0.72);
+    }
+
+    .tab-btn[aria-selected="true"] {
+      color: #1a1310;
+      border-color: rgba(244, 183, 63, 0.94);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      box-shadow: 0 0 0 2px rgba(247, 202, 111, 0.16);
+    }
+
+    .panel {
+      display: none;
+      padding: 1.2rem;
+      animation: panel-in 220ms ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes panel-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel-head {
+      margin-bottom: 1rem;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.28rem;
+      color: #ffe9af;
+      letter-spacing: 0.02em;
+    }
+
+    .panel-head p {
+      margin: 0.38rem 0 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(30, 184, 199, 0.04));
+      padding: 0.9rem;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #fff2c9;
+    }
+
+    .card p {
+      margin: 0.35rem 0 0.7rem;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .card a {
+      color: #8de9ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .card a:hover {
+      text-decoration: underline;
+      color: #cbf6ff;
+    }
+
+    footer {
+      margin-top: 1rem;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 920px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-image-wrap {
+        order: -1;
+        max-height: 420px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>AI Tool Dojo</h1>
+        <p>Curated links for practical AI workflows, grouped by category so you can move quickly from idea to output.</p>
+        <div class="hero-badges">
+          <span class="badge">Image</span>
+          <span class="badge">Video</span>
+          <span class="badge">Music</span>
+          <span class="badge">Chatbot</span>
+          <span class="badge">Automation</span>
+          <span class="badge">Tutorials</span>
+          <span class="badge">Showcase</span>
+        </div>
+      </div>
+      <figure class="hero-image-wrap">
+        <img src="./public/suhuaiceng.jpg" alt="Shifu portrait">
+      </figure>
+    </section>
+
+    <section class="tabs-shell">
+      <div class="tablist" role="tablist" aria-label="AI tool categories">
+        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-image" id="btn-image">IMAGE GEN</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-video" id="btn-video">VIDEO GEN</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-music" id="btn-music">MUSIC GEN</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-chatbot" id="btn-chatbot">CHATBOT</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-automation" id="btn-automation">AUTOMATION</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-tutorials" id="btn-tutorials">VIDEO TUTORIALS</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-showcase" id="btn-showcase">SHOWCASE</button>
+      </div>
+
+      <article class="panel active" role="tabpanel" id="tab-image" aria-labelledby="btn-image">
+        <div class="panel-head">
+          <h2>Image Generation</h2>
+          <p>Tools for concept art, product visuals, and design mockups.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Midjourney</h3><p>Prompt-first image generation with stylized outputs.</p><a href="https://www.midjourney.com/" target="_blank" rel="noopener noreferrer">Open Midjourney</a></div>
+          <div class="card"><h3>Adobe Firefly</h3><p>Generate and edit images with commercial-friendly controls.</p><a href="https://firefly.adobe.com/" target="_blank" rel="noopener noreferrer">Open Firefly</a></div>
+          <div class="card"><h3>Leonardo AI</h3><p>Asset creation for marketing, games, and concept iterations.</p><a href="https://leonardo.ai/" target="_blank" rel="noopener noreferrer">Open Leonardo</a></div>
+          <div class="card"><h3>Ideogram</h3><p>Strong text-in-image rendering for posters and ads.</p><a href="https://ideogram.ai/" target="_blank" rel="noopener noreferrer">Open Ideogram</a></div>
+        </div>
+      </article>
+
+      <article class="panel" role="tabpanel" id="tab-video" aria-labelledby="btn-video">
+        <div class="panel-head">
+          <h2>Video Generation</h2>
+          <p>Platforms for short-form creative videos and visual storytelling.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Runway</h3><p>Generate and edit video with text/image prompts.</p><a href="https://runwayml.com/" target="_blank" rel="noopener noreferrer">Open Runway</a></div>
+          <div class="card"><h3>Pika</h3><p>Fast prompt-to-video for social and concept clips.</p><a href="https://pika.art/" target="_blank" rel="noopener noreferrer">Open Pika</a></div>
+          <div class="card"><h3>Luma Dream Machine</h3><p>Create cinematic AI clips from simple prompts.</p><a href="https://lumalabs.ai/dream-machine" target="_blank" rel="noopener noreferrer">Open Dream Machine</a></div>
+          <div class="card"><h3>Synthesia</h3><p>Avatar-based explainer and training videos.</p><a href="https://www.synthesia.io/" target="_blank" rel="noopener noreferrer">Open Synthesia</a></div>
+        </div>
+      </article>
+
+      <article class="panel" role="tabpanel" id="tab-music" aria-labelledby="btn-music">
+        <div class="panel-head">
+          <h2>Music Generation</h2>
+          <p>Compose tracks, background loops, and sound ideas quickly.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Suno</h3><p>Generate complete songs from textual direction.</p><a href="https://suno.com/" target="_blank" rel="noopener noreferrer">Open Suno</a></div>
+          <div class="card"><h3>Udio</h3><p>AI music generation with style and arrangement controls.</p><a href="https://www.udio.com/" target="_blank" rel="noopener noreferrer">Open Udio</a></div>
+          <div class="card"><h3>Soundraw</h3><p>Royalty-friendly background music for content creators.</p><a href="https://soundraw.io/" target="_blank" rel="noopener noreferrer">Open Soundraw</a></div>
+          <div class="card"><h3>AIVA</h3><p>Compose emotional instrumentals for films and games.</p><a href="https://www.aiva.ai/" target="_blank" rel="noopener noreferrer">Open AIVA</a></div>
+        </div>
+      </article>
+
+      <article class="panel" role="tabpanel" id="tab-chatbot" aria-labelledby="btn-chatbot">
+        <div class="panel-head">
+          <h2>Chatbot Tools</h2>
+          <p>General-purpose and workflow-specific conversational AI platforms.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>ChatGPT</h3><p>Research, writing, coding, and data assistance.</p><a href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT</a></div>
+          <div class="card"><h3>Claude</h3><p>Long-context reasoning and document-based interaction.</p><a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Open Claude</a></div>
+          <div class="card"><h3>Gemini</h3><p>Google ecosystem chatbot for multimodal tasks.</p><a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Open Gemini</a></div>
+          <div class="card"><h3>Perplexity</h3><p>Answer engine with web-grounded summaries.</p><a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer">Open Perplexity</a></div>
+        </div>
+      </article>
+
+      <article class="panel" role="tabpanel" id="tab-automation" aria-labelledby="btn-automation">
+        <div class="panel-head">
+          <h2>Automation</h2>
+          <p>Integrate AI into repeatable workflows and operational tasks.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Zapier AI</h3><p>Automate repetitive business processes across apps.</p><a href="https://zapier.com/ai" target="_blank" rel="noopener noreferrer">Open Zapier AI</a></div>
+          <div class="card"><h3>Make</h3><p>Visual scenario builder for multi-step automations.</p><a href="https://www.make.com/" target="_blank" rel="noopener noreferrer">Open Make</a></div>
+          <div class="card"><h3>n8n</h3><p>Flexible, developer-friendly workflow orchestration.</p><a href="https://n8n.io/" target="_blank" rel="noopener noreferrer">Open n8n</a></div>
+          <div class="card"><h3>Flowise</h3><p>Low-code LLM app orchestration and agent flows.</p><a href="https://flowiseai.com/" target="_blank" rel="noopener noreferrer">Open Flowise</a></div>
+        </div>
+      </article>
+
+      <article class="panel" role="tabpanel" id="tab-tutorials" aria-labelledby="btn-tutorials">
+        <div class="panel-head">
+          <h2>Video Tutorials</h2>
+          <p>Learning links from YouTube and official channels.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>AI Explained</h3><p>Clear breakdowns of new models and workflows.</p><a href="https://www.youtube.com/@aiexplained-official" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
+          <div class="card"><h3>Matt Wolfe</h3><p>Weekly updates on creative AI tools and techniques.</p><a href="https://www.youtube.com/@mreflow" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
+          <div class="card"><h3>Two Minute Papers</h3><p>Research-focused summaries and demonstrations.</p><a href="https://www.youtube.com/@TwoMinutePapers" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
+          <div class="card"><h3>OpenAI YouTube</h3><p>Product demos and launch deep dives.</p><a href="https://www.youtube.com/@OpenAI" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
+        </div>
+      </article>
+
+      <article class="panel" role="tabpanel" id="tab-showcase" aria-labelledby="btn-showcase">
+        <div class="panel-head">
+          <h2>Showcase</h2>
+          <p>Inspirational examples and communities sharing AI outputs.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Product Hunt: AI</h3><p>New AI launches and demos from makers.</p><a href="https://www.producthunt.com/topics/artificial-intelligence" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
+          <div class="card"><h3>Lexica</h3><p>Community prompt gallery and visual exploration.</p><a href="https://lexica.art/" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
+          <div class="card"><h3>Behance AI Art</h3><p>Curated design portfolios using AI workflows.</p><a href="https://www.behance.net/search/projects?tracking_source=typeahead_search_direct&search=AI%20art" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
+          <div class="card"><h3>r/StableDiffusion</h3><p>Community examples, prompts, and visual experiments.</p><a href="https://www.reddit.com/r/StableDiffusion/" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
+        </div>
+      </article>
+    </section>
+    <footer>Built as a single-page AI link directory.</footer>
+  </main>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll(".tab-btn"));
+    const panels = Array.from(document.querySelectorAll(".panel"));
+
+    function activateTab(index) {
+      tabs.forEach((tab, i) => {
+        const active = i === index;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+      });
+
+      panels.forEach((panel, i) => {
+        panel.classList.toggle("active", i === index);
+      });
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => activateTab(index));
+      tab.addEventListener("keydown", (event) => {
+        if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+
+        event.preventDefault();
+        let nextIndex = index;
+        if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+        if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === "Home") nextIndex = 0;
+        if (event.key === "End") nextIndex = tabs.length - 1;
+
+        tabs[nextIndex].focus();
+        activateTab(nextIndex);
+      });
+    });
+  </script>
+</body>
+</html>
