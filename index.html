@@ -108,15 +108,14 @@
     }
 
     .search-bar {
-      margin-top: 1rem;
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
     }
 
     .search-input {
-      flex: 1 1 280px;
-      min-width: 220px;
+      flex: 1 1 260px;
+      min-width: 180px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.3);
       background: rgba(12, 10, 24, 0.8);
@@ -168,13 +167,32 @@
       overflow: hidden;
     }
 
+    .tabs-top {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem;
+      border-bottom: 1px solid rgba(244, 183, 63, 0.28);
+      background: rgba(0, 0, 0, 0.14);
+    }
+
     .tablist {
       display: flex;
       flex-wrap: wrap;
       gap: 0.42rem;
-      padding: 0.9rem;
-      border-bottom: 1px solid rgba(244, 183, 63, 0.28);
-      background: rgba(0, 0, 0, 0.14);
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .tab-search {
+      margin-left: auto;
+      flex: 0 1 380px;
+      min-width: 260px;
+      max-width: 42%;
+    }
+
+    .tab-search .search-btn {
+      flex: 0 0 auto;
     }
 
     .tab-btn {
@@ -317,6 +335,17 @@
         order: -1;
         max-height: 420px;
       }
+
+      .tabs-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .tab-search {
+        margin-left: 0;
+        min-width: 0;
+        max-width: none;
+      }
     }
   </style>
 </head>
@@ -335,10 +364,6 @@
           <span class="badge">Automation</span>
           <span class="badge">Learning</span>
         </div>
-        <div class="search-bar" aria-label="AI tool search">
-          <input id="global-search-input" class="search-input" type="search" placeholder="Search by name, ability, or keyword...">
-          <button id="global-search-btn" class="search-btn" type="button">Search</button>
-        </div>
       </div>
       <figure class="hero-image-wrap">
         <img src="./public/suhuaiceng.jpg" alt="Shifu portrait">
@@ -346,7 +371,13 @@
     </section>
 
     <section class="tabs-shell">
-      <div id="tablist" class="tablist" role="toolbar" aria-label="AI ability filters"></div>
+      <div class="tabs-top">
+        <div id="tablist" class="tablist" role="toolbar" aria-label="AI ability filters"></div>
+        <div class="search-bar tab-search" aria-label="AI tool search">
+          <input id="global-search-input" class="search-input" type="search" placeholder="Cari nama, kemampuan, atau kata kunci...">
+          <button id="global-search-btn" class="search-btn" type="button">Cari</button>
+        </div>
+      </div>
       <article class="panel" id="directory-panel" aria-live="polite">
         <div class="panel-head">
           <h2>Master AI Directory</h2>
@@ -540,6 +571,7 @@
       }
 
       globalSearchBtn.addEventListener("click", submitSearch);
+      globalSearchInput.addEventListener("input", submitSearch);
       globalSearchInput.addEventListener("keydown", (event) => {
         if (event.key !== "Enter") return;
         event.preventDefault();
