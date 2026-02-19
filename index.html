@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Tool Dojo</title>
+  <title>AICENGHUB</title>
   <link rel="icon" type="image/jpeg" href="./public/favicoaiceng.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,7 +58,7 @@
     .container {
       position: relative;
       z-index: 1;
-      width: min(1140px, 92vw);
+      width: min(1200px, 92vw);
       margin: 2.2rem auto 3rem;
     }
 
@@ -88,7 +88,7 @@
 
     .hero p {
       margin-top: 0.7rem;
-      max-width: 58ch;
+      max-width: 62ch;
       color: var(--muted);
       font-size: clamp(1rem, 2.2vw, 1.08rem);
     }
@@ -98,6 +98,41 @@
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 1rem;
+    }
+
+    .search-bar {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1 1 280px;
+      min-width: 220px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(12, 10, 24, 0.8);
+      color: var(--ink);
+      padding: 0.62rem 0.72rem;
+      font: inherit;
+    }
+
+    .search-input::placeholder {
+      color: rgba(248, 247, 245, 0.7);
+    }
+
+    .search-btn {
+      border: 1px solid rgba(244, 183, 63, 0.8);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 10px;
+      padding: 0.62rem 0.9rem;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
 
     .badge {
@@ -232,6 +267,33 @@
       font-size: 0.94rem;
     }
 
+    .card-category {
+      display: inline-block;
+      margin-top: 0.32rem;
+      margin-bottom: 0.3rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #1a1310;
+      background: #f3be5c;
+      border-radius: 999px;
+      padding: 0.16rem 0.48rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .abilities {
+      display: inline-block;
+      color: #ffe7a2;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .search-status {
+      margin: 0.4rem 0 1rem;
+      color: #f5deb5;
+      font-weight: 600;
+    }
+
     .card a {
       color: #8de9ff;
       text-decoration: none;
@@ -266,16 +328,21 @@
   <main class="container">
     <section class="hero">
       <div class="hero-copy">
-        <h1>AI Tool Dojo</h1>
-        <p>Curated links for practical AI workflows, grouped by category so you can move quickly from idea to output.</p>
+        <h1>AICENGHUB</h1>
+        <p>Comprehensive AI tool directory for creation, automation, coding, learning, and inspiration. Each item includes its practical abilities for faster tool selection.</p>
         <div class="hero-badges">
           <span class="badge">Image</span>
           <span class="badge">Video</span>
           <span class="badge">Music</span>
           <span class="badge">Chatbot</span>
           <span class="badge">Automation</span>
+          <span class="badge">Coding</span>
           <span class="badge">Tutorials</span>
           <span class="badge">Showcase</span>
+        </div>
+        <div class="search-bar" aria-label="AI tool search">
+          <input id="global-search-input" class="search-input" type="search" placeholder="Search by name, ability, category, or keyword...">
+          <button id="global-search-btn" class="search-btn" type="button">Search</button>
         </div>
       </div>
       <figure class="hero-image-wrap">
@@ -284,113 +351,277 @@
     </section>
 
     <section class="tabs-shell">
-      <div class="tablist" role="tablist" aria-label="AI tool categories">
-        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-image" id="btn-image">IMAGE GEN</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-video" id="btn-video">VIDEO GEN</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-music" id="btn-music">MUSIC GEN</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-chatbot" id="btn-chatbot">CHATBOT</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-automation" id="btn-automation">AUTOMATION</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-tutorials" id="btn-tutorials">VIDEO TUTORIALS</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-showcase" id="btn-showcase">SHOWCASE</button>
-      </div>
-
-      <article class="panel active" role="tabpanel" id="tab-image" aria-labelledby="btn-image">
-        <div class="panel-head">
-          <h2>Image Generation</h2>
-          <p>Tools for concept art, product visuals, and design mockups.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>Midjourney</h3><p>Prompt-first image generation with stylized outputs.</p><a href="https://www.midjourney.com/" target="_blank" rel="noopener noreferrer">Open Midjourney</a></div>
-          <div class="card"><h3>Adobe Firefly</h3><p>Generate and edit images with commercial-friendly controls.</p><a href="https://firefly.adobe.com/" target="_blank" rel="noopener noreferrer">Open Firefly</a></div>
-          <div class="card"><h3>Leonardo AI</h3><p>Asset creation for marketing, games, and concept iterations.</p><a href="https://leonardo.ai/" target="_blank" rel="noopener noreferrer">Open Leonardo</a></div>
-          <div class="card"><h3>Ideogram</h3><p>Strong text-in-image rendering for posters and ads.</p><a href="https://ideogram.ai/" target="_blank" rel="noopener noreferrer">Open Ideogram</a></div>
-        </div>
-      </article>
-
-      <article class="panel" role="tabpanel" id="tab-video" aria-labelledby="btn-video">
-        <div class="panel-head">
-          <h2>Video Generation</h2>
-          <p>Platforms for short-form creative videos and visual storytelling.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>Runway</h3><p>Generate and edit video with text/image prompts.</p><a href="https://runwayml.com/" target="_blank" rel="noopener noreferrer">Open Runway</a></div>
-          <div class="card"><h3>Pika</h3><p>Fast prompt-to-video for social and concept clips.</p><a href="https://pika.art/" target="_blank" rel="noopener noreferrer">Open Pika</a></div>
-          <div class="card"><h3>Luma Dream Machine</h3><p>Create cinematic AI clips from simple prompts.</p><a href="https://lumalabs.ai/dream-machine" target="_blank" rel="noopener noreferrer">Open Dream Machine</a></div>
-          <div class="card"><h3>Synthesia</h3><p>Avatar-based explainer and training videos.</p><a href="https://www.synthesia.io/" target="_blank" rel="noopener noreferrer">Open Synthesia</a></div>
-        </div>
-      </article>
-
-      <article class="panel" role="tabpanel" id="tab-music" aria-labelledby="btn-music">
-        <div class="panel-head">
-          <h2>Music Generation</h2>
-          <p>Compose tracks, background loops, and sound ideas quickly.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>Suno</h3><p>Generate complete songs from textual direction.</p><a href="https://suno.com/" target="_blank" rel="noopener noreferrer">Open Suno</a></div>
-          <div class="card"><h3>Udio</h3><p>AI music generation with style and arrangement controls.</p><a href="https://www.udio.com/" target="_blank" rel="noopener noreferrer">Open Udio</a></div>
-          <div class="card"><h3>Soundraw</h3><p>Royalty-friendly background music for content creators.</p><a href="https://soundraw.io/" target="_blank" rel="noopener noreferrer">Open Soundraw</a></div>
-          <div class="card"><h3>AIVA</h3><p>Compose emotional instrumentals for films and games.</p><a href="https://www.aiva.ai/" target="_blank" rel="noopener noreferrer">Open AIVA</a></div>
-        </div>
-      </article>
-
-      <article class="panel" role="tabpanel" id="tab-chatbot" aria-labelledby="btn-chatbot">
-        <div class="panel-head">
-          <h2>Chatbot Tools</h2>
-          <p>General-purpose and workflow-specific conversational AI platforms.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>ChatGPT</h3><p>Research, writing, coding, and data assistance.</p><a href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT</a></div>
-          <div class="card"><h3>Claude</h3><p>Long-context reasoning and document-based interaction.</p><a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Open Claude</a></div>
-          <div class="card"><h3>Gemini</h3><p>Google ecosystem chatbot for multimodal tasks.</p><a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Open Gemini</a></div>
-          <div class="card"><h3>Perplexity</h3><p>Answer engine with web-grounded summaries.</p><a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer">Open Perplexity</a></div>
-        </div>
-      </article>
-
-      <article class="panel" role="tabpanel" id="tab-automation" aria-labelledby="btn-automation">
-        <div class="panel-head">
-          <h2>Automation</h2>
-          <p>Integrate AI into repeatable workflows and operational tasks.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>Zapier AI</h3><p>Automate repetitive business processes across apps.</p><a href="https://zapier.com/ai" target="_blank" rel="noopener noreferrer">Open Zapier AI</a></div>
-          <div class="card"><h3>Make</h3><p>Visual scenario builder for multi-step automations.</p><a href="https://www.make.com/" target="_blank" rel="noopener noreferrer">Open Make</a></div>
-          <div class="card"><h3>n8n</h3><p>Flexible, developer-friendly workflow orchestration.</p><a href="https://n8n.io/" target="_blank" rel="noopener noreferrer">Open n8n</a></div>
-          <div class="card"><h3>Flowise</h3><p>Low-code LLM app orchestration and agent flows.</p><a href="https://flowiseai.com/" target="_blank" rel="noopener noreferrer">Open Flowise</a></div>
-        </div>
-      </article>
-
-      <article class="panel" role="tabpanel" id="tab-tutorials" aria-labelledby="btn-tutorials">
-        <div class="panel-head">
-          <h2>Video Tutorials</h2>
-          <p>Learning links from YouTube and official channels.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>AI Explained</h3><p>Clear breakdowns of new models and workflows.</p><a href="https://www.youtube.com/@aiexplained-official" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
-          <div class="card"><h3>Matt Wolfe</h3><p>Weekly updates on creative AI tools and techniques.</p><a href="https://www.youtube.com/@mreflow" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
-          <div class="card"><h3>Two Minute Papers</h3><p>Research-focused summaries and demonstrations.</p><a href="https://www.youtube.com/@TwoMinutePapers" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
-          <div class="card"><h3>OpenAI YouTube</h3><p>Product demos and launch deep dives.</p><a href="https://www.youtube.com/@OpenAI" target="_blank" rel="noopener noreferrer">Watch Channel</a></div>
-        </div>
-      </article>
-
-      <article class="panel" role="tabpanel" id="tab-showcase" aria-labelledby="btn-showcase">
-        <div class="panel-head">
-          <h2>Showcase</h2>
-          <p>Inspirational examples and communities sharing AI outputs.</p>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>Product Hunt: AI</h3><p>New AI launches and demos from makers.</p><a href="https://www.producthunt.com/topics/artificial-intelligence" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
-          <div class="card"><h3>Lexica</h3><p>Community prompt gallery and visual exploration.</p><a href="https://lexica.art/" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
-          <div class="card"><h3>Behance AI Art</h3><p>Curated design portfolios using AI workflows.</p><a href="https://www.behance.net/search/projects?tracking_source=typeahead_search_direct&search=AI%20art" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
-          <div class="card"><h3>r/StableDiffusion</h3><p>Community examples, prompts, and visual experiments.</p><a href="https://www.reddit.com/r/StableDiffusion/" target="_blank" rel="noopener noreferrer">Open Showcase</a></div>
-        </div>
-      </article>
+      <div id="tablist" class="tablist" role="tablist" aria-label="AI tool categories"></div>
+      <div id="panels"></div>
     </section>
-    <footer>Built as a single-page AI link directory.</footer>
+
+    <footer>AICENGHUB curated link directory.</footer>
   </main>
 
   <script>
-    const tabs = Array.from(document.querySelectorAll(".tab-btn"));
-    const panels = Array.from(document.querySelectorAll(".panel"));
+    const categories = [
+      {
+        key: "image",
+        label: "IMAGE GEN",
+        title: "Image Generation",
+        summary: "Image-focused tools, including multimodal assistants that can generate visuals.",
+        items: [
+          { name: "Gemini", url: "https://gemini.google.com/", abilities: "text, image, video, code, audio", description: "Multimodal assistant for image ideation, prompts, and creative planning." },
+          { name: "Grok", url: "https://grok.com/", abilities: "text, image, code", description: "Conversational assistant with image generation and coding support." },
+          { name: "ChatGPT", url: "https://chatgpt.com/", abilities: "text, image, video, code, audio", description: "General AI assistant that can generate images and visual concepts." },
+          { name: "Bing Image Creator", url: "https://www.bing.com/images/create", abilities: "image, text", description: "Fast prompt-to-image generation within the Bing ecosystem." },
+          { name: "Meta AI", url: "https://www.meta.ai/", abilities: "text, image", description: "Meta assistant with image generation for quick campaign and content ideas." },
+          { name: "Qwen Chat", url: "https://chat.qwen.ai/", abilities: "text, image, code", description: "Multimodal assistant useful for visual and technical tasks." },
+          { name: "Midjourney", url: "https://www.midjourney.com/", abilities: "image, text", description: "High-style image generation for concept art and branding." },
+          { name: "Adobe Firefly", url: "https://firefly.adobe.com/", abilities: "image, text", description: "Image generation and editing integrated with Adobe workflows." },
+          { name: "Leonardo AI", url: "https://leonardo.ai/", abilities: "image, text", description: "Asset generation for games, products, and marketing visuals." },
+          { name: "Ideogram", url: "https://ideogram.ai/", abilities: "image, text", description: "Excellent text-in-image generation for posters and ad creatives." }
+        ]
+      },
+      {
+        key: "video",
+        label: "VIDEO GEN",
+        title: "Video Generation",
+        summary: "Video creation tools for prompt-to-video and production workflows.",
+        items: [
+          { name: "Flow by Google Labs", url: "https://labs.google/fx/tools/flow/", abilities: "video, image, text", description: "Google Labs video workflow for cinematic prompt-driven generation." },
+          { name: "Gemini", url: "https://gemini.google.com/", abilities: "text, image, video, code, audio", description: "Useful for scripts, storyboards, and video planning." },
+          { name: "Grok", url: "https://grok.com/", abilities: "text, image, code", description: "Good for script ideation and creative pre-production support." },
+          { name: "Hailuo AI", url: "https://hailuoai.video/", abilities: "video, image, text", description: "Prompt-based short-form video generation platform." },
+          { name: "Kling AI", url: "https://klingai.com/", abilities: "video, image, text", description: "Text-to-video and image-to-video generation with strong motion output." },
+          { name: "PixVerse", url: "https://pixverse.ai/", abilities: "video, image, text", description: "Fast AI clip generation for social and marketing visuals." },
+          { name: "Runway", url: "https://runwayml.com/", abilities: "video, image, text, audio", description: "Full AI video generation and editing suite." },
+          { name: "Pika", url: "https://pika.art/", abilities: "video, image, text", description: "Prompt-to-video workflow for quick concept videos." },
+          { name: "Luma Dream Machine", url: "https://lumalabs.ai/dream-machine", abilities: "video, image, text", description: "Cinematic sequence generation from text and image prompts." },
+          { name: "Wan 2.1 (Open Model)", url: "https://github.com/feifeibear/Wan2.1", abilities: "video, image, text, code", description: "Open-source model path for self-hosted generative video experiments." },
+          { name: "Synthesia", url: "https://www.synthesia.io/", abilities: "video, text, audio", description: "Avatar-based training and explainer video platform." }
+        ]
+      },
+      {
+        key: "music",
+        label: "MUSIC GEN",
+        title: "Music Generation",
+        summary: "Song and audio tools for composing tracks, loops, and sound beds.",
+        items: [
+          { name: "Gemini", url: "https://gemini.google.com/", abilities: "text, image, video, code, audio", description: "Helpful for lyric writing, arrangement prompts, and music ideation." },
+          { name: "Producer.ai", url: "https://producer.ai/", abilities: "music, sound, text", description: "AI-assisted music production workflow support." },
+          { name: "Mureka", url: "https://www.mureka.ai/", abilities: "music, sound, text", description: "Music generation tool for quick song and melody creation." },
+          { name: "Suno", url: "https://suno.com/", abilities: "music, sound, text", description: "Full song generation including vocals from text prompts." },
+          { name: "Udio", url: "https://www.udio.com/", abilities: "music, sound, text", description: "Prompt-based song creation with flexible style control." },
+          { name: "Soundraw", url: "https://soundraw.io/", abilities: "music, sound, text", description: "Royalty-friendly background music generation." },
+          { name: "AIVA", url: "https://www.aiva.ai/", abilities: "music, sound, text", description: "AI composition engine for instrumental tracks." },
+          { name: "Stable Audio", url: "https://www.stableaudio.com/", abilities: "music, sound, text", description: "Prompt-to-audio generation for content creators." },
+          { name: "Boomy", url: "https://boomy.com/", abilities: "music, sound, text", description: "Easy music maker for beginners and rapid publishing." }
+        ]
+      },
+      {
+        key: "chatbot",
+        label: "CHATBOT",
+        title: "Chatbot Tools",
+        summary: "General and specialized conversational AI assistants.",
+        items: [
+          { name: "ChatGPT", url: "https://chatgpt.com/", abilities: "text, image, video, code, audio", description: "General assistant for writing, coding, research, and planning." },
+          { name: "Claude", url: "https://claude.ai/", abilities: "text, code, image", description: "Long-context assistant for document-heavy and analytical work." },
+          { name: "Gemini", url: "https://gemini.google.com/", abilities: "text, image, video, code, audio", description: "Multimodal assistant for productivity and creative workflows." },
+          { name: "Perplexity", url: "https://www.perplexity.ai/", abilities: "text, web research, code", description: "Search-first answer engine with cited responses." },
+          { name: "Grok", url: "https://grok.com/", abilities: "text, image, code", description: "Conversational assistant with broad generation capabilities." },
+          { name: "Le Chat (Mistral)", url: "https://chat.mistral.ai/", abilities: "text, code, image", description: "Mistral's assistant for multilingual and technical tasks." },
+          { name: "DeepSeek", url: "https://chat.deepseek.com/", abilities: "text, code", description: "Assistant tuned for technical and coding-heavy queries." },
+          { name: "Qwen Chat", url: "https://chat.qwen.ai/", abilities: "text, image, code", description: "Multilingual assistant for general and developer use cases." }
+        ]
+      },
+      {
+        key: "automation",
+        label: "AUTOMATION",
+        title: "Automation",
+        summary: "Workflow tools to automate repetitive operational tasks.",
+        items: [
+          { name: "Zapier AI", url: "https://zapier.com/ai", abilities: "automation, text, data", description: "No-code automation across a large app ecosystem." },
+          { name: "Make", url: "https://www.make.com/", abilities: "automation, data", description: "Visual builder for complex multi-step business automations." },
+          { name: "n8n", url: "https://n8n.io/", abilities: "automation, data, code", description: "Flexible workflow orchestration with self-host options." },
+          { name: "Flowise", url: "https://flowiseai.com/", abilities: "automation, text, code", description: "Low-code builder for LLM chains and AI agents." },
+          { name: "Pipedream", url: "https://pipedream.com/", abilities: "automation, data, code", description: "Event-driven API automations for developer teams." },
+          { name: "IFTTT", url: "https://ifttt.com/", abilities: "automation, data", description: "Simple trigger-action automations for everyday workflows." },
+          { name: "LangChain", url: "https://www.langchain.com/", abilities: "automation, text, code", description: "Framework for orchestrating models, tools, and agents." },
+          { name: "OpenAI API", url: "https://platform.openai.com/", abilities: "text, image, video, code, audio, automation", description: "Build and deploy custom AI-powered applications and agents." }
+        ]
+      },
+      {
+        key: "coding",
+        label: "CODING",
+        title: "Coding",
+        summary: "AI-assisted coding tools from prompt-to-app builders to IDE copilots.",
+        items: [
+          { name: "Lovable", url: "https://lovable.dev/", abilities: "code, text, web app generation", description: "Prompt-to-app builder for rapid full-stack prototypes." },
+          { name: "B12", url: "https://www.b12.io/", abilities: "web app generation, text, automation", description: "AI-assisted website and business workflow builder." },
+          { name: "v0", url: "https://v0.dev/", abilities: "code, text, UI generation", description: "Prompt-driven frontend and component generation." },
+          { name: "Bolt.new", url: "https://bolt.new/", abilities: "code, text, web app generation", description: "In-browser AI coding environment for rapid app development." },
+          { name: "Replit", url: "https://replit.com/", abilities: "code, text, automation", description: "Cloud IDE with AI assistance and deployment workflow." },
+          { name: "Cursor", url: "https://cursor.com/", abilities: "code, text", description: "AI-native code editor focused on pair-programming flow." },
+          { name: "GitHub Copilot", url: "https://github.com/features/copilot", abilities: "code, text", description: "IDE assistant for code generation, completion, and refactoring." },
+          { name: "Windsurf", url: "https://windsurf.com/", abilities: "code, text", description: "AI coding environment for end-to-end software delivery." }
+        ]
+      },
+      {
+        key: "tutorials",
+        label: "VIDEO TUTORIALS",
+        title: "Video Tutorials",
+        summary: "Tutorial channels and clips for practical AI learning.",
+        items: [
+          { name: "AI Explained", url: "https://www.youtube.com/@aiexplained-official", abilities: "video, text", description: "Clear explainers of models, tools, and AI workflows." },
+          { name: "Matt Wolfe", url: "https://www.youtube.com/@mreflow", abilities: "video, text", description: "Frequent updates on creator-focused AI tools." },
+          { name: "Two Minute Papers", url: "https://www.youtube.com/@TwoMinutePapers", abilities: "video, text", description: "Short and accessible summaries of AI research." },
+          { name: "OpenAI YouTube", url: "https://www.youtube.com/@OpenAI", abilities: "video, text", description: "Official product demos and launch deep dives." },
+          { name: "YouTube Tutorial 1", url: "https://youtu.be/36eTca8EYyo", abilities: "video", description: "Tutorial reference link for practical AI use cases." },
+          { name: "YouTube Tutorial 2", url: "https://youtu.be/uFMicNCNt-U", abilities: "video", description: "Tutorial reference link for practical AI use cases." },
+          { name: "YouTube Tutorial 3", url: "https://youtu.be/VgD0pLf3I7k", abilities: "video", description: "Tutorial reference link for practical AI use cases." },
+          { name: "YouTube Tutorial 4", url: "https://youtu.be/uqJ9nbQWe24", abilities: "video", description: "Tutorial reference link for practical AI use cases." },
+          { name: "YouTube Tutorial 5", url: "https://youtu.be/ocNILNulAxc", abilities: "video", description: "Tutorial reference link for practical AI use cases." },
+          { name: "YouTube Tutorial 6", url: "https://youtu.be/b3qySGc0iY0", abilities: "video", description: "Tutorial reference link for practical AI use cases." }
+        ]
+      },
+      {
+        key: "showcase",
+        label: "SHOWCASE",
+        title: "Showcase",
+        summary: "Examples and communities to discover what others are building with AI.",
+        items: [
+          { name: "Product Hunt: AI", url: "https://www.producthunt.com/topics/artificial-intelligence", abilities: "web discovery", description: "Find new AI launches, demos, and products." },
+          { name: "Lexica", url: "https://lexica.art/", abilities: "image, prompt discovery", description: "Gallery for AI-generated image inspiration and prompts." },
+          { name: "Behance AI Art", url: "https://www.behance.net/search/projects?tracking_source=typeahead_search_direct&search=AI%20art", abilities: "image, video, design showcase", description: "Professional portfolio showcase for AI-assisted creative work." },
+          { name: "r/StableDiffusion", url: "https://www.reddit.com/r/StableDiffusion/", abilities: "image, prompt discovery", description: "Community examples, prompt sharing, and workflow experiments." },
+          { name: "Civitai", url: "https://civitai.com/", abilities: "image, video, model showcase", description: "Generative model and artwork sharing hub." },
+          { name: "Showcase Video 1", url: "https://youtu.be/hhlOjDK3Umo", abilities: "video", description: "Showcase reference video for AI project inspiration." },
+          { name: "Showcase Video 2", url: "https://youtu.be/FjWmcCLto48", abilities: "video", description: "Showcase reference video for AI project inspiration." },
+          { name: "Showcase Video 3", url: "https://youtu.be/aFZB7XXAKNo", abilities: "video", description: "Showcase reference video for AI project inspiration." },
+          { name: "Showcase Video 4", url: "https://youtu.be/3cCyfjZCI-0", abilities: "video", description: "Showcase reference video for AI project inspiration." },
+          { name: "Showcase Video 5", url: "https://youtu.be/N9h3yszqbUs", abilities: "video", description: "Showcase reference video for AI project inspiration." }
+        ]
+      }
+    ];
+
+    const searchSection = {
+      key: "search",
+      label: "SEARCH",
+      title: "Search AI Tools",
+      summary: "Find tools fast by name, abilities, category, or any keyword."
+    };
+
+    const sections = [searchSection, ...categories];
+
+    const tablist = document.getElementById("tablist");
+    const panelsRoot = document.getElementById("panels");
+    const globalSearchInput = document.getElementById("global-search-input");
+    const globalSearchBtn = document.getElementById("global-search-btn");
+
+    let panelSearchInput = null;
+    let panelSearchBtn = null;
+    let searchStatusEl = null;
+    let searchResultsEl = null;
+    let tabs = [];
+    let panels = [];
+
+    function createCard(tool, options = {}) {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = tool.name;
+
+      if (options.showCategory && tool.categoryLabel) {
+        const category = document.createElement("span");
+        category.className = "card-category";
+        category.textContent = tool.categoryLabel;
+        card.appendChild(category);
+      }
+
+      const desc = document.createElement("p");
+      const abilities = document.createElement("span");
+      abilities.className = "abilities";
+      abilities.textContent = `Abilities: ${tool.abilities}`;
+      desc.appendChild(abilities);
+      desc.appendChild(document.createElement("br"));
+      desc.append(document.createTextNode(tool.description));
+
+      const link = document.createElement("a");
+      link.href = tool.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open Link";
+
+      card.append(title, desc, link);
+      return card;
+    }
+
+    function renderCatalog(items) {
+      const defaultKey = "image";
+      items.forEach((section) => {
+        const isDefault = section.key === defaultKey;
+        const button = document.createElement("button");
+        button.className = "tab-btn";
+        button.role = "tab";
+        button.id = `btn-${section.key}`;
+        button.setAttribute("aria-controls", `tab-${section.key}`);
+        button.setAttribute("aria-selected", isDefault ? "true" : "false");
+        button.tabIndex = isDefault ? 0 : -1;
+        button.textContent = section.label;
+        tablist.appendChild(button);
+
+        const panel = document.createElement("article");
+        panel.className = `panel${isDefault ? " active" : ""}`;
+        panel.role = "tabpanel";
+        panel.id = `tab-${section.key}`;
+        panel.setAttribute("aria-labelledby", `btn-${section.key}`);
+
+        const head = document.createElement("div");
+        head.className = "panel-head";
+        const heading = document.createElement("h2");
+        heading.textContent = section.title;
+        const summary = document.createElement("p");
+        summary.textContent = section.summary;
+        head.append(heading, summary);
+
+        panel.appendChild(head);
+
+        if (section.key === "search") {
+          const searchBar = document.createElement("div");
+          searchBar.className = "search-bar";
+
+          panelSearchInput = document.createElement("input");
+          panelSearchInput.id = "panel-search-input";
+          panelSearchInput.className = "search-input";
+          panelSearchInput.type = "search";
+          panelSearchInput.placeholder = "Try: coding, video, image, automation, prompt, chatbot...";
+
+          panelSearchBtn = document.createElement("button");
+          panelSearchBtn.id = "panel-search-btn";
+          panelSearchBtn.className = "search-btn";
+          panelSearchBtn.type = "button";
+          panelSearchBtn.textContent = "Search";
+
+          searchBar.append(panelSearchInput, panelSearchBtn);
+
+          searchStatusEl = document.createElement("p");
+          searchStatusEl.className = "search-status";
+          searchStatusEl.textContent = "Type a keyword and press Search to find matching AI tools.";
+
+          searchResultsEl = document.createElement("div");
+          searchResultsEl.id = "search-results";
+          searchResultsEl.className = "grid";
+
+          panel.append(searchBar, searchStatusEl, searchResultsEl);
+        } else {
+          const grid = document.createElement("div");
+          grid.className = "grid";
+          section.items.forEach((tool) => {
+            grid.appendChild(createCard(tool));
+          });
+          panel.appendChild(grid);
+        }
+
+        panelsRoot.appendChild(panel);
+      });
+    }
 
     function activateTab(index) {
       tabs.forEach((tab, i) => {
@@ -404,22 +635,138 @@
       });
     }
 
-    tabs.forEach((tab, index) => {
-      tab.addEventListener("click", () => activateTab(index));
-      tab.addEventListener("keydown", (event) => {
-        if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+    function activateTabByKey(key) {
+      const index = tabs.findIndex((tab) => tab.id === `btn-${key}`);
+      if (index >= 0) activateTab(index);
+    }
 
-        event.preventDefault();
-        let nextIndex = index;
-        if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
-        if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
-        if (event.key === "Home") nextIndex = 0;
-        if (event.key === "End") nextIndex = tabs.length - 1;
+    function wireTabs() {
+      tabs = Array.from(document.querySelectorAll(".tab-btn"));
+      panels = Array.from(document.querySelectorAll(".panel"));
 
-        tabs[nextIndex].focus();
-        activateTab(nextIndex);
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateTab(index));
+        tab.addEventListener("keydown", (event) => {
+          if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+
+          event.preventDefault();
+          let nextIndex = index;
+          if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+          if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === "Home") nextIndex = 0;
+          if (event.key === "End") nextIndex = tabs.length - 1;
+
+          tabs[nextIndex].focus();
+          activateTab(nextIndex);
+        });
       });
-    });
+    }
+
+    const searchableTools = categories.flatMap((section) =>
+      section.items.map((tool) => ({
+        ...tool,
+        categoryKey: section.key,
+        categoryLabel: section.label,
+        categoryTitle: section.title
+      }))
+    );
+
+    function scoreMatch(tool, query, tokens) {
+      const name = tool.name.toLowerCase();
+      const abilities = tool.abilities.toLowerCase();
+      const description = tool.description.toLowerCase();
+      const url = tool.url.toLowerCase();
+      const category = `${tool.categoryLabel} ${tool.categoryTitle}`.toLowerCase();
+      const haystack = `${name} ${abilities} ${description} ${url} ${category}`;
+
+      if (!tokens.every((token) => haystack.includes(token))) return -1;
+
+      let score = 0;
+      if (name.includes(query)) score += 8;
+      if (abilities.includes(query)) score += 7;
+      if (category.includes(query)) score += 6;
+      if (description.includes(query)) score += 5;
+
+      tokens.forEach((token) => {
+        if (name.includes(token)) score += 3;
+        if (abilities.includes(token)) score += 2;
+        if (category.includes(token)) score += 2;
+        if (description.includes(token)) score += 1;
+        if (url.includes(token)) score += 1;
+      });
+
+      return score;
+    }
+
+    function searchTools(rawQuery) {
+      const query = rawQuery.trim().toLowerCase();
+      if (!query) return [];
+      const tokens = query.split(/\s+/).filter(Boolean);
+
+      return searchableTools
+        .map((tool) => ({ tool, score: scoreMatch(tool, query, tokens) }))
+        .filter((entry) => entry.score >= 0)
+        .sort((a, b) => b.score - a.score || a.tool.name.localeCompare(b.tool.name))
+        .map((entry) => entry.tool);
+    }
+
+    function renderSearchResults(rawQuery) {
+      if (!searchResultsEl || !searchStatusEl) return;
+
+      const query = rawQuery.trim();
+      searchResultsEl.innerHTML = "";
+      if (!query) {
+        searchStatusEl.textContent = "Type a keyword and press Search to find matching AI tools.";
+        return;
+      }
+
+      const results = searchTools(query);
+      if (!results.length) {
+        searchStatusEl.textContent = `No results for "${query}". Try broader keywords like image, code, video, music, or automation.`;
+        return;
+      }
+
+      searchStatusEl.textContent = `${results.length} result${results.length > 1 ? "s" : ""} for "${query}"`;
+      results.forEach((tool) => {
+        searchResultsEl.appendChild(createCard(tool, { showCategory: true }));
+      });
+    }
+
+    function syncSearchInputs(value) {
+      if (globalSearchInput && globalSearchInput.value !== value) globalSearchInput.value = value;
+      if (panelSearchInput && panelSearchInput.value !== value) panelSearchInput.value = value;
+    }
+
+    function runSearch(value) {
+      const query = value.trim();
+      syncSearchInputs(query);
+      renderSearchResults(query);
+      activateTabByKey("search");
+    }
+
+    function wireSearch() {
+      if (globalSearchBtn && globalSearchInput) {
+        globalSearchBtn.addEventListener("click", () => runSearch(globalSearchInput.value));
+        globalSearchInput.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          runSearch(globalSearchInput.value);
+        });
+      }
+
+      if (panelSearchBtn && panelSearchInput) {
+        panelSearchBtn.addEventListener("click", () => runSearch(panelSearchInput.value));
+        panelSearchInput.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          runSearch(panelSearchInput.value);
+        });
+      }
+    }
+
+    renderCatalog(sections);
+    wireTabs();
+    wireSearch();
   </script>
 </body>
 </html>
