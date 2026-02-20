@@ -91,22 +91,6 @@
       font-size: clamp(1rem, 2.2vw, 1.08rem);
     }
 
-    .hero-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .badge {
-      font-size: 0.83rem;
-      padding: 0.4rem 0.62rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff8dd;
-    }
-
     .search-bar {
       display: flex;
       gap: 0.5rem;
@@ -355,15 +339,6 @@
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
         <p>Comprehensive AI tool directory for creation, automation, coding, learning, and inspiration. Each tool appears once, and filters/search help you find the best fit quickly.</p>
-        <div class="hero-badges">
-          <span class="badge">Text</span>
-          <span class="badge">Image</span>
-          <span class="badge">Video</span>
-          <span class="badge">Audio</span>
-          <span class="badge">Code</span>
-          <span class="badge">Automation</span>
-          <span class="badge">Learning</span>
-        </div>
       </div>
       <figure class="hero-image-wrap">
         <img src="./public/suhuaiceng.jpg" alt="Shifu portrait">
@@ -417,6 +392,21 @@
       return String(text || "").toLowerCase();
     }
 
+    function sanitizeUrl(rawUrl) {
+      const candidate = String(rawUrl || "").trim();
+      if (!candidate) return "#";
+
+      try {
+        const parsed = new URL(candidate);
+        const allowedProtocols = new Set(["https:", "http:"]);
+        if (!allowedProtocols.has(parsed.protocol)) return "#";
+        if (!parsed.hostname) return "#";
+        return parsed.href;
+      } catch {
+        return "#";
+      }
+    }
+
     function sanitizeTool(rawTool) {
       const abilities = Array.isArray(rawTool.abilities)
         ? rawTool.abilities.map((ability) => normalize(ability)).filter(Boolean)
@@ -424,7 +414,7 @@
 
       return {
         name: String(rawTool.name || "Unknown Tool"),
-        url: String(rawTool.url || "#"),
+        url: sanitizeUrl(rawTool.url),
         description: String(rawTool.description || ""),
         abilities
       };
