@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AICENGHUB</title>
+  <link rel="icon" type="image/jpeg" href="./favicoaiceng.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #120e24;
+      --bg-2: #1e1b3f;
+      --ink: #f8f7f5;
+      --muted: #cec7b7;
+      --gold: #f4b73f;
+      --panel: rgba(18, 14, 36, 0.82);
+      --border: rgba(244, 183, 63, 0.45);
+      --shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Barlow", "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(202, 58, 40, 0.22), transparent 24%),
+        radial-gradient(130% 80% at 50% 0%, #3d2a65 0%, var(--bg-2) 42%, var(--bg-1) 100%);
+      line-height: 1.45;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.03) 0,
+          rgba(255, 255, 255, 0.03) 1px,
+          transparent 2px,
+          transparent 5px
+        );
+      mix-blend-mode: soft-light;
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: min(1200px, 92vw);
+      margin: 2.2rem auto 3rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 1.5rem;
+      padding: 1.6rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background:
+        linear-gradient(145deg, rgba(30, 184, 199, 0.12), rgba(202, 58, 40, 0.12)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.06em;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      color: var(--gold);
+      text-transform: uppercase;
+      text-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero p {
+      margin-top: 0.7rem;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.2vw, 1.08rem);
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .badge {
+      font-size: 0.83rem;
+      padding: 0.4rem 0.62rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff8dd;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1 1 260px;
+      min-width: 180px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(12, 10, 24, 0.8);
+      color: var(--ink);
+      padding: 0.62rem 0.72rem;
+      font: inherit;
+    }
+
+    .search-input::placeholder {
+      color: rgba(248, 247, 245, 0.7);
+    }
+
+    .search-btn {
+      border: 1px solid rgba(244, 183, 63, 0.8);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 10px;
+      padding: 0.62rem 0.9rem;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-image-wrap {
+      align-self: stretch;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(244, 183, 63, 0.38);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      background: #0f0d19;
+    }
+
+    .hero-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(1.08) contrast(1.06);
+    }
+
+    .tabs-shell {
+      margin-top: 1.2rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tabs-top {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem;
+      border-bottom: 1px solid rgba(244, 183, 63, 0.28);
+      background: rgba(0, 0, 0, 0.14);
+    }
+
+    .tablist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.42rem;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .tab-search {
+      margin-left: auto;
+      flex: 0 1 380px;
+      min-width: 260px;
+      max-width: 42%;
+    }
+
+    .tab-search .search-btn {
+      flex: 0 0 auto;
+    }
+
+    .tab-btn {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.5rem 0.85rem;
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 160ms ease;
+    }
+
+    .tab-btn:hover {
+      border-color: rgba(244, 183, 63, 0.72);
+    }
+
+    .tab-btn[aria-selected="true"] {
+      color: #1a1310;
+      border-color: rgba(244, 183, 63, 0.94);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      box-shadow: 0 0 0 2px rgba(247, 202, 111, 0.16);
+    }
+
+    .panel {
+      padding: 1.2rem;
+    }
+
+    .panel-head {
+      margin-bottom: 1rem;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.28rem;
+      color: #ffe9af;
+      letter-spacing: 0.02em;
+    }
+
+    .panel-head p {
+      margin: 0.38rem 0 0;
+      color: var(--muted);
+    }
+
+    .search-status {
+      margin: 0.4rem 0 1rem;
+      color: #f5deb5;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(30, 184, 199, 0.04));
+      padding: 0.9rem;
+    }
+
+    .card-head-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin-bottom: 0.36rem;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #fff2c9;
+      line-height: 1.2;
+    }
+
+    .ability-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.32rem;
+      justify-content: flex-end;
+    }
+
+    .ability-pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      padding: 0.14rem 0.44rem;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      white-space: nowrap;
+    }
+
+    .ability-text { background: #2f9e44; color: #f0ffef; }
+    .ability-image { background: #f2c94c; color: #2a2100; }
+    .ability-video { background: #f2994a; color: #2b1300; }
+    .ability-audio { background: #3b82f6; color: #f4f8ff; }
+    .ability-code { background: #8b5cf6; color: #f6efff; }
+    .ability-automation { background: #8b5e34; color: #fff2e4; }
+    .ability-learning { background: #d64545; color: #fff3f3; }
+
+    .card p {
+      margin: 0.3rem 0 0.72rem;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .card a {
+      color: #8de9ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .card a:hover {
+      text-decoration: underline;
+      color: #cbf6ff;
+    }
+
+    footer {
+      margin-top: 1rem;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 920px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-image-wrap {
+        order: -1;
+        max-height: 420px;
+      }
+
+      .tabs-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .tab-search {
+        margin-left: 0;
+        min-width: 0;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>AICENGHUB</h1>
+        <p>Comprehensive AI tool directory for creation, automation, coding, learning, and inspiration. Each tool appears once, and filters/search help you find the best fit quickly.</p>
+        <div class="hero-badges">
+          <span class="badge">Text</span>
+          <span class="badge">Image</span>
+          <span class="badge">Video</span>
+          <span class="badge">Audio</span>
+          <span class="badge">Code</span>
+          <span class="badge">Automation</span>
+          <span class="badge">Learning</span>
+        </div>
+      </div>
+      <figure class="hero-image-wrap">
+        <img src="./suhuaiceng.jpg" alt="Shifu portrait">
+      </figure>
+    </section>
+
+    <section class="tabs-shell">
+      <div class="tabs-top">
+        <div id="tablist" class="tablist" role="toolbar" aria-label="AI ability filters"></div>
+        <div class="search-bar tab-search" aria-label="AI tool search">
+          <input id="global-search-input" class="search-input" type="search" placeholder="Cari nama, kemampuan, atau kata kunci...">
+          <button id="global-search-btn" class="search-btn" type="button">Cari</button>
+        </div>
+      </div>
+      <article class="panel" id="directory-panel" aria-live="polite">
+        <div class="panel-head">
+          <h2>Master AI Directory</h2>
+          <p>Use tabs as one-click ability filters. Search applies on top of the selected filter.</p>
+        </div>
+        <p id="search-status" class="search-status">Loading tools...</p>
+        <div id="tool-grid" class="grid"></div>
+      </article>
+    </section>
+
+    <footer>AICENGHUB curated link directory.</footer>
+  </main>
+
+  <script>
+    const ABILITY_FILTERS = [
+      { key: "all", label: "ALL" },
+      { key: "text", label: "TEXT" },
+      { key: "image", label: "IMAGE" },
+      { key: "video", label: "VIDEO" },
+      { key: "audio", label: "AUDIO" },
+      { key: "code", label: "CODE" },
+      { key: "automation", label: "AUTOMATION" },
+      { key: "learning", label: "LEARNING" }
+    ];
+
+    const tablist = document.getElementById("tablist");
+    const toolGrid = document.getElementById("tool-grid");
+    const searchStatus = document.getElementById("search-status");
+    const globalSearchInput = document.getElementById("global-search-input");
+    const globalSearchBtn = document.getElementById("global-search-btn");
+
+    let tools = [];
+    let activeFilter = "all";
+    let searchQuery = "";
+
+    function normalize(text) {
+      return String(text || "").toLowerCase();
+    }
+
+    function sanitizeTool(rawTool) {
+      const abilities = Array.isArray(rawTool.abilities)
+        ? rawTool.abilities.map((ability) => normalize(ability)).filter(Boolean)
+        : [];
+
+      return {
+        name: String(rawTool.name || "Unknown Tool"),
+        url: String(rawTool.url || "#"),
+        description: String(rawTool.description || ""),
+        abilities
+      };
+    }
+
+    function createAbilityPill(ability) {
+      const pill = document.createElement("span");
+      pill.className = `ability-pill ability-${ability}`;
+      pill.textContent = ability;
+      return pill;
+    }
+
+    function createToolCard(tool) {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const head = document.createElement("div");
+      head.className = "card-head-row";
+
+      const title = document.createElement("h3");
+      title.textContent = tool.name;
+
+      const abilityList = document.createElement("div");
+      abilityList.className = "ability-list";
+      tool.abilities.forEach((ability) => {
+        abilityList.appendChild(createAbilityPill(ability));
+      });
+
+      head.append(title, abilityList);
+
+      const description = document.createElement("p");
+      description.textContent = tool.description;
+
+      const link = document.createElement("a");
+      link.href = tool.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open Link";
+
+      card.append(head, description, link);
+      return card;
+    }
+
+    function matchesSearch(tool, query) {
+      if (!query) return true;
+      const tokens = query.split(/\s+/).filter(Boolean);
+      const haystack = normalize([
+        tool.name,
+        tool.url,
+        tool.description,
+        tool.abilities.join(" ")
+      ].join(" "));
+
+      return tokens.every((token) => haystack.includes(token));
+    }
+
+    function matchesFilter(tool, filterKey) {
+      if (filterKey === "all") return true;
+      return tool.abilities.includes(filterKey);
+    }
+
+    function getFilteredTools() {
+      return tools
+        .filter((tool) => matchesFilter(tool, activeFilter))
+        .filter((tool) => matchesSearch(tool, searchQuery))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function updateFilterButtonState() {
+      const buttons = Array.from(tablist.querySelectorAll(".tab-btn"));
+      buttons.forEach((button) => {
+        const isActive = button.dataset.filterKey === activeFilter;
+        button.setAttribute("aria-selected", isActive ? "true" : "false");
+        button.tabIndex = isActive ? 0 : -1;
+      });
+    }
+
+    function renderTools() {
+      const results = getFilteredTools();
+      toolGrid.innerHTML = "";
+
+      const activeLabel = ABILITY_FILTERS.find((filter) => filter.key === activeFilter)?.label || "ALL";
+      const searchPart = searchQuery ? ` and search "${searchQuery}"` : "";
+      searchStatus.textContent = `Showing ${results.length} of ${tools.length} tools for filter "${activeLabel}"${searchPart}.`;
+
+      if (!results.length) {
+        const emptyCard = document.createElement("article");
+        emptyCard.className = "card";
+        const title = document.createElement("h3");
+        title.textContent = "No matching tools";
+        const text = document.createElement("p");
+        text.textContent = "Try a different filter or broader search keyword.";
+        emptyCard.append(title, text);
+        toolGrid.appendChild(emptyCard);
+        return;
+      }
+
+      results.forEach((tool) => {
+        toolGrid.appendChild(createToolCard(tool));
+      });
+    }
+
+    function setActiveFilter(filterKey) {
+      activeFilter = filterKey;
+      updateFilterButtonState();
+      renderTools();
+    }
+
+    function buildFilterTabs() {
+      ABILITY_FILTERS.forEach((filter) => {
+        const button = document.createElement("button");
+        button.className = "tab-btn";
+        button.type = "button";
+        button.dataset.filterKey = filter.key;
+        button.textContent = filter.label;
+        button.setAttribute("aria-selected", filter.key === activeFilter ? "true" : "false");
+        button.tabIndex = filter.key === activeFilter ? 0 : -1;
+        button.addEventListener("click", () => setActiveFilter(filter.key));
+        tablist.appendChild(button);
+      });
+
+      const buttons = Array.from(tablist.querySelectorAll(".tab-btn"));
+      buttons.forEach((button, index) => {
+        button.addEventListener("keydown", (event) => {
+          if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+          event.preventDefault();
+
+          let nextIndex = index;
+          if (event.key === "ArrowRight") nextIndex = (index + 1) % buttons.length;
+          if (event.key === "ArrowLeft") nextIndex = (index - 1 + buttons.length) % buttons.length;
+          if (event.key === "Home") nextIndex = 0;
+          if (event.key === "End") nextIndex = buttons.length - 1;
+
+          buttons[nextIndex].focus();
+          setActiveFilter(buttons[nextIndex].dataset.filterKey);
+        });
+      });
+    }
+
+    function bindSearch() {
+      function submitSearch() {
+        searchQuery = normalize(globalSearchInput.value.trim());
+        renderTools();
+      }
+
+      globalSearchBtn.addEventListener("click", submitSearch);
+      globalSearchInput.addEventListener("input", submitSearch);
+      globalSearchInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        submitSearch();
+      });
+    }
+
+    async function loadTools() {
+      try {
+        const response = await fetch("./link-list.json");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error("Invalid JSON shape");
+        tools = data.map(sanitizeTool);
+        renderTools();
+      } catch (error) {
+        searchStatus.textContent = "Unable to load link-list.json. Ensure this file exists in the project root.";
+        console.error("Failed to load tool data:", error);
+      }
+    }
+
+    buildFilterTabs();
+    bindSearch();
+    loadTools();
+  </script>
+</body>
+</html>
