@@ -747,7 +747,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v22</div>
+    <div id="app-version" class="app-version">v24</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -915,27 +915,10 @@
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
     let julehaActiveRouteLabel = "auto fallback";
-    const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+    const JULEHA_API_ENDPOINT = "/api/juleha-chat";
     const JULEHA_MEMORY_TURNS = 12;
     const JULEHA_HISTORY_STORAGE_KEY = "aicenghub.juleha.history.v1";
     const JULEHA_MAX_HISTORY_MESSAGES = JULEHA_MEMORY_TURNS * 2;
-    const OPENROUTER_ROUTE = [
-      {
-        label: "GLM 4.5 Air (primary)",
-        model: "z-ai/glm-4.5-air:free",
-        apiKey: "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"
-      },
-      {
-        label: "Qwen 3 VL Thinking (backup)",
-        model: "qwen/qwen3-vl-235b-a22b-thinking",
-        apiKey: "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"
-      },
-      {
-        label: "Step 3.5 Flash (backup)",
-        model: "stepfun/step-3.5-flash:free",
-        apiKey: "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"
-      }
-    ];
     const JULEHA_SYSTEM_PROMPT = "You are Juleha, the AI copilot inside AICENGHUB. Keep answers concise, practical, and friendly. Help users discover tools, compare options, and decide next steps.";
     let julehaHistory = loadJulehaHistory();
     const BUNNY_HIDDEN_COOKIE_NAME = "aicenghub_bunny_hidden";
@@ -1431,82 +1414,35 @@
       return textParts.join("\n").trim();
     }
 
-    function parseOpenRouterError(response, payload) {
-      const apiMessage = payload && payload.error && payload.error.message
-        ? payload.error.message
-        : "";
-      if (apiMessage) return apiMessage;
-      if (response.status === 401) return "invalid key or unauthorized model";
-      if (response.status === 402) return "insufficient credits for this model/key";
-      if (response.status === 429) return "rate limited";
-      return `HTTP ${response.status}`;
-    }
-
-    async function requestWithOpenRouterRoute(routeConfig, messages) {
-      if (!routeConfig.apiKey) {
-        throw new Error("missing API key");
-      }
-
-      const response = await fetch(OPENROUTER_API_URL, {
+    async function requestJulehaReply(userText) {
+      const messages = buildJulehaRequestMessages(userText);
+      const response = await fetch(JULEHA_API_ENDPOINT, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${routeConfig.apiKey}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": window.location.origin,
-          "X-Title": "AICENGHUB"
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          model: routeConfig.model,
-          messages
-        })
+        body: JSON.stringify({ messages })
       });
 
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(parseOpenRouterError(response, payload));
+        const errorMessage = payload && payload.error
+          ? String(payload.error)
+          : `HTTP ${response.status}`;
+        throw new Error(errorMessage);
       }
 
-      const assistantContent = payload
-        && Array.isArray(payload.choices)
-        && payload.choices[0]
-        && payload.choices[0].message
-        ? payload.choices[0].message.content
-        : "";
-
-      const assistantText = extractAssistantText(assistantContent);
+      const assistantText = extractAssistantText(payload.assistantText);
       if (!assistantText) {
-        throw new Error("OpenRouter returned an empty response.");
+        throw new Error("Juleha API returned an empty response.");
       }
 
+      const routeLabel = payload && payload.routeLabel ? String(payload.routeLabel) : "server route";
+      rememberJulehaExchange(userText, assistantText);
       return {
         assistantText,
-        routeLabel: routeConfig.label
+        routeLabel
       };
-    }
-
-    function buildRouteFailureMessage(routeErrors) {
-      const compact = routeErrors
-        .map((entry) => `${entry.label}: ${entry.error}`)
-        .join(" | ");
-      return `All AI routes failed. ${compact}`;
-    }
-
-    async function requestJulehaReply(userText) {
-      const messages = buildJulehaRequestMessages(userText);
-      const routeErrors = [];
-
-      for (const routeConfig of OPENROUTER_ROUTE) {
-        try {
-          const result = await requestWithOpenRouterRoute(routeConfig, messages);
-          rememberJulehaExchange(userText, result.assistantText);
-          return result;
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          routeErrors.push({ label: routeConfig.label, error: message });
-        }
-      }
-
-      throw new Error(buildRouteFailureMessage(routeErrors));
     }
 
     function openJulehaChat() {
@@ -1559,9 +1495,9 @@
           setJulehaActiveRoute(result.routeLabel);
           appendJulehaMessage(result.assistantText, "assistant");
         } catch (error) {
-          const message = error instanceof Error ? error.message : "Failed to reach OpenRouter.";
+          const message = error instanceof Error ? error.message : "Failed to reach Juleha service.";
           setJulehaActiveRoute("unavailable");
-          appendJulehaMessage(`OpenRouter error: ${message}`, "assistant");
+          appendJulehaMessage(`Juleha error: ${message}`, "assistant");
         } finally {
           setJulehaPendingState(false);
           julehaChatInput.focus();
@@ -1608,6 +1544,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
