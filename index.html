@@ -564,6 +564,10 @@
     let crazybunnyTimer = null;
     let crazybunnyPreloadedImage = null;
     let currentLanguage = detectInitialLanguage();
+    const BUNNY_HIDDEN_COOKIE_NAME = "aicenghub_bunny_hidden";
+    const BUNNY_SEEN_COOKIE_NAME = "aicenghub_bunny_seen";
+    const BUNNY_HIDE_DAYS = 365;
+    const BUNNY_RETURN_CHANCE = 0.05;
     const ABILITY_SEARCH_ALIASES = {
       all: ["all", "semua", "any"],
       text: ["text", "teks", "chat", "tulis", "writing"],
@@ -604,6 +608,42 @@
       try {
         localStorage.setItem("aicenghub.lang", lang);
       } catch {}
+    }
+
+    function setCookie(name, value, days) {
+      const maxAgeSeconds = Math.max(1, Math.floor(days * 24 * 60 * 60));
+      document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const target = `${encodeURIComponent(name)}=`;
+      const parts = String(document.cookie || "").split(";");
+      for (const part of parts) {
+        const token = part.trim();
+        if (token.startsWith(target)) {
+          return decodeURIComponent(token.slice(target.length));
+        }
+      }
+      return "";
+    }
+
+    function hideBunnyButton() {
+      bunnyFab.hidden = true;
+      bunnyFab.setAttribute("aria-hidden", "true");
+    }
+
+    function showBunnyButton() {
+      bunnyFab.hidden = false;
+      bunnyFab.removeAttribute("aria-hidden");
+    }
+
+    function shouldShowBunnyOnLoad() {
+      const hasSeenBefore = getCookie(BUNNY_SEEN_COOKIE_NAME) === "1";
+      if (!hasSeenBefore) {
+        setCookie(BUNNY_SEEN_COOKIE_NAME, "1", 3650);
+        return true;
+      }
+      return Math.random() < BUNNY_RETURN_CHANCE;
     }
 
     function updateLanguageButtons() {
@@ -872,6 +912,12 @@
     }
 
     function bindBunnyButton() {
+      if (!shouldShowBunnyOnLoad()) {
+        hideBunnyButton();
+        return;
+      }
+      showBunnyButton();
+
       bunnyFab.addEventListener("click", () => {
         if (crazybunnyTimer) {
           clearTimeout(crazybunnyTimer);
@@ -885,11 +931,13 @@
             playPromise.catch(() => {});
           }
         } catch {}
+        setCookie(BUNNY_HIDDEN_COOKIE_NAME, "1", BUNNY_HIDE_DAYS);
+        hideBunnyButton();
         crazybunnyTimer = setTimeout(() => {
           crazybunnyOverlay.classList.remove("is-active");
           crazybunnyTimer = null;
         }, 2000);
-      });
+      }, { once: true });
     }
 
     function primeCrazyBunnyAssets() {
