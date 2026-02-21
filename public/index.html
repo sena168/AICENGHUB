@@ -609,6 +609,16 @@
       color: #fff4da;
     }
 
+    .juleha-msg a {
+      color: #9be8ff;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .juleha-msg a:hover {
+      color: #cbf5ff;
+    }
+
     .juleha-chat-form {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -747,7 +757,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v27</div>
+    <div id="app-version" class="app-version">v28</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -923,7 +933,8 @@
     const JULEHA_MAX_CATALOG_ITEMS = 8;
     const JULEHA_SYSTEM_PROMPT = [
       "You are Juleha, the AI copilot inside AICENGHUB.",
-      "Keep answers concise, practical, and friendly.",
+      "Persona: calm, tactical, slightly playful, and focused on helping the user decide quickly.",
+      "Style rules: concise, practical, no fluff, and prefer short lists when useful.",
       "Recommend only tools that exist in the provided AICENGHUB catalog context.",
       "If a requested tool is not in the catalog, say so clearly and suggest closest in-catalog alternatives.",
       "When recommending tools, include direct URLs from the catalog context."
@@ -1343,10 +1354,69 @@
       }, { once: true });
     }
 
-    function appendJulehaMessage(text, role) {
+    function renderMessageLinks(container, text, verifiedLinksByUrl) {
+      const pattern = /https?:\/\/[^\s<>"')\]]+/gi;
+      const source = String(text || "");
+      let lastIndex = 0;
+      let match = pattern.exec(source);
+
+      while (match) {
+        const start = match.index;
+        const rawUrl = match[0];
+        const cleanedUrl = rawUrl.replace(/[.,!?;:]+$/g, "");
+        const trailingPunctuation = rawUrl.slice(cleanedUrl.length);
+
+        if (start > lastIndex) {
+          container.appendChild(document.createTextNode(source.slice(lastIndex, start)));
+        }
+
+        const sanitized = sanitizeUrl(cleanedUrl);
+        if (sanitized === "#") {
+          container.appendChild(document.createTextNode(rawUrl));
+        } else {
+          const link = document.createElement("a");
+          link.href = sanitized;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer nofollow";
+          link.textContent = cleanedUrl;
+          container.appendChild(link);
+          if (trailingPunctuation) {
+            container.appendChild(document.createTextNode(trailingPunctuation));
+          }
+
+          const verification = verifiedLinksByUrl[sanitized];
+          if (verification) {
+            const suffix = verification.ok
+              ? " (checked)"
+              : ` (check failed${verification.status ? ` ${verification.status}` : ""})`;
+            container.appendChild(document.createTextNode(suffix));
+          }
+        }
+
+        lastIndex = pattern.lastIndex;
+        match = pattern.exec(source);
+      }
+
+      if (lastIndex < source.length) {
+        container.appendChild(document.createTextNode(source.slice(lastIndex)));
+      }
+    }
+
+    function appendJulehaMessage(text, role, options = {}) {
       const message = document.createElement("p");
       message.className = `juleha-msg ${role}`;
-      message.textContent = text;
+
+      const verifiedLinks = Array.isArray(options.verifiedLinks) ? options.verifiedLinks : [];
+      const verifiedLinksByUrl = verifiedLinks.reduce((accumulator, entry) => {
+        if (!entry || !entry.url) return accumulator;
+        const normalized = sanitizeUrl(entry.url);
+        if (normalized !== "#") {
+          accumulator[normalized] = entry;
+        }
+        return accumulator;
+      }, {});
+
+      renderMessageLinks(message, text, verifiedLinksByUrl);
       julehaChatLog.appendChild(message);
       julehaChatLog.scrollTop = julehaChatLog.scrollHeight;
     }
@@ -1539,7 +1609,8 @@
       rememberJulehaExchange(userText, assistantText);
       return {
         assistantText,
-        routeLabel
+        routeLabel,
+        verifiedLinks: Array.isArray(payload.verifiedLinks) ? payload.verifiedLinks : []
       };
     }
 
@@ -1591,7 +1662,7 @@
           setJulehaPendingState(true);
           const result = await requestJulehaReply(text);
           setJulehaActiveRoute(result.routeLabel);
-          appendJulehaMessage(result.assistantText, "assistant");
+          appendJulehaMessage(result.assistantText, "assistant", { verifiedLinks: result.verifiedLinks });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Failed to reach Juleha service.";
           setJulehaActiveRoute("unavailable");
@@ -1642,6 +1713,7 @@
   </script>
 </body>
 </html>
+
 
 
 

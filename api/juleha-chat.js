@@ -31,6 +31,9 @@ const MAX_MESSAGES = 40;
 const MAX_MESSAGE_CHARS = 3000;
 const MAX_TOTAL_CHARS = 12000;
 const REQUEST_TIMEOUT_MS = 30000;
+const LINK_VERIFY_MAX_LINKS = 6;
+const LINK_VERIFY_TIMEOUT_MS = 6000;
+const LINK_VERIFY_TITLE_CHARS = 120;
 
 function readRouteConfigFromEnv() {
   return DEFAULT_ROUTE_CONFIG
@@ -110,6 +113,149 @@ function parseOpenRouterError(response, payload) {
   if (response.status === 402) return "insufficient credits for this model/key";
   if (response.status === 429) return "rate limited";
   return `HTTP ${response.status}`;
+}
+
+function shouldVerifyLinks() {
+  const raw = String(process.env.JULEHA_VERIFY_LINKS || "1").trim().toLowerCase();
+  return !["0", "false", "off", "no"].includes(raw);
+}
+
+function extractUrlsFromText(text) {
+  const source = String(text || "");
+  const matches = source.match(/https?:\/\/[^\s<>"')\]]+/gi) || [];
+  const unique = [];
+  const seen = new Set();
+
+  for (const rawMatch of matches) {
+    const match = String(rawMatch || "").replace(/[.,!?;:]+$/g, "");
+    if (!match) continue;
+    try {
+      const parsed = new URL(match);
+      if (!["http:", "https:"].includes(parsed.protocol)) continue;
+      const normalized = parsed.href;
+      if (seen.has(normalized)) continue;
+      seen.add(normalized);
+      unique.push(normalized);
+      if (unique.length >= LINK_VERIFY_MAX_LINKS) break;
+    } catch {
+      continue;
+    }
+  }
+
+  return unique;
+}
+
+function isPrivateIpV4(hostname) {
+  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return false;
+  const octets = hostname.split(".").map((value) => Number(value));
+  if (octets.some((value) => value < 0 || value > 255)) return false;
+
+  const [a, b] = octets;
+  if (a === 10) return true;
+  if (a === 127) return true;
+  if (a === 0) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  return false;
+}
+
+function isBlockedHostname(hostname) {
+  const value = String(hostname || "").trim().toLowerCase();
+  if (!value) return true;
+  if (value === "localhost") return true;
+  if (value === "::1") return true;
+  if (value.endsWith(".local")) return true;
+  if (isPrivateIpV4(value)) return true;
+  return false;
+}
+
+function extractHtmlTitle(html) {
+  const source = String(html || "");
+  const match = source.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  if (!match) return "";
+  return String(match[1] || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, LINK_VERIFY_TITLE_CHARS);
+}
+
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal, redirect: "follow" });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function verifySingleUrl(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return { url, ok: false, status: 0, note: "invalid-url" };
+  }
+
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    return { url, ok: false, status: 0, note: "unsupported-protocol" };
+  }
+
+  if (isBlockedHostname(parsed.hostname)) {
+    return { url, ok: false, status: 0, note: "blocked-host" };
+  }
+
+  try {
+    const headResponse = await fetchWithTimeout(url, { method: "HEAD" }, LINK_VERIFY_TIMEOUT_MS);
+    if (headResponse.ok) {
+      return {
+        url,
+        ok: true,
+        status: headResponse.status,
+        finalUrl: headResponse.url || url
+      };
+    }
+  } catch {}
+
+  try {
+    const getResponse = await fetchWithTimeout(
+      url,
+      {
+        method: "GET",
+        headers: {
+          Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+        }
+      },
+      LINK_VERIFY_TIMEOUT_MS
+    );
+
+    const contentType = String(getResponse.headers.get("content-type") || "").toLowerCase();
+    const canReadBody = contentType.includes("text/html") || contentType.includes("application/xhtml+xml");
+    const bodyText = canReadBody ? await getResponse.text().catch(() => "") : "";
+
+    return {
+      url,
+      ok: getResponse.ok,
+      status: getResponse.status,
+      finalUrl: getResponse.url || url,
+      title: canReadBody ? extractHtmlTitle(bodyText) : ""
+    };
+  } catch (error) {
+    return {
+      url,
+      ok: false,
+      status: 0,
+      note: error instanceof Error ? error.message : "verify-failed"
+    };
+  }
+}
+
+async function verifyAssistantLinks(text) {
+  if (!shouldVerifyLinks()) return [];
+  const urls = extractUrlsFromText(text);
+  if (!urls.length) return [];
+  return Promise.all(urls.map((url) => verifySingleUrl(url)));
 }
 
 async function requestWithRoute(route, messages, req) {
@@ -223,7 +369,8 @@ module.exports = async function handler(req, res) {
   for (const route of routes) {
     try {
       const result = await requestWithRoute(route, messages, req);
-      return res.status(200).json(result);
+      const verifiedLinks = await verifyAssistantLinks(result.assistantText).catch(() => []);
+      return res.status(200).json({ ...result, verifiedLinks });
     } catch (error) {
       routeErrors.push({
         route: route.label,
