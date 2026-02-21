@@ -20,8 +20,8 @@
     "url": "https://www.b12.io/",
     "description": "AI website builder with business workflow and content generation support.",
     "abilities": [
-      "text",
       "code",
+      "text",
       "automation"
     ]
   },
@@ -64,7 +64,8 @@
     "url": "https://claude.ai/",
     "description": "Strong long-context assistant for documents, planning, and technical tasks.",
     "abilities": [
-      "text"
+      "text",
+      "learning"
     ]
   },
   {
@@ -90,7 +91,8 @@
     "url": "https://chat.deepseek.com/",
     "description": "Chat assistant known for strong coding and technical task handling.",
     "abilities": [
-      "text"
+      "text",
+      "learning"
     ]
   },
   {
@@ -150,8 +152,8 @@
     "url": "https://klingai.com/",
     "description": "Text-to-video and image-to-video model for high-motion visual clips.",
     "abilities": [
-      "image",
-      "video"
+      "video",
+      "image"
     ]
   },
   {
@@ -159,7 +161,8 @@
     "url": "https://chat.mistral.ai/",
     "description": "Mistral assistant for multilingual chat and technical reasoning.",
     "abilities": [
-      "text"
+      "text",
+      "learning"
     ]
   },
   {
@@ -242,8 +245,8 @@
     "url": "https://pika.art/",
     "description": "Quick prompt-to-video tool for content prototyping.",
     "abilities": [
-      "image",
-      "video"
+      "video",
+      "image"
     ]
   },
   {
@@ -267,7 +270,8 @@
     "url": "https://chat.qwen.ai/",
     "description": "Alibaba chat assistant that supports multimodal tasks and technical use cases.",
     "abilities": [
-      "text"
+      "text",
+      "learning"
     ]
   },
   {
@@ -284,8 +288,8 @@
     "url": "https://runwayml.com/",
     "description": "Full video generation and editing suite for creators and teams.",
     "abilities": [
-      "image",
       "video",
+      "image",
       "audio"
     ]
   },
