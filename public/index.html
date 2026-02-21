@@ -91,6 +91,33 @@
       font-size: clamp(1rem, 2.2vw, 1.08rem);
     }
 
+    .lang-switch {
+      display: inline-flex;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+    }
+
+    .lang-btn {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.32rem 0.62rem;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .lang-btn[aria-pressed="true"] {
+      color: #1a1310;
+      border-color: rgba(244, 183, 63, 0.94);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      box-shadow: 0 0 0 2px rgba(247, 202, 111, 0.16);
+    }
+
     .search-bar {
       display: flex;
       gap: 0.5rem;
@@ -310,6 +337,34 @@
       font-size: 0.9rem;
     }
 
+    .bunny-fab {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 3;
+      border: 1px solid rgba(244, 183, 63, 0.88);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 999px;
+      padding: 0.62rem 0.92rem;
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+    }
+
+    .bunny-fab:hover {
+      filter: brightness(1.04);
+    }
+
+    .bunny-fab:focus-visible {
+      outline: 2px solid #fff2c9;
+      outline-offset: 2px;
+    }
+
     @media (max-width: 920px) {
       .hero {
         grid-template-columns: 1fr;
@@ -338,58 +393,224 @@
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
-        <p>Comprehensive AI tool directory for creation, automation, coding, learning, and inspiration. Each tool appears once, and filters/search help you find the best fit quickly.</p>
+        <p id="hero-description">Comprehensive AI tool directory for creation, automation, coding, learning, and inspiration. Each tool appears once, and filters/search help you find the best fit quickly.</p>
+        <div id="lang-switch" class="lang-switch" role="group" aria-label="Language selector">
+          <button class="lang-btn" type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button class="lang-btn" type="button" data-lang="id" aria-pressed="false">ID</button>
+        </div>
       </div>
       <figure class="hero-image-wrap">
-        <img src="./suhuaiceng.jpg" alt="Shifu portrait">
+        <img id="hero-image" src="./suhuaiceng.jpg" alt="Shifu portrait">
       </figure>
     </section>
 
     <section class="tabs-shell">
       <div class="tabs-top">
         <div id="tablist" class="tablist" role="toolbar" aria-label="AI ability filters"></div>
-        <div class="search-bar tab-search" aria-label="AI tool search">
-          <input id="global-search-input" class="search-input" type="search" placeholder="Cari nama, kemampuan, atau kata kunci...">
-          <button id="global-search-btn" class="search-btn" type="button">Cari</button>
+        <div id="search-shell" class="search-bar tab-search" aria-label="AI tool search">
+          <input id="global-search-input" class="search-input" type="search" placeholder="Search name, abilities, or keywords...">
+          <button id="global-search-btn" class="search-btn" type="button">Search</button>
         </div>
       </div>
       <article class="panel" id="directory-panel" aria-live="polite">
         <div class="panel-head">
-          <h2>Master AI Directory</h2>
-          <p>Use tabs as one-click ability filters. Search applies on top of the selected filter.</p>
+          <h2 id="panel-title">Master AI Directory</h2>
+          <p id="panel-subtitle">Use tabs as one-click ability filters. Search applies on top of the selected filter.</p>
         </div>
         <p id="search-status" class="search-status">Loading tools...</p>
         <div id="tool-grid" class="grid"></div>
       </article>
     </section>
 
-    <footer>AICENGHUB curated link directory.</footer>
+    <footer id="footer-text">AICENGHUB curated link directory.</footer>
   </main>
+  <button id="bunny-fab" class="bunny-fab" type="button" aria-label="Bunny">
+    Bunny
+  </button>
 
   <script>
-    const ABILITY_FILTERS = [
-      { key: "all", label: "ALL" },
-      { key: "text", label: "TEXT" },
-      { key: "image", label: "IMAGE" },
-      { key: "video", label: "VIDEO" },
-      { key: "audio", label: "AUDIO" },
-      { key: "code", label: "CODE" },
-      { key: "automation", label: "AUTOMATION" },
-      { key: "learning", label: "LEARNING" }
-    ];
+    const ABILITY_FILTER_KEYS = ["all", "text", "image", "video", "audio", "code", "automation", "learning"];
+    const I18N = {
+      en: {
+        htmlLang: "en",
+        heroDescription: "Comprehensive AI tool directory for creation, automation, coding, learning, and inspiration. Each tool appears once, and filters/search help you find the best fit quickly.",
+        heroImageAlt: "Shifu portrait",
+        searchPlaceholder: "Search name, abilities, or keywords...",
+        searchButton: "Search",
+        panelTitle: "Master AI Directory",
+        panelSubtitle: "Use tabs as quick filters. When you type in search, results are matched across all tools.",
+        loadingTools: "Loading tools...",
+        footerText: "AICENGHUB curated link directory.",
+        filterBarLabel: "AI ability filters",
+        searchBarLabel: "AI tool search",
+        languageSwitchLabel: "Language selector",
+        openLink: "Open Link",
+        noMatchingTitle: "No matching tools",
+        noMatchingDescription: "Try a different filter or broader search keyword.",
+        loadError: "Unable to load link-list.json. Ensure this file exists in the project root.",
+        abilityLabels: {
+          all: "ALL",
+          text: "TEXT",
+          image: "IMAGE",
+          video: "VIDEO",
+          audio: "AUDIO",
+          code: "CODE",
+          automation: "AUTOMATION",
+          learning: "LEARNING"
+        },
+        status(shown, total, activeLabel, query) {
+          const searchPart = query ? ` and search "${query}"` : "";
+          return `Showing ${shown} of ${total} tools for filter "${activeLabel}"${searchPart}.`;
+        }
+      },
+      id: {
+        htmlLang: "id",
+        heroDescription: "Direktori alat AI lengkap untuk kreasi, otomasi, coding, pembelajaran, dan inspirasi. Setiap alat hanya muncul sekali, dan filter/pencarian membantu Anda menemukan yang paling sesuai dengan cepat.",
+        heroImageAlt: "Potret Shifu",
+        searchPlaceholder: "Cari nama, kemampuan, atau kata kunci...",
+        searchButton: "Cari",
+        panelTitle: "Direktori AI Utama",
+        panelSubtitle: "Gunakan tab sebagai filter cepat. Saat Anda mengetik pada pencarian, hasil dicocokkan ke semua alat.",
+        loadingTools: "Memuat alat...",
+        footerText: "Direktori tautan kurasi AICENGHUB.",
+        filterBarLabel: "Filter kemampuan AI",
+        searchBarLabel: "Pencarian alat AI",
+        languageSwitchLabel: "Pemilih bahasa",
+        openLink: "Buka Tautan",
+        noMatchingTitle: "Tidak ada alat yang cocok",
+        noMatchingDescription: "Coba filter lain atau kata kunci yang lebih umum.",
+        loadError: "Tidak dapat memuat link-list.json. Pastikan file ini ada di root proyek.",
+        abilityLabels: {
+          all: "SEMUA",
+          text: "TEKS",
+          image: "GAMBAR",
+          video: "VIDEO",
+          audio: "AUDIO",
+          code: "KODE",
+          automation: "OTOMASI",
+          learning: "PEMBELAJARAN"
+        },
+        status(shown, total, activeLabel, query) {
+          const searchPart = query ? ` dan pencarian "${query}"` : "";
+          return `Menampilkan ${shown} dari ${total} alat untuk filter "${activeLabel}"${searchPart}.`;
+        }
+      }
+    };
 
     const tablist = document.getElementById("tablist");
     const toolGrid = document.getElementById("tool-grid");
     const searchStatus = document.getElementById("search-status");
     const globalSearchInput = document.getElementById("global-search-input");
     const globalSearchBtn = document.getElementById("global-search-btn");
+    const heroDescription = document.getElementById("hero-description");
+    const heroImage = document.getElementById("hero-image");
+    const searchShell = document.getElementById("search-shell");
+    const panelTitle = document.getElementById("panel-title");
+    const panelSubtitle = document.getElementById("panel-subtitle");
+    const footerText = document.getElementById("footer-text");
+    const langSwitch = document.getElementById("lang-switch");
 
     let tools = [];
     let activeFilter = "all";
     let searchQuery = "";
+    let searchDebounceTimer = null;
+    let currentLanguage = detectInitialLanguage();
+    const ABILITY_SEARCH_ALIASES = {
+      all: ["all", "semua", "any"],
+      text: ["text", "teks", "chat", "tulis", "writing"],
+      image: ["image", "gambar", "photo", "foto", "visual", "art"],
+      video: ["video", "vid", "film", "klip", "clip"],
+      audio: ["audio", "musik", "music", "song", "suara", "voice"],
+      code: ["code", "kode", "coding", "programming", "developer", "dev"],
+      automation: ["automation", "otomasi", "workflow", "agent", "integrasi", "integration"],
+      learning: ["learning", "belajar", "tutorial", "research", "edukasi", "education"]
+    };
+    const SEARCH_TOKEN_TO_ABILITY = Object.entries(ABILITY_SEARCH_ALIASES)
+      .reduce((accumulator, [ability, aliases]) => {
+        aliases.forEach((alias) => {
+          accumulator[alias] = ability;
+        });
+        return accumulator;
+      }, {});
+
+    function getDictionary() {
+      return I18N[currentLanguage] || I18N.en;
+    }
+
+    function getAbilityLabel(filterKey) {
+      return getDictionary().abilityLabels[filterKey] || String(filterKey || "").toUpperCase();
+    }
+
+    function detectInitialLanguage() {
+      try {
+        const savedLanguage = localStorage.getItem("aicenghub.lang");
+        if (savedLanguage === "en" || savedLanguage === "id") return savedLanguage;
+      } catch {}
+
+      const browserLanguage = String(navigator.language || "en").toLowerCase();
+      return browserLanguage.startsWith("id") ? "id" : "en";
+    }
+
+    function persistLanguage(lang) {
+      try {
+        localStorage.setItem("aicenghub.lang", lang);
+      } catch {}
+    }
+
+    function updateLanguageButtons() {
+      const buttons = Array.from(langSwitch.querySelectorAll(".lang-btn"));
+      buttons.forEach((button) => {
+        const isActive = button.dataset.lang === currentLanguage;
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+
+    function applyTranslations() {
+      const dictionary = getDictionary();
+      document.documentElement.lang = dictionary.htmlLang;
+      heroDescription.textContent = dictionary.heroDescription;
+      heroImage.alt = dictionary.heroImageAlt;
+      globalSearchInput.placeholder = dictionary.searchPlaceholder;
+      globalSearchBtn.textContent = dictionary.searchButton;
+      panelTitle.textContent = dictionary.panelTitle;
+      panelSubtitle.textContent = dictionary.panelSubtitle;
+      footerText.textContent = dictionary.footerText;
+      tablist.setAttribute("aria-label", dictionary.filterBarLabel);
+      searchShell.setAttribute("aria-label", dictionary.searchBarLabel);
+      langSwitch.setAttribute("aria-label", dictionary.languageSwitchLabel);
+
+      if (!tools.length) {
+        searchStatus.textContent = dictionary.loadingTools;
+      }
+
+      updateLanguageButtons();
+    }
+
+    function setLanguage(lang) {
+      if (!I18N[lang] || lang === currentLanguage) return;
+      currentLanguage = lang;
+      persistLanguage(lang);
+      applyTranslations();
+      buildFilterTabs();
+      renderTools();
+    }
+
+    function bindLanguageSwitch() {
+      const buttons = Array.from(langSwitch.querySelectorAll(".lang-btn"));
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => setLanguage(button.dataset.lang));
+      });
+    }
 
     function normalize(text) {
       return String(text || "").toLowerCase();
+    }
+
+    function tokenizeSearchQuery(query) {
+      return normalize(query)
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .filter(Boolean);
     }
 
     function sanitizeUrl(rawUrl) {
@@ -423,7 +644,7 @@
     function createAbilityPill(ability) {
       const pill = document.createElement("span");
       pill.className = `ability-pill ability-${ability}`;
-      pill.textContent = ability;
+      pill.textContent = getAbilityLabel(ability);
       return pill;
     }
 
@@ -452,7 +673,7 @@
       link.href = tool.url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "Open Link";
+      link.textContent = getDictionary().openLink;
 
       card.append(head, description, link);
       return card;
@@ -460,15 +681,28 @@
 
     function matchesSearch(tool, query) {
       if (!query) return true;
-      const tokens = query.split(/\s+/).filter(Boolean);
+      const normalizedQuery = normalize(query).trim();
+      const tokens = tokenizeSearchQuery(normalizedQuery);
+      if (!tokens.length) return true;
+
+      const abilityAliasText = tool.abilities
+        .flatMap((ability) => ABILITY_SEARCH_ALIASES[ability] || [ability])
+        .join(" ");
       const haystack = normalize([
         tool.name,
         tool.url,
         tool.description,
-        tool.abilities.join(" ")
+        tool.abilities.join(" "),
+        abilityAliasText
       ].join(" "));
 
-      return tokens.every((token) => haystack.includes(token));
+      if (haystack.includes(normalizedQuery)) return true;
+
+      return tokens.some((token) => {
+        if (haystack.includes(token)) return true;
+        const mappedAbility = SEARCH_TOKEN_TO_ABILITY[token];
+        return mappedAbility ? tool.abilities.includes(mappedAbility) : false;
+      });
     }
 
     function matchesFilter(tool, filterKey) {
@@ -477,9 +711,9 @@
     }
 
     function getFilteredTools() {
+      const effectiveQuery = searchQuery || (activeFilter !== "all" ? activeFilter : "");
       return tools
-        .filter((tool) => matchesFilter(tool, activeFilter))
-        .filter((tool) => matchesSearch(tool, searchQuery))
+        .filter((tool) => matchesSearch(tool, effectiveQuery))
         .sort((a, b) => a.name.localeCompare(b.name));
     }
 
@@ -496,17 +730,20 @@
       const results = getFilteredTools();
       toolGrid.innerHTML = "";
 
-      const activeLabel = ABILITY_FILTERS.find((filter) => filter.key === activeFilter)?.label || "ALL";
-      const searchPart = searchQuery ? ` and search "${searchQuery}"` : "";
-      searchStatus.textContent = `Showing ${results.length} of ${tools.length} tools for filter "${activeLabel}"${searchPart}.`;
+      const dictionary = getDictionary();
+      const activeLabel = getAbilityLabel(activeFilter);
+      const statusFilterLabel = searchQuery && activeFilter === "all"
+        ? getAbilityLabel("all")
+        : activeLabel;
+      searchStatus.textContent = dictionary.status(results.length, tools.length, statusFilterLabel, searchQuery);
 
       if (!results.length) {
         const emptyCard = document.createElement("article");
         emptyCard.className = "card";
         const title = document.createElement("h3");
-        title.textContent = "No matching tools";
+        title.textContent = dictionary.noMatchingTitle;
         const text = document.createElement("p");
-        text.textContent = "Try a different filter or broader search keyword.";
+        text.textContent = dictionary.noMatchingDescription;
         emptyCard.append(title, text);
         toolGrid.appendChild(emptyCard);
         return;
@@ -519,20 +756,23 @@
 
     function setActiveFilter(filterKey) {
       activeFilter = filterKey;
+      searchQuery = filterKey === "all" ? "" : filterKey;
+      globalSearchInput.value = searchQuery;
       updateFilterButtonState();
       renderTools();
     }
 
     function buildFilterTabs() {
-      ABILITY_FILTERS.forEach((filter) => {
+      tablist.innerHTML = "";
+      ABILITY_FILTER_KEYS.forEach((filterKey) => {
         const button = document.createElement("button");
         button.className = "tab-btn";
         button.type = "button";
-        button.dataset.filterKey = filter.key;
-        button.textContent = filter.label;
-        button.setAttribute("aria-selected", filter.key === activeFilter ? "true" : "false");
-        button.tabIndex = filter.key === activeFilter ? 0 : -1;
-        button.addEventListener("click", () => setActiveFilter(filter.key));
+        button.dataset.filterKey = filterKey;
+        button.textContent = getAbilityLabel(filterKey);
+        button.setAttribute("aria-selected", filterKey === activeFilter ? "true" : "false");
+        button.tabIndex = filterKey === activeFilter ? 0 : -1;
+        button.addEventListener("click", () => setActiveFilter(filterKey));
         tablist.appendChild(button);
       });
 
@@ -556,12 +796,25 @@
 
     function bindSearch() {
       function submitSearch() {
+        if (searchDebounceTimer) {
+          clearTimeout(searchDebounceTimer);
+          searchDebounceTimer = null;
+        }
         searchQuery = normalize(globalSearchInput.value.trim());
+        activeFilter = searchQuery ? "all" : activeFilter;
+        updateFilterButtonState();
         renderTools();
       }
 
+      function queueSearch() {
+        if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          submitSearch();
+        }, 500);
+      }
+
       globalSearchBtn.addEventListener("click", submitSearch);
-      globalSearchInput.addEventListener("input", submitSearch);
+      globalSearchInput.addEventListener("input", queueSearch);
       globalSearchInput.addEventListener("keydown", (event) => {
         if (event.key !== "Enter") return;
         event.preventDefault();
@@ -578,13 +831,15 @@
         tools = data.map(sanitizeTool);
         renderTools();
       } catch (error) {
-        searchStatus.textContent = "Unable to load link-list.json. Ensure this file exists in the project root.";
+        searchStatus.textContent = getDictionary().loadError;
         console.error("Failed to load tool data:", error);
       }
     }
 
+    applyTranslations();
     buildFilterTabs();
     bindSearch();
+    bindLanguageSwitch();
     loadTools();
   </script>
 </body>

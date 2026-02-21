@@ -1,0 +1,428 @@
+[
+  {
+    "name": "Adobe Firefly",
+    "url": "https://firefly.adobe.com/",
+    "description": "Creative image generation and editing with Adobe workflow integration.",
+    "ux_mode": "instant",
+    "tags": [
+      "image",
+      "editing",
+      "design"
+    ]
+  },
+  {
+    "name": "AIVA",
+    "url": "https://www.aiva.ai/",
+    "description": "Instrumental composition engine for cinematic and game use.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "name": "B12",
+    "url": "https://www.b12.io/",
+    "description": "AI website builder with business workflow and content generation support.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "app",
+      "text",
+      "automation"
+    ]
+  },
+  {
+    "name": "Bing Image Creator",
+    "url": "https://www.bing.com/images/create",
+    "description": "Fast prompt-to-image generation integrated into Bing.",
+    "ux_mode": "instant",
+    "tags": [
+      "image",
+      "design"
+    ]
+  },
+  {
+    "name": "Bolt.new",
+    "url": "https://bolt.new/",
+    "description": "In-browser AI coding environment for rapid app creation.",
+    "ux_mode": "instant",
+    "tags": [
+      "app"
+    ]
+  },
+  {
+    "name": "Boomy",
+    "url": "https://boomy.com/",
+    "description": "Beginner-friendly tool for creating and publishing original tracks.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "name": "ChatGPT",
+    "url": "https://chatgpt.com/",
+    "description": "General AI assistant that can generate images and support end-to-end creative workflows.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "image",
+      "reasoning",
+      "research",
+      "multimodal_reasoning"
+    ]
+  },
+  {
+    "name": "Claude",
+    "url": "https://claude.ai/",
+    "description": "Strong long-context assistant for documents, planning, and technical tasks.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "reasoning",
+      "long_context",
+      "multimodal_reasoning"
+    ]
+  },
+  {
+    "name": "Copilot",
+    "url": "https://copilot.microsoft.com/",
+    "description": "Microsoft Copilot assistant for chat, productivity, and multimodal everyday tasks.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "image",
+      "reasoning",
+      "research",
+      "multimodal_reasoning"
+    ]
+  },
+  {
+    "name": "Cursor",
+    "url": "https://cursor.com/",
+    "description": "AI-native code editor for pair-programming and refactoring workflows.",
+    "ux_mode": "instant",
+    "tags": [
+      "text"
+    ]
+  },
+  {
+    "name": "DeepSeek",
+    "url": "https://chat.deepseek.com/",
+    "description": "Chat assistant known for strong coding and technical task handling.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "reasoning"
+    ]
+  },
+  {
+    "name": "Flow by Google Labs",
+    "url": "https://labs.google/fx/tools/flow/",
+    "description": "Google Labs video creation workflow for cinematic prompt-driven outputs.",
+    "ux_mode": "instant",
+    "tags": [
+      "video"
+    ]
+  },
+  {
+    "name": "Gemini",
+    "url": "https://gemini.google.com/",
+    "description": "Multimodal assistant for prompting images, drafting content, coding help, and media planning.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "image",
+      "reasoning",
+      "research",
+      "multimodal_reasoning"
+    ]
+  },
+  {
+    "name": "Grok",
+    "url": "https://grok.com/",
+    "description": "Conversational assistant with image generation and coding support.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "image",
+      "reasoning",
+      "research"
+    ]
+  },
+  {
+    "name": "Hailuo AI",
+    "url": "https://hailuoai.video/",
+    "description": "Prompt-based short video generation for social and ad content.",
+    "ux_mode": "instant",
+    "tags": [
+      "video"
+    ]
+  },
+  {
+    "name": "Ideogram",
+    "url": "https://ideogram.ai/",
+    "description": "Strong text-in-image rendering for posters, ads, and typography-heavy visuals.",
+    "ux_mode": "instant",
+    "tags": [
+      "image",
+      "design"
+    ]
+  },
+  {
+    "name": "IFTTT",
+    "url": "https://ifttt.com/",
+    "description": "Simple trigger-action automation across everyday apps and devices.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "automation"
+    ]
+  },
+  {
+    "name": "Kling AI",
+    "url": "https://klingai.com/",
+    "description": "Text-to-video and image-to-video model for high-motion visual clips.",
+    "ux_mode": "instant",
+    "tags": [
+      "video",
+      "image"
+    ]
+  },
+  {
+    "name": "Le Chat (Mistral)",
+    "url": "https://chat.mistral.ai/",
+    "description": "Mistral assistant for multilingual chat and technical reasoning.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "reasoning",
+      "multimodal_reasoning"
+    ]
+  },
+  {
+    "name": "Leonardo AI",
+    "url": "https://leonardo.ai/",
+    "description": "Asset-focused image generation for game, product, and marketing pipelines.",
+    "ux_mode": "instant",
+    "tags": [
+      "image",
+      "design",
+      "editing"
+    ]
+  },
+  {
+    "name": "Lexica",
+    "url": "https://lexica.art/",
+    "description": "Visual gallery of AI-generated artwork and prompt references.",
+    "ux_mode": "instant",
+    "tags": [
+      "image"
+    ]
+  },
+  {
+    "name": "Lovable",
+    "url": "https://lovable.dev/",
+    "description": "Prompt-to-app builder focused on quickly shipping full-stack prototypes.",
+    "ux_mode": "instant",
+    "tags": [
+      "app"
+    ]
+  },
+  {
+    "name": "Luma Dream Machine",
+    "url": "https://lumalabs.ai/dream-machine",
+    "description": "Cinematic video generation from text and image prompts.",
+    "ux_mode": "instant",
+    "tags": [
+      "video"
+    ]
+  },
+  {
+    "name": "Make",
+    "url": "https://www.make.com/",
+    "description": "Visual workflow builder for complex multi-step process automation.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "automation"
+    ]
+  },
+  {
+    "name": "Meta AI",
+    "url": "https://www.meta.ai/",
+    "description": "Meta assistant with image generation for social and campaign concepts.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "image",
+      "reasoning",
+      "research"
+    ]
+  },
+  {
+    "name": "Midjourney",
+    "url": "https://www.midjourney.com/",
+    "description": "High-style image generation for concept art, branding, and visual ideation.",
+    "ux_mode": "instant",
+    "tags": [
+      "image",
+      "design"
+    ]
+  },
+  {
+    "name": "Mureka",
+    "url": "https://www.mureka.ai/",
+    "description": "Song and music generation platform for fast track ideation.",
+    "ux_mode": "instant",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "name": "Perplexity",
+    "url": "https://www.perplexity.ai/",
+    "description": "Search-first answer engine with citation-driven responses.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "research",
+      "reasoning"
+    ]
+  },
+  {
+    "name": "Pika",
+    "url": "https://pika.art/",
+    "description": "Quick prompt-to-video tool for content prototyping.",
+    "ux_mode": "instant",
+    "tags": [
+      "video",
+      "editing"
+    ]
+  },
+  {
+    "name": "PixVerse",
+    "url": "https://pixverse.ai/",
+    "description": "Fast AI clip generation with cinematic and stylized output options.",
+    "ux_mode": "instant",
+    "tags": [
+      "video"
+    ]
+  },
+  {
+    "name": "Producer.ai",
+    "url": "https://producer.ai/",
+    "description": "AI-powered music workflow support for creators and producers.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "name": "Qwen Chat",
+    "url": "https://chat.qwen.ai/",
+    "description": "Alibaba chat assistant that supports multimodal tasks and technical use cases.",
+    "ux_mode": "instant",
+    "tags": [
+      "text",
+      "reasoning",
+      "multimodal_reasoning"
+    ]
+  },
+  {
+    "name": "Replit",
+    "url": "https://replit.com/",
+    "description": "Cloud IDE with AI coding support and instant app hosting.",
+    "ux_mode": "instant",
+    "tags": [
+      "app",
+      "automation"
+    ]
+  },
+  {
+    "name": "Runway",
+    "url": "https://runwayml.com/",
+    "description": "Full video generation and editing suite for creators and teams.",
+    "ux_mode": "instant",
+    "tags": [
+      "video",
+      "editing",
+      "image",
+      "sfx"
+    ]
+  },
+  {
+    "name": "Soundraw",
+    "url": "https://soundraw.io/",
+    "description": "Royalty-friendly music generator for creators and agencies.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "name": "Stable Audio",
+    "url": "https://www.stableaudio.com/",
+    "description": "Prompt-based audio generation for background tracks and sound elements.",
+    "ux_mode": "instant",
+    "tags": [
+      "music",
+      "sfx"
+    ]
+  },
+  {
+    "name": "Suno",
+    "url": "https://suno.com/",
+    "description": "Generates full songs including vocals from text prompts.",
+    "ux_mode": "instant",
+    "tags": [
+      "music",
+      "speech"
+    ]
+  },
+  {
+    "name": "Synthesia",
+    "url": "https://www.synthesia.io/",
+    "description": "AI avatar video platform for explainers, onboarding, and training media.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "video",
+      "avatar",
+      "speech"
+    ]
+  },
+  {
+    "name": "Udio",
+    "url": "https://www.udio.com/",
+    "description": "AI music generation with strong style and arrangement control.",
+    "ux_mode": "instant",
+    "tags": [
+      "music",
+      "speech"
+    ]
+  },
+  {
+    "name": "v0",
+    "url": "https://v0.dev/",
+    "description": "Prompt-driven UI and frontend code generation tool.",
+    "ux_mode": "instant",
+    "tags": [
+      "app"
+    ]
+  },
+  {
+    "name": "Windsurf",
+    "url": "https://windsurf.com/",
+    "description": "AI coding environment focused on end-to-end software development speed.",
+    "ux_mode": "instant",
+    "tags": [
+      "text"
+    ]
+  },
+  {
+    "name": "Zapier AI",
+    "url": "https://zapier.com/ai",
+    "description": "App integrations and AI-powered no-code automations for business workflows.",
+    "ux_mode": "guided_builder",
+    "tags": [
+      "automation"
+    ]
+  }
+]

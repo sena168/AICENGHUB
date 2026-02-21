@@ -4,17 +4,7 @@
     "url": "https://firefly.adobe.com/",
     "description": "Creative image generation and editing with Adobe workflow integration.",
     "abilities": [
-      "image",
-      "text"
-    ]
-  },
-  {
-    "name": "AI Explained",
-    "url": "https://www.youtube.com/@aiexplained-official",
-    "description": "Practical explainers of AI models, products, and workflows.",
-    "abilities": [
-      "learning",
-      "video"
+      "image"
     ]
   },
   {
@@ -22,8 +12,7 @@
     "url": "https://www.aiva.ai/",
     "description": "Instrumental composition engine for cinematic and game use.",
     "abilities": [
-      "audio",
-      "text"
+      "audio"
     ]
   },
   {
@@ -31,8 +20,8 @@
     "url": "https://www.b12.io/",
     "description": "AI website builder with business workflow and content generation support.",
     "abilities": [
-      "code",
       "text",
+      "code",
       "automation"
     ]
   },
@@ -41,8 +30,7 @@
     "url": "https://www.bing.com/images/create",
     "description": "Fast prompt-to-image generation integrated into Bing.",
     "abilities": [
-      "image",
-      "text"
+      "image"
     ]
   },
   {
@@ -50,8 +38,7 @@
     "url": "https://bolt.new/",
     "description": "In-browser AI coding environment for rapid app creation.",
     "abilities": [
-      "code",
-      "text"
+      "code"
     ]
   },
   {
@@ -59,8 +46,7 @@
     "url": "https://boomy.com/",
     "description": "Beginner-friendly tool for creating and publishing original tracks.",
     "abilities": [
-      "audio",
-      "text"
+      "audio"
     ]
   },
   {
@@ -70,9 +56,7 @@
     "abilities": [
       "text",
       "image",
-      "video",
-      "code",
-      "audio"
+      "learning"
     ]
   },
   {
@@ -80,9 +64,7 @@
     "url": "https://claude.ai/",
     "description": "Strong long-context assistant for documents, planning, and technical tasks.",
     "abilities": [
-      "text",
-      "code",
-      "image"
+      "text"
     ]
   },
   {
@@ -90,8 +72,9 @@
     "url": "https://copilot.microsoft.com/",
     "description": "Microsoft Copilot assistant for chat, productivity, and multimodal everyday tasks.",
     "abilities": [
-      "code",
-      "text"
+      "text",
+      "image",
+      "learning"
     ]
   },
   {
@@ -99,7 +82,6 @@
     "url": "https://cursor.com/",
     "description": "AI-native code editor for pair-programming and refactoring workflows.",
     "abilities": [
-      "code",
       "text"
     ]
   },
@@ -108,8 +90,7 @@
     "url": "https://chat.deepseek.com/",
     "description": "Chat assistant known for strong coding and technical task handling.",
     "abilities": [
-      "text",
-      "code"
+      "text"
     ]
   },
   {
@@ -117,19 +98,7 @@
     "url": "https://labs.google/fx/tools/flow/",
     "description": "Google Labs video creation workflow for cinematic prompt-driven outputs.",
     "abilities": [
-      "video",
-      "image",
-      "text"
-    ]
-  },
-  {
-    "name": "Flowise",
-    "url": "https://flowiseai.com/",
-    "description": "Low-code LLM pipeline builder for chatbot and agent workflows.",
-    "abilities": [
-      "automation",
-      "text",
-      "code"
+      "video"
     ]
   },
   {
@@ -139,9 +108,7 @@
     "abilities": [
       "text",
       "image",
-      "video",
-      "code",
-      "audio"
+      "learning"
     ]
   },
   {
@@ -151,7 +118,7 @@
     "abilities": [
       "text",
       "image",
-      "code"
+      "learning"
     ]
   },
   {
@@ -159,9 +126,7 @@
     "url": "https://hailuoai.video/",
     "description": "Prompt-based short video generation for social and ad content.",
     "abilities": [
-      "video",
-      "image",
-      "text"
+      "video"
     ]
   },
   {
@@ -169,8 +134,7 @@
     "url": "https://ideogram.ai/",
     "description": "Strong text-in-image rendering for posters, ads, and typography-heavy visuals.",
     "abilities": [
-      "image",
-      "text"
+      "image"
     ]
   },
   {
@@ -186,19 +150,8 @@
     "url": "https://klingai.com/",
     "description": "Text-to-video and image-to-video model for high-motion visual clips.",
     "abilities": [
-      "video",
       "image",
-      "text"
-    ]
-  },
-  {
-    "name": "LangChain",
-    "url": "https://www.langchain.com/",
-    "description": "Framework and platform to orchestrate LLM chains, tools, and agents.",
-    "abilities": [
-      "automation",
-      "text",
-      "code"
+      "video"
     ]
   },
   {
@@ -206,9 +159,7 @@
     "url": "https://chat.mistral.ai/",
     "description": "Mistral assistant for multilingual chat and technical reasoning.",
     "abilities": [
-      "text",
-      "code",
-      "image"
+      "text"
     ]
   },
   {
@@ -216,8 +167,7 @@
     "url": "https://leonardo.ai/",
     "description": "Asset-focused image generation for game, product, and marketing pipelines.",
     "abilities": [
-      "image",
-      "text"
+      "image"
     ]
   },
   {
@@ -225,7 +175,6 @@
     "url": "https://lexica.art/",
     "description": "Visual gallery of AI-generated artwork and prompt references.",
     "abilities": [
-      "learning",
       "image"
     ]
   },
@@ -234,8 +183,7 @@
     "url": "https://lovable.dev/",
     "description": "Prompt-to-app builder focused on quickly shipping full-stack prototypes.",
     "abilities": [
-      "code",
-      "text"
+      "code"
     ]
   },
   {
@@ -243,9 +191,7 @@
     "url": "https://lumalabs.ai/dream-machine",
     "description": "Cinematic video generation from text and image prompts.",
     "abilities": [
-      "video",
-      "image",
-      "text"
+      "video"
     ]
   },
   {
@@ -257,21 +203,13 @@
     ]
   },
   {
-    "name": "Matt Wolfe",
-    "url": "https://www.youtube.com/@mreflow",
-    "description": "Weekly AI tool updates and creator-focused tutorials.",
-    "abilities": [
-      "learning",
-      "video"
-    ]
-  },
-  {
     "name": "Meta AI",
     "url": "https://www.meta.ai/",
     "description": "Meta assistant with image generation for social and campaign concepts.",
     "abilities": [
       "text",
-      "image"
+      "image",
+      "learning"
     ]
   },
   {
@@ -279,8 +217,7 @@
     "url": "https://www.midjourney.com/",
     "description": "High-style image generation for concept art, branding, and visual ideation.",
     "abilities": [
-      "image",
-      "text"
+      "image"
     ]
   },
   {
@@ -288,30 +225,7 @@
     "url": "https://www.mureka.ai/",
     "description": "Song and music generation platform for fast track ideation.",
     "abilities": [
-      "audio",
-      "text"
-    ]
-  },
-  {
-    "name": "n8n",
-    "url": "https://n8n.io/",
-    "description": "Flexible automation platform with self-host and developer control.",
-    "abilities": [
-      "automation",
-      "code"
-    ]
-  },
-  {
-    "name": "OpenAI API",
-    "url": "https://platform.openai.com/",
-    "description": "API platform to build custom AI-powered applications and workflows.",
-    "abilities": [
-      "text",
-      "image",
-      "video",
-      "code",
-      "audio",
-      "automation"
+      "audio"
     ]
   },
   {
@@ -320,7 +234,7 @@
     "description": "Search-first answer engine with citation-driven responses.",
     "abilities": [
       "text",
-      "code"
+      "learning"
     ]
   },
   {
@@ -328,18 +242,8 @@
     "url": "https://pika.art/",
     "description": "Quick prompt-to-video tool for content prototyping.",
     "abilities": [
-      "video",
       "image",
-      "text"
-    ]
-  },
-  {
-    "name": "Pipedream",
-    "url": "https://pipedream.com/",
-    "description": "Event-based API workflow automation for engineering and ops teams.",
-    "abilities": [
-      "automation",
-      "code"
+      "video"
     ]
   },
   {
@@ -347,9 +251,7 @@
     "url": "https://pixverse.ai/",
     "description": "Fast AI clip generation with cinematic and stylized output options.",
     "abilities": [
-      "video",
-      "image",
-      "text"
+      "video"
     ]
   },
   {
@@ -357,16 +259,7 @@
     "url": "https://producer.ai/",
     "description": "AI-powered music workflow support for creators and producers.",
     "abilities": [
-      "audio",
-      "text"
-    ]
-  },
-  {
-    "name": "Product Hunt: AI",
-    "url": "https://www.producthunt.com/topics/artificial-intelligence",
-    "description": "Explore newly launched AI products and maker demos.",
-    "abilities": [
-      "learning"
+      "audio"
     ]
   },
   {
@@ -374,9 +267,7 @@
     "url": "https://chat.qwen.ai/",
     "description": "Alibaba chat assistant that supports multimodal tasks and technical use cases.",
     "abilities": [
-      "text",
-      "image",
-      "code"
+      "text"
     ]
   },
   {
@@ -385,7 +276,6 @@
     "description": "Cloud IDE with AI coding support and instant app hosting.",
     "abilities": [
       "code",
-      "text",
       "automation"
     ]
   },
@@ -394,9 +284,8 @@
     "url": "https://runwayml.com/",
     "description": "Full video generation and editing suite for creators and teams.",
     "abilities": [
-      "video",
       "image",
-      "text",
+      "video",
       "audio"
     ]
   },
@@ -405,8 +294,7 @@
     "url": "https://soundraw.io/",
     "description": "Royalty-friendly music generator for creators and agencies.",
     "abilities": [
-      "audio",
-      "text"
+      "audio"
     ]
   },
   {
@@ -414,8 +302,7 @@
     "url": "https://www.stableaudio.com/",
     "description": "Prompt-based audio generation for background tracks and sound elements.",
     "abilities": [
-      "audio",
-      "text"
+      "audio"
     ]
   },
   {
@@ -423,8 +310,7 @@
     "url": "https://suno.com/",
     "description": "Generates full songs including vocals from text prompts.",
     "abilities": [
-      "audio",
-      "text"
+      "audio"
     ]
   },
   {
@@ -433,17 +319,7 @@
     "description": "AI avatar video platform for explainers, onboarding, and training media.",
     "abilities": [
       "video",
-      "text",
       "audio"
-    ]
-  },
-  {
-    "name": "Two Minute Papers",
-    "url": "https://www.youtube.com/@TwoMinutePapers",
-    "description": "Research summaries presented in short, easy-to-follow videos.",
-    "abilities": [
-      "learning",
-      "video"
     ]
   },
   {
@@ -451,8 +327,7 @@
     "url": "https://www.udio.com/",
     "description": "AI music generation with strong style and arrangement control.",
     "abilities": [
-      "audio",
-      "text"
+      "audio"
     ]
   },
   {
@@ -460,18 +335,6 @@
     "url": "https://v0.dev/",
     "description": "Prompt-driven UI and frontend code generation tool.",
     "abilities": [
-      "code",
-      "text"
-    ]
-  },
-  {
-    "name": "Wan 2.1",
-    "url": "https://github.com/feifeibear/Wan2.1",
-    "description": "Open-source generative video model reference for self-hosted experimentation.",
-    "abilities": [
-      "video",
-      "image",
-      "text",
       "code"
     ]
   },
@@ -480,7 +343,6 @@
     "url": "https://windsurf.com/",
     "description": "AI coding environment focused on end-to-end software development speed.",
     "abilities": [
-      "code",
       "text"
     ]
   },
@@ -489,8 +351,7 @@
     "url": "https://zapier.com/ai",
     "description": "App integrations and AI-powered no-code automations for business workflows.",
     "abilities": [
-      "automation",
-      "text"
+      "automation"
     ]
   }
 ]
