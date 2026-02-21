@@ -28,6 +28,8 @@ const DEFAULT_ROUTE_CONFIG = [
 
 const ALLOWED_ROLES = new Set(["system", "user", "assistant"]);
 const MAX_MESSAGES = 40;
+const MAX_MESSAGE_CHARS = 3000;
+const MAX_TOTAL_CHARS = 12000;
 const REQUEST_TIMEOUT_MS = 30000;
 
 function readRouteConfigFromEnv() {
@@ -55,13 +57,22 @@ function normalizeBody(req) {
 
 function sanitizeMessages(rawMessages) {
   if (!Array.isArray(rawMessages)) return [];
-  return rawMessages
+  const sanitized = rawMessages
     .slice(-MAX_MESSAGES)
     .map((entry) => ({
       role: String(entry && entry.role ? entry.role : "").trim(),
-      content: String(entry && entry.content ? entry.content : "").trim()
+      content: String(entry && entry.content ? entry.content : "").trim().slice(0, MAX_MESSAGE_CHARS)
     }))
     .filter((entry) => ALLOWED_ROLES.has(entry.role) && entry.content.length > 0);
+
+  let totalChars = 0;
+  const bounded = [];
+  for (const entry of sanitized) {
+    if (totalChars + entry.content.length > MAX_TOTAL_CHARS) break;
+    bounded.push(entry);
+    totalChars += entry.content.length;
+  }
+  return bounded;
 }
 
 function extractAssistantText(rawContent) {
@@ -91,7 +102,7 @@ function parseOpenRouterError(response, payload) {
 async function requestWithRoute(route, messages, req) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  const referer = String(process.env.OPENROUTER_HTTP_REFERER || `https://${req.headers.host || ""}`).trim();
+  const referer = String(process.env.OPENROUTER_HTTP_REFERER || "https://aicenghub.vercel.app").trim();
   const title = String(process.env.OPENROUTER_APP_TITLE || "AICENGHUB").trim();
 
   try {
@@ -133,10 +144,52 @@ async function requestWithRoute(route, messages, req) {
   }
 }
 
+function setResponseSecurityHeaders(res) {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+}
+
+function parseAllowedOrigins() {
+  const raw = String(process.env.JULEHA_ALLOWED_ORIGINS || "").trim();
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function requestOrigin(req) {
+  return String((req && req.headers && req.headers.origin) || "").trim();
+}
+
+function defaultAllowedOrigin(req) {
+  const host = String((req && req.headers && req.headers.host) || "").trim();
+  return host ? `https://${host}` : "";
+}
+
+function isOriginAllowed(req) {
+  const origin = requestOrigin(req);
+  if (!origin) return true;
+
+  const configuredOrigins = parseAllowedOrigins();
+  if (configuredOrigins.length) {
+    return configuredOrigins.includes(origin);
+  }
+
+  return origin === defaultAllowedOrigin(req);
+}
+
 module.exports = async function handler(req, res) {
+  setResponseSecurityHeaders(res);
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed." });
+  }
+
+  if (!isOriginAllowed(req)) {
+    return res.status(403).json({ error: "Origin not allowed." });
   }
 
   const body = normalizeBody(req);
@@ -163,6 +216,9 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  const summary = routeErrors.map((entry) => `${entry.route}: ${entry.error}`).join(" | ");
-  return res.status(502).json({ error: `All AI routes failed. ${summary}` });
+  console.error("Juleha route failure", {
+    routeErrors,
+    requestId: req && req.headers ? req.headers["x-vercel-id"] : ""
+  });
+  return res.status(502).json({ error: "AI service unavailable right now." });
 };
