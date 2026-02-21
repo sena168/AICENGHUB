@@ -65,14 +65,27 @@ function sanitizeMessages(rawMessages) {
     }))
     .filter((entry) => ALLOWED_ROLES.has(entry.role) && entry.content.length > 0);
 
+  const systemMessages = sanitized.filter((entry) => entry.role === "system");
+  const conversationMessages = sanitized.filter((entry) => entry.role !== "system");
+
   let totalChars = 0;
-  const bounded = [];
-  for (const entry of sanitized) {
+  const boundedSystems = [];
+  for (const entry of systemMessages) {
     if (totalChars + entry.content.length > MAX_TOTAL_CHARS) break;
-    bounded.push(entry);
+    boundedSystems.push(entry);
     totalChars += entry.content.length;
   }
-  return bounded;
+
+  const boundedConversationReversed = [];
+  for (let index = conversationMessages.length - 1; index >= 0; index -= 1) {
+    const entry = conversationMessages[index];
+    if (totalChars + entry.content.length > MAX_TOTAL_CHARS) break;
+    boundedConversationReversed.push(entry);
+    totalChars += entry.content.length;
+  }
+
+  const boundedConversation = boundedConversationReversed.reverse();
+  return [...boundedSystems, ...boundedConversation];
 }
 
 function extractAssistantText(rawContent) {
@@ -196,6 +209,9 @@ module.exports = async function handler(req, res) {
   const messages = sanitizeMessages(body.messages);
   if (!messages.length) {
     return res.status(400).json({ error: "Invalid or empty messages payload." });
+  }
+  if (!messages.some((entry) => entry.role === "user")) {
+    return res.status(400).json({ error: "No user message in payload." });
   }
 
   const routes = readRouteConfigFromEnv();
