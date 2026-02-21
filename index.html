@@ -629,11 +629,13 @@
 
     function hideBunnyButton() {
       bunnyFab.hidden = true;
+      bunnyFab.style.display = "none";
       bunnyFab.setAttribute("aria-hidden", "true");
     }
 
     function showBunnyButton() {
       bunnyFab.hidden = false;
+      bunnyFab.style.display = "flex";
       bunnyFab.removeAttribute("aria-hidden");
     }
 
