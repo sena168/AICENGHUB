@@ -62,6 +62,16 @@
       margin: 2.2rem auto 3rem;
     }
 
+    .app-version {
+      margin: 0 0 0.5rem 0.15rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(248, 247, 245, 0.42);
+      user-select: none;
+      pointer-events: none;
+    }
+
     .hero {
       display: grid;
       grid-template-columns: 1.08fr 0.92fr;
@@ -541,6 +551,15 @@
       color: #b9f5ff;
     }
 
+    .juleha-chat-meta {
+      margin: 0;
+      padding: 0.28rem 0.8rem 0.52rem;
+      font-size: 0.73rem;
+      color: rgba(185, 245, 255, 0.7);
+      background: rgba(30, 184, 199, 0.08);
+      border-bottom: 1px solid rgba(30, 184, 199, 0.2);
+    }
+
     .juleha-chat-close {
       border: 1px solid rgba(255, 255, 255, 0.28);
       background: rgba(255, 255, 255, 0.08);
@@ -728,6 +747,7 @@
 </head>
 <body>
   <main class="container">
+    <div id="app-version" class="app-version">v22</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -779,6 +799,7 @@
       <h3>Ask Juleha</h3>
       <button id="juleha-chat-close" class="juleha-chat-close" type="button" aria-label="Close chat">Close</button>
     </header>
+    <p id="juleha-chat-meta" class="juleha-chat-meta">AI active: auto fallback</p>
     <div id="juleha-chat-log" class="juleha-chat-log" role="log" aria-live="polite"></div>
     <form id="juleha-chat-form" class="juleha-chat-form">
       <input id="juleha-chat-input" class="juleha-chat-input" type="text" maxlength="500" placeholder="Type your message..." autocomplete="off">
@@ -874,6 +895,7 @@
     const julehaFab = document.getElementById("juleha-fab");
     const julehaChatWindow = document.getElementById("juleha-chat-window");
     const julehaChatClose = document.getElementById("juleha-chat-close");
+    const julehaChatMeta = document.getElementById("juleha-chat-meta");
     const julehaChatLog = document.getElementById("juleha-chat-log");
     const julehaChatForm = document.getElementById("juleha-chat-form");
     const julehaChatInput = document.getElementById("juleha-chat-input");
@@ -892,13 +914,30 @@
     let crazybunnyPreloadedImage = null;
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
+    let julehaActiveRouteLabel = "auto fallback";
     const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    const OPENROUTER_MODEL = "stepfun/step-3.5-flash:free";
-    const OPENROUTER_API_KEY = "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";
-    const JULEHA_SYSTEM_PROMPT = "You are Juleha, the AI copilot inside AICENGHUB. Keep answers concise, practical, and friendly. Help users discover tools, compare options, and decide next steps.";
-    const julehaConversation = [
-      { role: "system", content: JULEHA_SYSTEM_PROMPT }
+    const JULEHA_MEMORY_TURNS = 12;
+    const JULEHA_HISTORY_STORAGE_KEY = "aicenghub.juleha.history.v1";
+    const JULEHA_MAX_HISTORY_MESSAGES = JULEHA_MEMORY_TURNS * 2;
+    const OPENROUTER_ROUTE = [
+      {
+        label: "GLM 4.5 Air (primary)",
+        model: "z-ai/glm-4.5-air:free",
+        apiKey: "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"
+      },
+      {
+        label: "Qwen 3 VL Thinking (backup)",
+        model: "qwen/qwen3-vl-235b-a22b-thinking",
+        apiKey: "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"
+      },
+      {
+        label: "Step 3.5 Flash (backup)",
+        model: "stepfun/step-3.5-flash:free",
+        apiKey: "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"
+      }
     ];
+    const JULEHA_SYSTEM_PROMPT = "You are Juleha, the AI copilot inside AICENGHUB. Keep answers concise, practical, and friendly. Help users discover tools, compare options, and decide next steps.";
+    let julehaHistory = loadJulehaHistory();
     const BUNNY_HIDDEN_COOKIE_NAME = "aicenghub_bunny_hidden";
     const BUNNY_SEEN_COOKIE_NAME = "aicenghub_bunny_seen";
     const BUNNY_HIDE_DAYS = 365;
@@ -1321,11 +1360,62 @@
       julehaChatLog.scrollTop = julehaChatLog.scrollHeight;
     }
 
+    function normalizeJulehaHistory(rawHistory) {
+      if (!Array.isArray(rawHistory)) return [];
+      const normalized = rawHistory
+        .filter((entry) => entry && (entry.role === "user" || entry.role === "assistant"))
+        .map((entry) => ({
+          role: entry.role,
+          content: String(entry.content || "").trim()
+        }))
+        .filter((entry) => entry.content.length > 0);
+      return normalized.slice(-JULEHA_MAX_HISTORY_MESSAGES);
+    }
+
+    function loadJulehaHistory() {
+      try {
+        const raw = localStorage.getItem(JULEHA_HISTORY_STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return normalizeJulehaHistory(parsed);
+      } catch {
+        return [];
+      }
+    }
+
+    function saveJulehaHistory() {
+      try {
+        localStorage.setItem(JULEHA_HISTORY_STORAGE_KEY, JSON.stringify(julehaHistory));
+      } catch {}
+    }
+
+    function buildJulehaRequestMessages(userText) {
+      return [
+        { role: "system", content: JULEHA_SYSTEM_PROMPT },
+        ...julehaHistory,
+        { role: "user", content: userText }
+      ];
+    }
+
+    function rememberJulehaExchange(userText, assistantText) {
+      julehaHistory = normalizeJulehaHistory([
+        ...julehaHistory,
+        { role: "user", content: userText },
+        { role: "assistant", content: assistantText }
+      ]);
+      saveJulehaHistory();
+    }
+
     function setJulehaPendingState(isPending) {
       isJulehaRequestInFlight = isPending;
       julehaChatInput.disabled = isPending;
       julehaChatSendButton.disabled = isPending;
       julehaChatSendButton.textContent = isPending ? "Thinking..." : "Send";
+    }
+
+    function setJulehaActiveRoute(label) {
+      julehaActiveRouteLabel = String(label || "auto fallback");
+      julehaChatMeta.textContent = `AI active: ${julehaActiveRouteLabel}`;
     }
 
     function extractAssistantText(rawContent) {
@@ -1341,35 +1431,39 @@
       return textParts.join("\n").trim();
     }
 
-    async function requestJulehaReply(userText) {
-      if (!OPENROUTER_API_KEY) {
-        throw new Error("OpenRouter API key is missing.");
-      }
+    function parseOpenRouterError(response, payload) {
+      const apiMessage = payload && payload.error && payload.error.message
+        ? payload.error.message
+        : "";
+      if (apiMessage) return apiMessage;
+      if (response.status === 401) return "invalid key or unauthorized model";
+      if (response.status === 402) return "insufficient credits for this model/key";
+      if (response.status === 429) return "rate limited";
+      return `HTTP ${response.status}`;
+    }
 
-      const userMessage = { role: "user", content: userText };
-      julehaConversation.push(userMessage);
+    async function requestWithOpenRouterRoute(routeConfig, messages) {
+      if (!routeConfig.apiKey) {
+        throw new Error("missing API key");
+      }
 
       const response = await fetch(OPENROUTER_API_URL, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${routeConfig.apiKey}`,
           "Content-Type": "application/json",
           "HTTP-Referer": window.location.origin,
           "X-Title": "AICENGHUB"
         },
         body: JSON.stringify({
-          model: OPENROUTER_MODEL,
-          messages: julehaConversation
+          model: routeConfig.model,
+          messages
         })
       });
 
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        julehaConversation.pop();
-        const errorMessage = payload && payload.error && payload.error.message
-          ? payload.error.message
-          : `OpenRouter request failed with HTTP ${response.status}`;
-        throw new Error(errorMessage);
+        throw new Error(parseOpenRouterError(response, payload));
       }
 
       const assistantContent = payload
@@ -1384,8 +1478,35 @@
         throw new Error("OpenRouter returned an empty response.");
       }
 
-      julehaConversation.push({ role: "assistant", content: assistantText });
-      return assistantText;
+      return {
+        assistantText,
+        routeLabel: routeConfig.label
+      };
+    }
+
+    function buildRouteFailureMessage(routeErrors) {
+      const compact = routeErrors
+        .map((entry) => `${entry.label}: ${entry.error}`)
+        .join(" | ");
+      return `All AI routes failed. ${compact}`;
+    }
+
+    async function requestJulehaReply(userText) {
+      const messages = buildJulehaRequestMessages(userText);
+      const routeErrors = [];
+
+      for (const routeConfig of OPENROUTER_ROUTE) {
+        try {
+          const result = await requestWithOpenRouterRoute(routeConfig, messages);
+          rememberJulehaExchange(userText, result.assistantText);
+          return result;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          routeErrors.push({ label: routeConfig.label, error: message });
+        }
+      }
+
+      throw new Error(buildRouteFailureMessage(routeErrors));
     }
 
     function openJulehaChat() {
@@ -1401,7 +1522,15 @@
     }
 
     function bindJulehaChat() {
-      appendJulehaMessage("Hi. I am Juleha. I am now connected. Ask me anything.", "assistant");
+      setJulehaActiveRoute(julehaActiveRouteLabel);
+      if (julehaHistory.length) {
+        appendJulehaMessage(`Memory restored (${Math.floor(julehaHistory.length / 2)} turns).`, "assistant");
+        julehaHistory.forEach((entry) => {
+          appendJulehaMessage(entry.content, entry.role);
+        });
+      } else {
+        appendJulehaMessage("Hi. I am Juleha. I am now connected. Ask me anything.", "assistant");
+      }
 
       julehaFab.addEventListener("click", () => {
         if (julehaChatWindow.hidden) {
@@ -1426,10 +1555,12 @@
 
         try {
           setJulehaPendingState(true);
-          const assistantText = await requestJulehaReply(text);
-          appendJulehaMessage(assistantText, "assistant");
+          const result = await requestJulehaReply(text);
+          setJulehaActiveRoute(result.routeLabel);
+          appendJulehaMessage(result.assistantText, "assistant");
         } catch (error) {
           const message = error instanceof Error ? error.message : "Failed to reach OpenRouter.";
+          setJulehaActiveRoute("unavailable");
           appendJulehaMessage(`OpenRouter error: ${message}`, "assistant");
         } finally {
           setJulehaPendingState(false);
@@ -1477,5 +1608,7 @@
   </script>
 </body>
 </html>
+
+
 
 
