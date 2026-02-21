@@ -472,7 +472,7 @@
     .juleha-fab {
       position: fixed;
       right: 5.8rem;
-      bottom: 1rem;
+      bottom: calc(1rem + 3.8rem);
       z-index: 5;
       border: 1px solid rgba(30, 184, 199, 0.85);
       background: linear-gradient(180deg, #39d7e6, #1aa8bd);
@@ -506,7 +506,7 @@
     .juleha-chat-window {
       position: fixed;
       right: 5.6rem;
-      bottom: 5.3rem;
+      bottom: 9rem;
       z-index: 50;
       width: min(360px, calc(100vw - 2rem));
       height: 420px;
@@ -700,24 +700,26 @@
 
       .juleha-fab {
         right: 5.5rem;
+        bottom: calc(1rem + 3.6rem);
         min-width: 8.7rem;
         height: 3.6rem;
       }
 
       .juleha-chat-window {
         right: 1rem;
+        bottom: 8.6rem;
       }
     }
 
     @media (max-width: 680px) {
       .juleha-fab {
         right: 1rem;
-        bottom: 5.15rem;
+        bottom: calc(1rem + 3.6rem);
       }
 
       .juleha-chat-window {
         right: 1rem;
-        bottom: 9.45rem;
+        bottom: 8.6rem;
         width: calc(100vw - 2rem);
         height: min(420px, 60vh);
       }
