@@ -757,7 +757,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v28</div>
+    <div id="app-version" class="app-version">v29</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -935,9 +935,10 @@
       "You are Juleha, the AI copilot inside AICENGHUB.",
       "Persona: calm, tactical, slightly playful, and focused on helping the user decide quickly.",
       "Style rules: concise, practical, no fluff, and prefer short lists when useful.",
-      "Recommend only tools that exist in the provided AICENGHUB catalog context.",
-      "If a requested tool is not in the catalog, say so clearly and suggest closest in-catalog alternatives.",
-      "When recommending tools, include direct URLs from the catalog context."
+      "Priority: recommend tools from AICENGHUB catalog first and include their direct links.",
+      "If a user asks for an AI that is not in catalog, you may use your own knowledge to suggest external tools.",
+      "When suggesting external tools, clearly label them as external (not in AICENGHUB catalog).",
+      "If possible, still include closest in-catalog alternatives."
     ].join(" ");
     let julehaHistory = loadJulehaHistory();
     const BUNNY_HIDDEN_COOKIE_NAME = "aicenghub_bunny_hidden";
@@ -1529,8 +1530,10 @@
 
       return [
         "AICENGHUB catalog policy:",
-        "- Recommend only tools listed below.",
-        "- If user asks for tools outside this list, explicitly say it is outside current catalog and provide closest listed alternatives.",
+        "- Prioritize tools listed below first.",
+        "- If user asks for tools outside this list, you may suggest external options from your own knowledge.",
+        "- Clearly label external options as: external (not in AICENGHUB catalog).",
+        "- Also provide closest listed alternatives when possible.",
         `Catalog totals: ${tools.length} tools.`,
         `Ability counts: ${abilityCounts}`,
         "Relevant catalog entries:",
@@ -1690,7 +1693,10 @@
 
     async function loadTools() {
       try {
-        const response = await fetch("./link-list.json");
+        let response = await fetch("/api/link-list", { cache: "no-store" });
+        if (!response.ok) {
+          response = await fetch("./link-list.json", { cache: "no-store" });
+        }
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (!Array.isArray(data)) throw new Error("Invalid JSON shape");
@@ -1713,6 +1719,7 @@
   </script>
 </body>
 </html>
+
 
 
 

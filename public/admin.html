@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AICENGHUB Admin</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(15, 28, 53, 0.85);
+      --ink: #ecf6ff;
+      --muted: #9eb9cf;
+      --accent: #2ec5d4;
+      --accent-2: #f4b73f;
+      --danger: #f98585;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(1200px 560px at 18% -10%, rgba(46, 197, 212, 0.18), transparent 62%),
+        radial-gradient(900px 480px at 88% 110%, rgba(244, 183, 63, 0.15), transparent 58%),
+        var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 1.2rem;
+    }
+
+    .card {
+      width: min(560px, 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(46, 197, 212, 0.35);
+      background: var(--panel);
+      padding: 1rem;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.34);
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.7rem;
+      margin-top: 0.95rem;
+    }
+
+    input, button {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.62rem 0.72rem;
+    }
+
+    input {
+      background: rgba(3, 8, 18, 0.75);
+      color: var(--ink);
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      border-color: rgba(244, 183, 63, 0.7);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #201105;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .status {
+      margin-top: 0.85rem;
+      font-size: 0.94rem;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.ok {
+      color: #b0f6c8;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Admin: Update List</h1>
+    <p>Action flow: create rolling backup, merge pending candidate links into main list, keep max 30 backups.</p>
+
+    <div class="row">
+      <input id="admin-token" type="password" placeholder="Admin token">
+      <button id="update-list-btn" type="button">Update List</button>
+    </div>
+
+    <div id="status" class="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    const tokenInput = document.getElementById("admin-token");
+    const updateButton = document.getElementById("update-list-btn");
+    const statusNode = document.getElementById("status");
+
+    function setStatus(message, type) {
+      statusNode.textContent = message;
+      statusNode.classList.remove("ok", "error");
+      if (type) statusNode.classList.add(type);
+    }
+
+    async function runUpdateList() {
+      const adminToken = tokenInput.value.trim();
+      if (!adminToken) {
+        setStatus("Admin token is required.", "error");
+        return;
+      }
+
+      const confirmed = window.confirm("Confirm update-list? This will merge current pending candidates into main list.");
+      if (!confirmed) return;
+
+      try {
+        updateButton.disabled = true;
+        setStatus("Updating list...", "");
+
+        const response = await fetch("/api/admin-update-list", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-token": adminToken
+          },
+          body: JSON.stringify({ adminToken })
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
+        }
+
+        setStatus(
+          [
+            "Update completed.",
+            `Backup: ${payload.backupFileName || "n/a"}`,
+            `Pending scanned: ${payload.pendingCount || 0}`,
+            `Merged: ${payload.mergedCount || 0}`,
+            `Skipped existing: ${payload.skippedExistingCount || 0}`,
+            `Total links now: ${payload.totalLinks || 0}`
+          ].join("\n"),
+          "ok"
+        );
+      } catch (error) {
+        setStatus(`Update failed: ${error instanceof Error ? error.message : "unknown error"}`, "error");
+      } finally {
+        updateButton.disabled = false;
+      }
+    }
+
+    updateButton.addEventListener("click", runUpdateList);
+  </script>
+</body>
+</html>

@@ -1,6 +1,14 @@
 "use strict";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const {
+  createSqlClient,
+  ensureStoreReady,
+  normalizeUrl,
+  normalizeAbilities,
+  getMainUrlSet,
+  upsertCandidate
+} = require("./_link-store");
 
 const DEFAULT_ROUTE_CONFIG = [
   {
@@ -34,6 +42,8 @@ const REQUEST_TIMEOUT_MS = 30000;
 const LINK_VERIFY_MAX_LINKS = 6;
 const LINK_VERIFY_TIMEOUT_MS = 6000;
 const LINK_VERIFY_TITLE_CHARS = 120;
+const CANDIDATE_MAX_CAPTURED_LINKS = 4;
+const CANDIDATE_DOC_TIMEOUT_MS = 6500;
 
 function readRouteConfigFromEnv() {
   return DEFAULT_ROUTE_CONFIG
@@ -178,6 +188,204 @@ function extractHtmlTitle(html) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, LINK_VERIFY_TITLE_CHARS);
+}
+
+function extractMetaDescription(html) {
+  const source = String(html || "");
+  const match = source.match(/<meta[^>]+name=["']description["'][^>]*content=["']([\s\S]*?)["'][^>]*>/i)
+    || source.match(/<meta[^>]+content=["']([\s\S]*?)["'][^>]*name=["']description["'][^>]*>/i);
+  if (!match) return "";
+  return String(match[1] || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 280);
+}
+
+function shouldCaptureCandidates() {
+  const raw = String(process.env.JULEHA_CAPTURE_CANDIDATES || "1").trim().toLowerCase();
+  return !["0", "false", "off", "no"].includes(raw);
+}
+
+function extractExternalTaggedUrls(text) {
+  const lines = String(text || "").split(/\r?\n/);
+  const taggedUrls = [];
+  const seen = new Set();
+
+  for (const line of lines) {
+    if (!line.toLowerCase().includes("external (not in aicenghub catalog)")) continue;
+    const urls = line.match(/https?:\/\/[^\s<>"')\]]+/gi) || [];
+    for (const rawUrl of urls) {
+      const cleaned = String(rawUrl || "").replace(/[.,!?;:]+$/g, "");
+      const normalized = normalizeUrl(cleaned);
+      if (!normalized || seen.has(normalized)) continue;
+      seen.add(normalized);
+      taggedUrls.push(normalized);
+    }
+  }
+
+  return taggedUrls;
+}
+
+function inferAbilitiesFromEvidence(text) {
+  const corpus = String(text || "").toLowerCase();
+  const abilityKeywords = {
+    text: ["chat", "assistant", "writing", "document", "text generation", "summarization", "llm"],
+    image: ["image", "photo", "art", "illustration", "diffusion", "design", "visual generation"],
+    video: ["video", "clip", "animation", "text-to-video", "film"],
+    audio: ["audio", "music", "song", "voice", "speech", "tts", "sound"],
+    code: ["code", "developer", "programming", "api", "sdk", "repository", "github"],
+    automation: ["automation", "workflow", "agent", "integration", "zap", "trigger"],
+    learning: ["research", "reasoning", "knowledge", "education", "learning", "search"]
+  };
+
+  const abilities = [];
+  for (const [ability, keywords] of Object.entries(abilityKeywords)) {
+    if (keywords.some((keyword) => corpus.includes(keyword))) {
+      abilities.push(ability);
+    }
+  }
+  return normalizeAbilities(abilities);
+}
+
+function deriveToolName(url, title) {
+  const cleanTitle = String(title || "").trim();
+  if (cleanTitle) {
+    const firstSegment = cleanTitle.split(/[|\-–—:]/)[0].trim();
+    if (firstSegment) return firstSegment.slice(0, 120);
+  }
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "");
+    const root = host.split(".")[0] || host;
+    return root.charAt(0).toUpperCase() + root.slice(1);
+  } catch {
+    return "Unknown AI Tool";
+  }
+}
+
+async function readUrlEvidence(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+
+  if (!["http:", "https:"].includes(parsed.protocol)) return null;
+  if (isBlockedHostname(parsed.hostname)) return null;
+
+  const checkedSources = [];
+  const targetUrls = [url];
+  const docsCandidates = ["/docs", "/documentation", "/help"];
+  for (const suffix of docsCandidates) {
+    try {
+      targetUrls.push(new URL(suffix, `${parsed.protocol}//${parsed.host}`).href);
+    } catch {}
+  }
+
+  let combinedText = "";
+  let bestTitle = "";
+  let bestDescription = "";
+
+  for (const targetUrl of targetUrls) {
+    try {
+      const response = await fetchWithTimeout(
+        targetUrl,
+        {
+          method: "GET",
+          headers: {
+            Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+          }
+        },
+        CANDIDATE_DOC_TIMEOUT_MS
+      );
+
+      const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+      const body = contentType.includes("text/html") || contentType.includes("application/xhtml+xml")
+        ? await response.text().catch(() => "")
+        : "";
+
+      checkedSources.push({
+        url: targetUrl,
+        status: response.status,
+        ok: response.ok
+      });
+
+      if (!response.ok || !body) continue;
+
+      const title = extractHtmlTitle(body);
+      const description = extractMetaDescription(body);
+      if (!bestTitle && title) bestTitle = title;
+      if (!bestDescription && description) bestDescription = description;
+      combinedText += ` ${title} ${description}`.trim();
+    } catch (error) {
+      checkedSources.push({
+        url: targetUrl,
+        status: 0,
+        ok: false,
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  const name = deriveToolName(url, bestTitle);
+  const description = bestDescription || bestTitle || "AI tool discovered by Juleha candidate pipeline.";
+  const abilities = inferAbilitiesFromEvidence(combinedText || `${name} ${description}`);
+
+  return {
+    name,
+    description,
+    abilities,
+    evidence: {
+      method: "official-site-and-docs-check",
+      checkedSources
+    }
+  };
+}
+
+async function captureCandidateLinks(assistantText, verifiedLinks) {
+  if (!shouldCaptureCandidates()) return;
+  if (!Array.isArray(verifiedLinks) || !verifiedLinks.length) return;
+
+  let sql;
+  try {
+    sql = createSqlClient();
+    await ensureStoreReady(sql);
+  } catch {
+    return;
+  }
+
+  const mainUrlSet = await getMainUrlSet(sql).catch(() => new Set());
+  const taggedExternalUrls = new Set(extractExternalTaggedUrls(assistantText));
+  const verifiedOkUrls = verifiedLinks
+    .filter((entry) => entry && entry.ok)
+    .map((entry) => normalizeUrl(entry.finalUrl || entry.url || ""))
+    .filter(Boolean);
+
+  if (!verifiedOkUrls.length) return;
+
+  const capturePool = taggedExternalUrls.size
+    ? verifiedOkUrls.filter((url) => taggedExternalUrls.has(url))
+    : verifiedOkUrls;
+
+  const candidatesToCapture = capturePool
+    .filter((url) => !mainUrlSet.has(url))
+    .slice(0, CANDIDATE_MAX_CAPTURED_LINKS);
+
+  for (const url of candidatesToCapture) {
+    const evidence = await readUrlEvidence(url);
+    if (!evidence) continue;
+
+    await upsertCandidate(sql, {
+      name: evidence.name,
+      url,
+      description: evidence.description,
+      abilities: evidence.abilities,
+      evidence: evidence.evidence,
+      discoveredBy: "juleha-chat"
+    }).catch(() => {});
+  }
 }
 
 async function fetchWithTimeout(url, options, timeoutMs) {
@@ -370,6 +578,7 @@ module.exports = async function handler(req, res) {
     try {
       const result = await requestWithRoute(route, messages, req);
       const verifiedLinks = await verifyAssistantLinks(result.assistantText).catch(() => []);
+      await captureCandidateLinks(result.assistantText, verifiedLinks).catch(() => {});
       return res.status(200).json({ ...result, verifiedLinks });
     } catch (error) {
       routeErrors.push({

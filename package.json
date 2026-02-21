@@ -1,0 +1,9 @@
+{
+  "name": "aicenghub",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AICENGHUB static app with Vercel serverless APIs",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}
