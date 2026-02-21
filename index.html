@@ -7,6 +7,8 @@
   <link rel="icon" type="image/jpeg" href="./public/favicoaiceng.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="image" href="./public/crazybunny.png">
+  <link rel="preload" as="audio" href="./public/bunnygrowl.mp4">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -346,12 +348,13 @@
       background: linear-gradient(180deg, #f7ca6f, #f0a933);
       color: #1a1310;
       border-radius: 999px;
-      padding: 0.62rem 0.92rem;
-      font: inherit;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      width: 3.5rem;
+      height: 3.5rem;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
       cursor: pointer;
     }
@@ -363,6 +366,41 @@
     .bunny-fab:focus-visible {
       outline: 2px solid #fff2c9;
       outline-offset: 2px;
+    }
+
+    .bunny-fab img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .crazybunny-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: #000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .crazybunny-overlay.is-active {
+      display: flex;
+    }
+
+    .crazybunny-overlay img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      animation: crazybunny-shake 130ms linear infinite;
+    }
+
+    @keyframes crazybunny-shake {
+      0% { transform: translateX(-5vw); }
+      50% { transform: translateX(5vw); }
+      100% { transform: translateX(-5vw); }
     }
 
     @media (max-width: 920px) {
@@ -425,8 +463,11 @@
     <footer id="footer-text">AICENGHUB curated link directory.</footer>
   </main>
   <button id="bunny-fab" class="bunny-fab" type="button" aria-label="Bunny">
-    Bunny
+    <img src="./public/transparentbunny.png" alt="" aria-hidden="true">
   </button>
+  <div id="crazybunny-overlay" class="crazybunny-overlay" aria-hidden="true">
+    <img src="./public/crazybunny.png" alt="" aria-hidden="true">
+  </div>
 
   <script>
     const ABILITY_FILTER_KEYS = ["all", "text", "image", "video", "audio", "code", "automation", "learning"];
@@ -509,11 +550,19 @@
     const panelSubtitle = document.getElementById("panel-subtitle");
     const footerText = document.getElementById("footer-text");
     const langSwitch = document.getElementById("lang-switch");
+    const bunnyFab = document.getElementById("bunny-fab");
+    const crazybunnyOverlay = document.getElementById("crazybunny-overlay");
+    const crazybunnyImage = crazybunnyOverlay.querySelector("img");
+    const crazybunnySound = new Audio("./public/bunnygrowl.mp4");
+    crazybunnySound.preload = "auto";
+    crazybunnySound.load();
 
     let tools = [];
     let activeFilter = "all";
     let searchQuery = "";
     let searchDebounceTimer = null;
+    let crazybunnyTimer = null;
+    let crazybunnyPreloadedImage = null;
     let currentLanguage = detectInitialLanguage();
     const ABILITY_SEARCH_ALIASES = {
       all: ["all", "semua", "any"],
@@ -822,6 +871,35 @@
       });
     }
 
+    function bindBunnyButton() {
+      bunnyFab.addEventListener("click", () => {
+        if (crazybunnyTimer) {
+          clearTimeout(crazybunnyTimer);
+          crazybunnyTimer = null;
+        }
+        crazybunnyOverlay.classList.add("is-active");
+        try {
+          crazybunnySound.currentTime = 0;
+          const playPromise = crazybunnySound.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {});
+          }
+        } catch {}
+        crazybunnyTimer = setTimeout(() => {
+          crazybunnyOverlay.classList.remove("is-active");
+          crazybunnyTimer = null;
+        }, 2000);
+      });
+    }
+
+    function primeCrazyBunnyAssets() {
+      crazybunnyPreloadedImage = new Image();
+      crazybunnyPreloadedImage.src = crazybunnyImage.src;
+      try {
+        crazybunnySound.load();
+      } catch {}
+    }
+
     async function loadTools() {
       try {
         const response = await fetch("./link-list.json");
@@ -837,9 +915,11 @@
     }
 
     applyTranslations();
+    primeCrazyBunnyAssets();
     buildFilterTabs();
     bindSearch();
     bindLanguageSwitch();
+    bindBunnyButton();
     loadTools();
   </script>
 </body>
