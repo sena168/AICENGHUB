@@ -133,6 +133,59 @@ function parseOpenRouterError(response, payload) {
   return `HTTP ${response.status}`;
 }
 
+function latestUserMessageText(messages) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const entry = messages[index];
+    if (entry && entry.role === "user") {
+      return String(entry.content || "").trim();
+    }
+  }
+  return "";
+}
+
+function isPromptOrSecretExfiltrationRequest(text) {
+  const source = String(text || "").toLowerCase();
+  if (!source) return false;
+
+  const patterns = [
+    /system\s+prompt/,
+    /developer\s+prompt/,
+    /hidden\s+instruction/,
+    /show\s+.*(prompt|policy|instruction)/,
+    /(api\s*key|token|secret|password|credential)/,
+    /(environment\s*variable|env\s*var|\.env|neon_database_url|openrouter_api_key|juleha_admin_token)/
+  ];
+
+  return patterns.some((pattern) => pattern.test(source));
+}
+
+function isHarmfulRequest(text) {
+  const source = String(text || "").toLowerCase();
+  if (!source) return false;
+
+  const patterns = [
+    /malware|ransomware|keylogger|trojan|virus/,
+    /exploit|sql\s*injection|xss|privilege\s*escalation|ddos/,
+    /phishing|credential\s*theft|steal\s+password/,
+    /build\s+(a\s+)?bomb|homemade\s+explosive|weapon/,
+    /self-harm|suicide|kill\s+myself/
+  ];
+
+  return patterns.some((pattern) => pattern.test(source));
+}
+
+function guardrailedMessages(messages) {
+  return [{ role: "system", content: SERVER_GUARDRAIL_PROMPT }, ...messages];
+}
+
+function redactPotentialSecrets(text) {
+  const source = String(text || "");
+  return source
+    .replace(/\bsk-[A-Za-z0-9_-]{12,}\b/g, "[redacted-secret]")
+    .replace(/\b(?:OPENROUTER|NEON|JULEHA)_[A-Z0-9_]+\b/g, "[redacted-env-var]")
+    .replace(/postgresql:\/\/[^\s)]+/gi, "[redacted-connection-string]");
+}
+
 function shouldVerifyLinks() {
   const raw = String(process.env.JULEHA_VERIFY_LINKS || "1").trim().toLowerCase();
   return !["0", "false", "off", "no"].includes(raw);
@@ -479,6 +532,7 @@ async function requestWithRoute(route, messages, req) {
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   const referer = String(process.env.OPENROUTER_HTTP_REFERER || "https://aicenghub.vercel.app").trim();
   const title = String(process.env.OPENROUTER_APP_TITLE || "AICENGHUB").trim();
+  const securedMessages = guardrailedMessages(messages);
 
   try {
     const response = await fetch(OPENROUTER_API_URL, {
@@ -491,7 +545,7 @@ async function requestWithRoute(route, messages, req) {
       },
       body: JSON.stringify({
         model: route.model,
-        messages
+        messages: securedMessages
       }),
       signal: controller.signal
     });
@@ -513,7 +567,7 @@ async function requestWithRoute(route, messages, req) {
       throw new Error("OpenRouter returned an empty response.");
     }
 
-    return { assistantText, routeLabel: route.label };
+    return { assistantText: redactPotentialSecrets(assistantText), routeLabel: route.label };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -574,6 +628,21 @@ module.exports = async function handler(req, res) {
   }
   if (!messages.some((entry) => entry.role === "user")) {
     return res.status(400).json({ error: "No user message in payload." });
+  }
+  const latestUserText = latestUserMessageText(messages);
+  if (isPromptOrSecretExfiltrationRequest(latestUserText)) {
+    return res.status(200).json({
+      assistantText: "I can't disclose prompts, hidden instructions, or any secrets. I can still help with normal product guidance.",
+      routeLabel: POLICY_ROUTE_LABEL,
+      verifiedLinks: []
+    });
+  }
+  if (isHarmfulRequest(latestUserText)) {
+    return res.status(200).json({
+      assistantText: "I can't help with harmful or dangerous requests. If you want, I can provide a safer alternative.",
+      routeLabel: POLICY_ROUTE_LABEL,
+      verifiedLinks: []
+    });
   }
 
   const routes = readRouteConfigFromEnv();

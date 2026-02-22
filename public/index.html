@@ -39,6 +39,10 @@
       line-height: 1.45;
     }
 
+    body.consent-open {
+      overflow: hidden;
+    }
+
     body::before {
       content: "";
       position: fixed;
@@ -456,11 +460,47 @@
       color: #cbf6ff;
     }
 
-    footer {
+    .footer-shell {
       margin-top: 1rem;
       text-align: center;
       color: rgba(255, 255, 255, 0.75);
       font-size: 0.9rem;
+      display: grid;
+      gap: 0.55rem;
+      justify-items: center;
+    }
+
+    .footer-shell p {
+      margin: 0;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-link-btn,
+    .footer-link-anchor {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      color: #def8ff;
+      border-radius: 999px;
+      padding: 0.32rem 0.64rem;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: filter 130ms ease, transform 130ms ease;
+    }
+
+    .footer-link-btn:hover,
+    .footer-link-anchor:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
     .bunny-fab {
@@ -608,6 +648,166 @@
       font-size: 0.94rem;
     }
 
+    .consent-legal-link {
+      margin-top: 0.78rem;
+      display: inline-block;
+      color: #9be8ff;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .consent-legal-link:hover {
+      color: #cbf5ff;
+    }
+
+    .consent-actions {
+      margin-top: 0.94rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.56rem;
+    }
+
+    .consent-btn {
+      border: 1px solid rgba(244, 183, 63, 0.74);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 9px;
+      padding: 0.66rem 0.82rem;
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 2.8rem;
+      text-align: center;
+      transition: filter 130ms ease, transform 130ms ease;
+    }
+
+    .consent-btn:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .consent-btn.primary {
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+    }
+
+    .consent-settings {
+      margin-top: 0.94rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(7, 12, 26, 0.42);
+      padding: 0.84rem;
+      animation: consent-panel-reveal 180ms ease;
+    }
+
+    .consent-settings[hidden] {
+      display: none;
+    }
+
+    @keyframes consent-panel-reveal {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .consent-setting-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.6rem;
+      padding: 0.56rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .consent-setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .consent-setting-item strong {
+      display: block;
+      font-size: 0.92rem;
+      color: #d9f6ff;
+    }
+
+    .consent-setting-item p {
+      margin: 0.2rem 0 0;
+      font-size: 0.84rem;
+      color: #cbc7b7;
+      line-height: 1.35;
+    }
+
+    .consent-toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .consent-switch {
+      appearance: none;
+      width: 2.5rem;
+      height: 1.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      position: relative;
+      cursor: pointer;
+      transition: background-color 130ms ease;
+    }
+
+    .consent-switch::after {
+      content: "";
+      position: absolute;
+      top: 0.14rem;
+      left: 0.14rem;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 999px;
+      background: #fff;
+      transition: transform 130ms ease;
+    }
+
+    .consent-switch:checked {
+      background: rgba(244, 183, 63, 0.8);
+      border-color: rgba(244, 183, 63, 0.95);
+    }
+
+    .consent-switch:checked::after {
+      transform: translateX(1.02rem);
+      background: #1a1310;
+    }
+
+    .consent-switch:disabled {
+      opacity: 0.78;
+      cursor: not-allowed;
+    }
+
+    .consent-save-btn {
+      margin-top: 0.85rem;
+      width: 100%;
+      min-height: 2.85rem;
+      border: 1px solid rgba(244, 183, 63, 0.8);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 9px;
+      padding: 0.68rem 0.9rem;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 130ms ease, transform 130ms ease;
+    }
+
+    .consent-save-btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
     .welcome-popup-sound {
       margin-top: 0.88rem;
       padding-top: 0.85rem;
@@ -623,31 +823,6 @@
       margin: 0;
       color: #d9d3c0;
       font-size: 0.88rem;
-    }
-
-    .welcome-popup-actions {
-      margin-top: 0.92rem;
-      display: flex;
-      justify-content: stretch;
-      gap: 0.55rem;
-    }
-
-    .welcome-popup-agree {
-      border: 1px solid rgba(244, 183, 63, 0.82);
-      background: linear-gradient(180deg, #f7ca6f, #f0a933);
-      color: #1a1310;
-      border-radius: 9px;
-      padding: 0.78rem 0.92rem;
-      font: inherit;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      width: 100%;
-      min-height: 3rem;
-    }
-
-    .welcome-popup-agree:hover {
-      filter: brightness(1.05);
     }
 
     .juleha-chat-window {
@@ -889,12 +1064,16 @@
         width: calc(100vw - 2rem);
         height: min(420px, 60vh);
       }
+
+      .consent-actions {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v34</div>
+    <div id="app-version" class="app-version">v35</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -937,7 +1116,13 @@
       </article>
     </section>
 
-    <footer id="footer-text">AICENGHUB curated link directory.</footer>
+    <footer class="footer-shell">
+      <p id="footer-text">AICENGHUB curated link directory.</p>
+      <div class="footer-links">
+        <button id="privacy-settings-trigger" class="footer-link-btn" type="button">Privacy Settings</button>
+        <a id="legal-link-footer" class="footer-link-anchor" href="./legal.html" target="_blank" rel="noopener noreferrer">See full agreement</a>
+      </div>
+    </footer>
   </main>
   <button id="bunny-fab" class="bunny-fab" type="button" aria-label="Bunny">
     <img src="./transparentbunny.png" alt="" aria-hidden="true">
@@ -966,25 +1151,56 @@
   <div id="crazybunny-overlay" class="crazybunny-overlay" aria-hidden="true">
     <img src="./crazybunny.jpg" alt="" aria-hidden="true">
   </div>
-  <section id="welcome-popup" class="welcome-popup" aria-label="Website agreement and sound preferences" hidden>
+  <section id="welcome-popup" class="welcome-popup" aria-label="Website consent and privacy settings" hidden>
     <div class="welcome-popup-card">
-      <h3>Welcome to AICENGHUB</h3>
-      <p>Using this website means agreeing to the agreement.</p>
-      <p>Agreement: You agree that all information you input on this website, and all content generated through this website, may be stored, processed, and used for platform operation and improvement.</p>
-      <div class="welcome-popup-sound">
-        <p>Suggested: turn on sound for full experience.</p>
-        <button
-          id="music-toggle-popup"
-          class="music-toggle"
-          type="button"
-          aria-label="Toggle background sound from welcome popup"
-          aria-pressed="false">
-          Play Sound
-        </button>
+      <h3 id="consent-title">Welcome to AICENGHUB</h3>
+      <p id="consent-description">AICENGHUB processes chat messages through third-party AI providers and stores AI-generated or user-suggested tool links to keep the directory up to date. Essential processing is required for the platform to function.</p>
+      <a id="consent-legal-link" class="consent-legal-link" href="./legal.html" target="_blank" rel="noopener noreferrer">See full agreement</a>
+      <div class="consent-actions">
+        <button id="consent-accept-btn" class="consent-btn primary" type="button">Agree &amp; Continue</button>
+        <button id="consent-manage-btn" class="consent-btn" type="button">Manage Settings</button>
       </div>
-      <div class="welcome-popup-actions">
-        <button id="welcome-agree-btn" class="welcome-popup-agree" type="button">Agree</button>
-      </div>
+      <section id="consent-settings" class="consent-settings" hidden>
+        <div class="consent-setting-item">
+          <div>
+            <strong id="consent-essential-label">Essential (Always Active)</strong>
+            <p id="consent-essential-description">Required for operating AICENGHUB, including AI chat processing, security protection, and capturing AI-generated or user-suggested tool links to improve the directory.</p>
+          </div>
+          <div class="consent-toggle-wrap">
+            <input id="consent-essential-toggle" class="consent-switch" type="checkbox" checked disabled>
+          </div>
+        </div>
+        <div class="consent-setting-item">
+          <div>
+            <strong id="consent-analytics-label">Analytics</strong>
+            <p id="consent-analytics-description">Used to understand usage trends and improve platform performance.</p>
+          </div>
+          <div class="consent-toggle-wrap">
+            <input id="consent-analytics-toggle" class="consent-switch" type="checkbox">
+          </div>
+        </div>
+        <div class="consent-setting-item">
+          <div>
+            <strong id="consent-personalization-label">Personalization</strong>
+            <p id="consent-personalization-description">Stores language and sound preferences on this device.</p>
+          </div>
+          <div class="consent-toggle-wrap">
+            <input id="consent-personalization-toggle" class="consent-switch" type="checkbox" checked>
+          </div>
+        </div>
+        <div class="welcome-popup-sound">
+          <p id="consent-sound-tip">Suggested: turn on sound for full experience.</p>
+          <button
+            id="music-toggle-popup"
+            class="music-toggle"
+            type="button"
+            aria-label="Toggle background sound from consent popup"
+            aria-pressed="false">
+            Play Sound
+          </button>
+        </div>
+        <button id="consent-save-btn" class="consent-save-btn" type="button">Save Preferences</button>
+      </section>
     </div>
   </section>
 
@@ -1001,6 +1217,8 @@
         panelSubtitle: "Use tabs as quick filters. When you type in search, results are matched across all tools.",
         loadingTools: "Loading tools...",
         footerText: "AICENGHUB curated link directory.",
+        privacySettingsLabel: "Privacy Settings",
+        legalLinkLabel: "See full agreement",
         filterBarLabel: "AI ability filters",
         searchBarLabel: "AI tool search",
         languageSwitchLabel: "Language selector",
@@ -1008,6 +1226,21 @@
         noMatchingTitle: "No matching tools",
         noMatchingDescription: "Try a different filter or broader search keyword.",
         loadError: "Unable to load link-list.json. Ensure this file exists in the public folder.",
+        consent: {
+          title: "Welcome to AICENGHUB",
+          description: "AICENGHUB processes chat messages through third-party AI providers and stores AI-generated or user-suggested tool links to keep the directory up to date. Essential processing is required for the platform to function.",
+          agreeContinue: "Agree & Continue",
+          manageSettings: "Manage Settings",
+          savePreferences: "Save Preferences",
+          legalLink: "See full agreement",
+          essentialLabel: "Essential (Always Active)",
+          essentialDescription: "Required for operating AICENGHUB, including AI chat processing, security protection, and capturing AI-generated or user-suggested tool links to improve the directory.",
+          analyticsLabel: "Analytics",
+          analyticsDescription: "Used to understand usage trends and improve platform performance.",
+          personalizationLabel: "Personalization",
+          personalizationDescription: "Stores language and sound preferences on this device.",
+          soundTip: "Suggested: turn on sound for full experience."
+        },
         abilityLabels: {
           all: "ALL",
           text: "TEXT",
@@ -1033,6 +1266,8 @@
         panelSubtitle: "Gunakan tab sebagai filter cepat. Saat Anda mengetik pada pencarian, hasil dicocokkan ke semua alat.",
         loadingTools: "Memuat alat...",
         footerText: "Direktori tautan kurasi AICENGHUB.",
+        privacySettingsLabel: "Pengaturan Privasi",
+        legalLinkLabel: "Lihat perjanjian lengkap",
         filterBarLabel: "Filter kemampuan AI",
         searchBarLabel: "Pencarian alat AI",
         languageSwitchLabel: "Pemilih bahasa",
@@ -1040,6 +1275,21 @@
         noMatchingTitle: "Tidak ada alat yang cocok",
         noMatchingDescription: "Coba filter lain atau kata kunci yang lebih umum.",
         loadError: "Tidak dapat memuat link-list.json. Pastikan file ini ada di folder public.",
+        consent: {
+          title: "Selamat Datang di AICENGHUB",
+          description: "AICENGHUB memproses pesan melalui penyedia AI pihak ketiga dan menyimpan link AI yang dihasilkan atau disarankan untuk menjaga direktori tetap terbaru. Pemrosesan penting diperlukan agar platform berfungsi.",
+          agreeContinue: "Setuju & Lanjutkan",
+          manageSettings: "Kelola Pengaturan",
+          savePreferences: "Simpan Preferensi",
+          legalLink: "Lihat perjanjian lengkap",
+          essentialLabel: "Esensial (Selalu Aktif)",
+          essentialDescription: "Diperlukan untuk menjalankan AICENGHUB, termasuk pemrosesan chat AI, perlindungan keamanan, dan penyimpanan link AI yang dihasilkan atau disarankan untuk peningkatan direktori.",
+          analyticsLabel: "Analitik",
+          analyticsDescription: "Digunakan untuk memahami tren penggunaan dan meningkatkan performa platform.",
+          personalizationLabel: "Personalisasi",
+          personalizationDescription: "Menyimpan preferensi bahasa dan suara pada perangkat ini.",
+          soundTip: "Saran: nyalakan suara untuk pengalaman penuh."
+        },
         abilityLabels: {
           all: "SEMUA",
           text: "TEKS",
@@ -1068,13 +1318,31 @@
     const panelTitle = document.getElementById("panel-title");
     const panelSubtitle = document.getElementById("panel-subtitle");
     const footerText = document.getElementById("footer-text");
+    const privacySettingsTrigger = document.getElementById("privacy-settings-trigger");
+    const legalLinkFooter = document.getElementById("legal-link-footer");
     const appVersion = document.getElementById("app-version");
     const langSwitch = document.getElementById("lang-switch");
     const bunnyFab = document.getElementById("bunny-fab");
     const musicToggleHero = document.getElementById("music-toggle-hero");
     const musicTogglePopup = document.getElementById("music-toggle-popup");
     const welcomePopup = document.getElementById("welcome-popup");
-    const welcomeAgreeButton = document.getElementById("welcome-agree-btn");
+    const consentTitle = document.getElementById("consent-title");
+    const consentDescription = document.getElementById("consent-description");
+    const consentLegalLink = document.getElementById("consent-legal-link");
+    const consentAcceptButton = document.getElementById("consent-accept-btn");
+    const consentManageButton = document.getElementById("consent-manage-btn");
+    const consentSettings = document.getElementById("consent-settings");
+    const consentEssentialLabel = document.getElementById("consent-essential-label");
+    const consentEssentialDescription = document.getElementById("consent-essential-description");
+    const consentAnalyticsLabel = document.getElementById("consent-analytics-label");
+    const consentAnalyticsDescription = document.getElementById("consent-analytics-description");
+    const consentPersonalizationLabel = document.getElementById("consent-personalization-label");
+    const consentPersonalizationDescription = document.getElementById("consent-personalization-description");
+    const consentSoundTip = document.getElementById("consent-sound-tip");
+    const consentEssentialToggle = document.getElementById("consent-essential-toggle");
+    const consentAnalyticsToggle = document.getElementById("consent-analytics-toggle");
+    const consentPersonalizationToggle = document.getElementById("consent-personalization-toggle");
+    const consentSaveButton = document.getElementById("consent-save-btn");
     const julehaFab = document.getElementById("juleha-fab");
     const julehaChatWindow = document.getElementById("juleha-chat-window");
     const julehaChatClose = document.getElementById("juleha-chat-close");
@@ -1123,10 +1391,10 @@
     const BUNNY_SEEN_COOKIE_NAME = "aicenghub_bunny_seen";
     const BUNNY_HIDE_DAYS = 365;
     const BUNNY_RETURN_CHANCE = 0.05;
+    const CONSENT_STORAGE_KEY = "aicenghub_consent";
     const MUSIC_PREFERENCE_KEY = "aicenghub.music.enabled";
-    const AGREEMENT_ACCEPTED_COOKIE_NAME = "aicenghub_agreement_accepted";
+    let consentState = loadConsentState();
     let musicEnabled = loadMusicPreference();
-    let agreementAccepted = loadAgreementAccepted();
     const ABILITY_SEARCH_ALIASES = {
       all: ["all", "semua", "any"],
       text: ["text", "teks", "chat", "tulis", "writing"],
@@ -1176,7 +1444,7 @@
 
     function detectInitialLanguage() {
       try {
-        const savedLanguage = localStorage.getItem("aicenghub.lang");
+        const savedLanguage = localStorage.getItem("aicenghub.lang") || localStorage.getItem("aicenghub_lang");
         if (savedLanguage === "en" || savedLanguage === "id") return savedLanguage;
       } catch {}
 
@@ -1185,8 +1453,10 @@
     }
 
     function persistLanguage(lang) {
+      if (consentState && consentState.personalization === false) return;
       try {
         localStorage.setItem("aicenghub.lang", lang);
+        localStorage.setItem("aicenghub_lang", lang);
       } catch {}
     }
 
@@ -1195,7 +1465,62 @@
       document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`;
     }
 
+    function sanitizeConsentState(value) {
+      if (!value || typeof value !== "object") return null;
+      const timestamp = String(value.timestamp || "").trim();
+      const isTimestampValid = !Number.isNaN(Date.parse(timestamp));
+      return {
+        essential: true,
+        analytics: Boolean(value.analytics),
+        personalization: value.personalization !== false,
+        timestamp: isTimestampValid ? timestamp : new Date().toISOString()
+      };
+    }
+
+    function loadConsentState() {
+      try {
+        const raw = localStorage.getItem(CONSENT_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return sanitizeConsentState(parsed);
+      } catch {
+        return null;
+      }
+    }
+
+    function defaultConsentState() {
+      return {
+        essential: true,
+        analytics: false,
+        personalization: true,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    function clearPersonalizationStorage() {
+      try {
+        localStorage.removeItem("aicenghub.lang");
+        localStorage.removeItem("aicenghub_lang");
+        localStorage.removeItem(MUSIC_PREFERENCE_KEY);
+      } catch {}
+    }
+
+    function saveConsentState(nextState) {
+      const sanitized = sanitizeConsentState(nextState) || defaultConsentState();
+      consentState = sanitized;
+      try {
+        localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(sanitized));
+      } catch {}
+      if (!sanitized.personalization) {
+        clearPersonalizationStorage();
+      }
+      loadAnalyticsIfConsented(sanitized);
+    }
+
     function loadMusicPreference() {
+      if (consentState && consentState.personalization === false) {
+        return true;
+      }
       try {
         const stored = localStorage.getItem(MUSIC_PREFERENCE_KEY);
         if (stored === "0") return false;
@@ -1205,17 +1530,10 @@
     }
 
     function saveMusicPreference(enabled) {
+      if (consentState && consentState.personalization === false) return;
       try {
         localStorage.setItem(MUSIC_PREFERENCE_KEY, enabled ? "1" : "0");
       } catch {}
-    }
-
-    function loadAgreementAccepted() {
-      return getCookie(AGREEMENT_ACCEPTED_COOKIE_NAME) === "1";
-    }
-
-    function saveAgreementAccepted() {
-      setCookie(AGREEMENT_ACCEPTED_COOKIE_NAME, "1", 3650);
     }
 
     function getMusicToggleButtons() {
@@ -1355,6 +1673,24 @@
       });
     }
 
+    function applyConsentTranslations() {
+      const dictionary = getDictionary();
+      const consent = dictionary.consent;
+      consentTitle.textContent = consent.title;
+      consentDescription.textContent = consent.description;
+      consentAcceptButton.textContent = consent.agreeContinue;
+      consentManageButton.textContent = consent.manageSettings;
+      consentSaveButton.textContent = consent.savePreferences;
+      consentLegalLink.textContent = consent.legalLink;
+      consentEssentialLabel.textContent = consent.essentialLabel;
+      consentEssentialDescription.textContent = consent.essentialDescription;
+      consentAnalyticsLabel.textContent = consent.analyticsLabel;
+      consentAnalyticsDescription.textContent = consent.analyticsDescription;
+      consentPersonalizationLabel.textContent = consent.personalizationLabel;
+      consentPersonalizationDescription.textContent = consent.personalizationDescription;
+      consentSoundTip.textContent = consent.soundTip;
+    }
+
     function applyTranslations() {
       const dictionary = getDictionary();
       document.documentElement.lang = dictionary.htmlLang;
@@ -1365,9 +1701,12 @@
       panelTitle.textContent = dictionary.panelTitle;
       panelSubtitle.textContent = dictionary.panelSubtitle;
       footerText.textContent = dictionary.footerText;
+      privacySettingsTrigger.textContent = dictionary.privacySettingsLabel;
+      legalLinkFooter.textContent = dictionary.legalLinkLabel;
       tablist.setAttribute("aria-label", dictionary.filterBarLabel);
       searchShell.setAttribute("aria-label", dictionary.searchBarLabel);
       langSwitch.setAttribute("aria-label", dictionary.languageSwitchLabel);
+      applyConsentTranslations();
 
       if (!tools.length) {
         searchStatus.textContent = dictionary.loadingTools;
@@ -1665,9 +2004,11 @@
       });
 
       updateMusicToggleState();
-      tryStartBackgroundMusic().finally(() => {
-        updateMusicToggleState();
-      });
+      if (consentState) {
+        tryStartBackgroundMusic().finally(() => {
+          updateMusicToggleState();
+        });
+      }
 
       const buttons = getMusicToggleButtons();
       buttons.forEach((button) => {
@@ -1681,19 +2022,85 @@
       });
     }
 
+    function loadAnalyticsIfConsented(consent) {
+      if (!consent || !consent.analytics) return;
+      if (window.__aicenghubAnalyticsLoaded) return;
+      window.__aicenghubAnalyticsLoaded = true;
+      // Example conditional loader:
+      // const script = document.createElement("script");
+      // script.src = "https://analytics-provider.example/script.js";
+      // script.defer = true;
+      // document.head.appendChild(script);
+      // Essential processing (Juleha chat and candidate-link capture) remains backend-required
+      // and is intentionally not controlled by optional client consent toggles.
+      console.info("AICENGHUB analytics placeholder loaded (consent.analytics=true).");
+    }
+
+    function syncConsentControls(state) {
+      const source = state || defaultConsentState();
+      consentEssentialToggle.checked = true;
+      consentAnalyticsToggle.checked = Boolean(source.analytics);
+      consentPersonalizationToggle.checked = source.personalization !== false;
+    }
+
+    function openConsentModal(showSettings) {
+      const effectiveState = consentState || defaultConsentState();
+      syncConsentControls(effectiveState);
+      consentSettings.hidden = !showSettings;
+      welcomePopup.hidden = false;
+      document.body.classList.add("consent-open");
+    }
+
+    function closeConsentModal() {
+      welcomePopup.hidden = true;
+      consentSettings.hidden = true;
+      document.body.classList.remove("consent-open");
+    }
+
+    async function applyConsentAndClose(nextState) {
+      saveConsentState({
+        essential: true,
+        analytics: Boolean(nextState.analytics),
+        personalization: nextState.personalization !== false,
+        timestamp: new Date().toISOString()
+      });
+      if (consentState.personalization === false) {
+        updateLanguageButtons();
+      }
+      closeConsentModal();
+      if (musicEnabled && backgroundMusic.paused) {
+        await tryStartBackgroundMusic();
+        updateMusicToggleState();
+      }
+    }
+
     function bindWelcomePopup() {
-      if (!agreementAccepted) {
-        welcomePopup.hidden = false;
+      if (!consentState) {
+        openConsentModal(false);
+      } else {
+        loadAnalyticsIfConsented(consentState);
       }
 
-      welcomeAgreeButton.addEventListener("click", async () => {
-        agreementAccepted = true;
-        saveAgreementAccepted();
-        welcomePopup.hidden = true;
-        if (musicEnabled && backgroundMusic.paused) {
-          await tryStartBackgroundMusic();
-          updateMusicToggleState();
-        }
+      consentManageButton.addEventListener("click", () => {
+        consentSettings.hidden = !consentSettings.hidden;
+      });
+
+      consentAcceptButton.addEventListener("click", async () => {
+        const defaults = defaultConsentState();
+        await applyConsentAndClose(defaults);
+      });
+
+      consentSaveButton.addEventListener("click", async () => {
+        await applyConsentAndClose({
+          essential: true,
+          analytics: consentAnalyticsToggle.checked,
+          personalization: consentPersonalizationToggle.checked,
+          timestamp: new Date().toISOString()
+        });
+      });
+
+      privacySettingsTrigger.addEventListener("click", () => {
+        openConsentModal(true);
       });
     }
 
@@ -2075,6 +2482,7 @@
   </script>
 </body>
 </html>
+
 
 
 
