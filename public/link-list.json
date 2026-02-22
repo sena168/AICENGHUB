@@ -8,11 +8,30 @@
     ]
   },
   {
+    "name": "Agent Router",
+    "url": "https://agentrouter.dev/",
+    "description": "Smart routing layer for agentic coding workflows that selects suitable LLMs by cost and task complexity.",
+    "abilities": [
+      "automation",
+      "code",
+      "text"
+    ]
+  },
+  {
     "name": "AIVA",
     "url": "https://www.aiva.ai/",
     "description": "Instrumental composition engine for cinematic and game use.",
     "abilities": [
       "audio"
+    ]
+  },
+  {
+    "name": "Antigravity",
+    "url": "https://antigravity.google/",
+    "description": "Agent-first coding IDE experience focused on autonomous multi-step software execution and verification.",
+    "abilities": [
+      "code",
+      "automation"
     ]
   },
   {
@@ -87,6 +106,15 @@
     ]
   },
   {
+    "name": "D-ID",
+    "url": "https://www.d-id.com/",
+    "description": "Digital human platform for avatar videos, interactive agents, and multilingual face-to-camera content.",
+    "abilities": [
+      "video",
+      "audio"
+    ]
+  },
+  {
     "name": "DeepSeek",
     "url": "https://chat.deepseek.com/",
     "description": "Chat assistant known for strong coding and technical task handling.",
@@ -128,6 +156,24 @@
     "url": "https://hailuoai.video/",
     "description": "Prompt-based short video generation for social and ad content.",
     "abilities": [
+      "video"
+    ]
+  },
+  {
+    "name": "HeyGen",
+    "url": "https://www.heygen.com/",
+    "description": "AI video generator with realistic avatars, voice localization, and script-to-video workflows.",
+    "abilities": [
+      "video",
+      "audio"
+    ]
+  },
+  {
+    "name": "Higgsfield",
+    "url": "https://higgsfield.ai/",
+    "description": "Creative AI suite for high-style image generation, motion effects, and cinematic video creation.",
+    "abilities": [
+      "image",
       "video"
     ]
   },
@@ -182,6 +228,15 @@
     ]
   },
   {
+    "name": "LMArena",
+    "url": "https://arena.ai/",
+    "description": "Community-driven AI model comparison arena and leaderboard for evaluating model quality side by side.",
+    "abilities": [
+      "learning",
+      "text"
+    ]
+  },
+  {
     "name": "Lovable",
     "url": "https://lovable.dev/",
     "description": "Prompt-to-app builder focused on quickly shipping full-stack prototypes.",
@@ -203,6 +258,16 @@
     "description": "Visual workflow builder for complex multi-step process automation.",
     "abilities": [
       "automation"
+    ]
+  },
+  {
+    "name": "MegaLLM",
+    "url": "https://megallm.io/",
+    "description": "Unified API gateway for many LLM providers with model switching, analytics, and fallback routing.",
+    "abilities": [
+      "automation",
+      "code",
+      "text"
     ]
   },
   {
@@ -232,6 +297,53 @@
     ]
   },
   {
+    "name": "Narakeet",
+    "url": "https://www.narakeet.com/",
+    "description": "Text-to-speech and slide-to-video platform for narrated content, localization, and automated voiceovers.",
+    "abilities": [
+      "audio",
+      "video"
+    ]
+  },
+  {
+    "name": "NotebookLM",
+    "url": "https://notebooklm.google/",
+    "description": "Google AI research and note companion grounded on your sources with summaries, Q&A, and overviews.",
+    "abilities": [
+      "learning",
+      "text"
+    ]
+  },
+  {
+    "name": "Notta",
+    "url": "https://www.notta.ai/",
+    "description": "Meeting transcription and AI note assistant for summaries, action items, and searchable records.",
+    "abilities": [
+      "audio",
+      "text"
+    ]
+  },
+  {
+    "name": "OpenRouter",
+    "url": "https://openrouter.ai/",
+    "description": "LLM routing platform that provides one API to access many models with pricing and fallback controls.",
+    "abilities": [
+      "automation",
+      "code",
+      "text"
+    ]
+  },
+  {
+    "name": "PartyRock",
+    "url": "https://partyrock.aws/",
+    "description": "Amazon playground for building and sharing simple generative AI apps without heavy setup.",
+    "abilities": [
+      "automation",
+      "learning",
+      "text"
+    ]
+  },
+  {
     "name": "Perplexity",
     "url": "https://www.perplexity.ai/",
     "description": "Search-first answer engine with citation-driven responses.",
@@ -247,6 +359,15 @@
     "abilities": [
       "video",
       "image"
+    ]
+  },
+  {
+    "name": "Pippit AI",
+    "url": "https://www.pippit.ai/",
+    "description": "AI creative agent for marketing visuals and script-to-video generation from links, text, and media.",
+    "abilities": [
+      "image",
+      "video"
     ]
   },
   {
@@ -294,6 +415,43 @@
     ]
   },
   {
+    "name": "SadTalker",
+    "url": "https://github.com/OpenTalker/SadTalker",
+    "description": "Open-source talking-face generation project for animating portraits from audio with lip-sync control.",
+    "abilities": [
+      "video",
+      "audio",
+      "code"
+    ]
+  },
+  {
+    "name": "SeaArt AI",
+    "url": "https://www.seaart.ai/",
+    "description": "AI creation platform and community for image generation, video effects, and character tools.",
+    "abilities": [
+      "image",
+      "video"
+    ]
+  },
+  {
+    "name": "Sora",
+    "url": "https://openai.com/sora/",
+    "description": "OpenAI video generation platform (including Sora 2 capabilities) for text-and-image-driven scene creation.",
+    "abilities": [
+      "video",
+      "audio"
+    ]
+  },
+  {
+    "name": "Sora 2",
+    "url": "https://openai.com/sora/",
+    "description": "OpenAI's newer Sora generation for cinematic text-to-video workflows. Access may be region-limited; users in Indonesia may need a VPN where local access is blocked.",
+    "abilities": [
+      "video",
+      "audio"
+    ]
+  },
+  {
     "name": "Soundraw",
     "url": "https://soundraw.io/",
     "description": "Royalty-friendly music generator for creators and agencies.",
@@ -318,12 +476,39 @@
     ]
   },
   {
+    "name": "Sync.so",
+    "url": "https://sync.so/",
+    "description": "Lipsync-focused video editing platform for dialogue replacement and multilingual video localization.",
+    "abilities": [
+      "video",
+      "audio"
+    ]
+  },
+  {
     "name": "Synthesia",
     "url": "https://www.synthesia.io/",
     "description": "AI avatar video platform for explainers, onboarding, and training media.",
     "abilities": [
       "video",
       "audio"
+    ]
+  },
+  {
+    "name": "TokkingHeads",
+    "url": "https://tokkingheads.com/",
+    "description": "Talking portrait animation tool that turns static face images into speaking, animated clips.",
+    "abilities": [
+      "image",
+      "video"
+    ]
+  },
+  {
+    "name": "Trae",
+    "url": "https://www.trae.ai/",
+    "description": "AI software engineering IDE focused on autonomous coding assistance, execution, and project delivery.",
+    "abilities": [
+      "code",
+      "text"
     ]
   },
   {
@@ -343,11 +528,29 @@
     ]
   },
   {
+    "name": "Vocalize",
+    "url": "https://www.vocalize.fm/",
+    "description": "AI voice conversion and text-to-speech platform for vocal covers, cloning, and music experimentation.",
+    "abilities": [
+      "audio"
+    ]
+  },
+  {
     "name": "Windsurf",
     "url": "https://windsurf.com/",
     "description": "AI coding environment focused on end-to-end software development speed.",
     "abilities": [
       "text"
+    ]
+  },
+  {
+    "name": "Z.ai",
+    "url": "https://chat.z.ai/",
+    "description": "General AI chatbot and agent platform powered by GLM models for daily reasoning and assistance tasks.",
+    "abilities": [
+      "text",
+      "image",
+      "learning"
     ]
   },
   {
