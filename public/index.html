@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="image" href="./crazybunny.jpg">
   <link rel="preload" as="audio" href="./bunnygrowl.mp4">
+  <link rel="preload" as="audio" href="./ost1.mp3">
+  <link rel="preload" as="audio" href="./ost2.mp3">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -513,6 +515,46 @@
       outline-offset: 2px;
     }
 
+    .music-toggle {
+      position: fixed;
+      left: 1rem;
+      bottom: 1rem;
+      z-index: 6;
+      border: 1px solid rgba(244, 183, 63, 0.78);
+      background: rgba(10, 8, 19, 0.86);
+      color: #ffe9b3;
+      border-radius: 999px;
+      min-width: 7.4rem;
+      height: 2.6rem;
+      padding: 0 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      transition: filter 130ms ease, transform 130ms ease;
+    }
+
+    .music-toggle:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .music-toggle[aria-pressed="true"] {
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-color: rgba(244, 183, 63, 0.92);
+    }
+
+    .music-toggle:focus-visible {
+      outline: 2px solid #fff2c9;
+      outline-offset: 2px;
+    }
+
     .juleha-chat-window {
       position: fixed;
       right: 5.6rem;
@@ -757,7 +799,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v29</div>
+    <div id="app-version" class="app-version">v30</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -794,6 +836,14 @@
   </main>
   <button id="bunny-fab" class="bunny-fab" type="button" aria-label="Bunny">
     <img src="./transparentbunny.png" alt="" aria-hidden="true">
+  </button>
+  <button
+    id="music-toggle"
+    class="music-toggle"
+    type="button"
+    aria-label="Toggle background music"
+    aria-pressed="false">
+    Play Music
   </button>
   <button
     id="juleha-fab"
@@ -902,6 +952,7 @@
     const footerText = document.getElementById("footer-text");
     const langSwitch = document.getElementById("lang-switch");
     const bunnyFab = document.getElementById("bunny-fab");
+    const musicToggle = document.getElementById("music-toggle");
     const julehaFab = document.getElementById("juleha-fab");
     const julehaChatWindow = document.getElementById("juleha-chat-window");
     const julehaChatClose = document.getElementById("juleha-chat-close");
@@ -915,6 +966,11 @@
     const crazybunnySound = new Audio("./bunnygrowl.mp4");
     crazybunnySound.preload = "auto";
     crazybunnySound.load();
+    const musicTracks = ["./ost1.mp3", "./ost2.mp3"];
+    const backgroundMusic = new Audio();
+    backgroundMusic.preload = "auto";
+    backgroundMusic.volume = 0.33;
+    let currentMusicTrack = "";
 
     let tools = [];
     let activeFilter = "all";
@@ -945,6 +1001,8 @@
     const BUNNY_SEEN_COOKIE_NAME = "aicenghub_bunny_seen";
     const BUNNY_HIDE_DAYS = 365;
     const BUNNY_RETURN_CHANCE = 0.05;
+    const MUSIC_PREFERENCE_KEY = "aicenghub.music.enabled";
+    let musicEnabled = loadMusicPreference();
     const ABILITY_SEARCH_ALIASES = {
       all: ["all", "semua", "any"],
       text: ["text", "teks", "chat", "tulis", "writing"],
@@ -1011,6 +1069,72 @@
     function setCookie(name, value, days) {
       const maxAgeSeconds = Math.max(1, Math.floor(days * 24 * 60 * 60));
       document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`;
+    }
+
+    function loadMusicPreference() {
+      try {
+        const stored = localStorage.getItem(MUSIC_PREFERENCE_KEY);
+        if (stored === "0") return false;
+        if (stored === "1") return true;
+      } catch {}
+      return true;
+    }
+
+    function saveMusicPreference(enabled) {
+      try {
+        localStorage.setItem(MUSIC_PREFERENCE_KEY, enabled ? "1" : "0");
+      } catch {}
+    }
+
+    function updateMusicToggleState() {
+      if (!musicEnabled) {
+        musicToggle.textContent = "Music Off";
+        musicToggle.setAttribute("aria-pressed", "false");
+        return;
+      }
+      if (!backgroundMusic.paused) {
+        musicToggle.textContent = "Music On";
+        musicToggle.setAttribute("aria-pressed", "true");
+        return;
+      }
+      musicToggle.textContent = "Play Music";
+      musicToggle.setAttribute("aria-pressed", "false");
+    }
+
+    function pickRandomMusicTrack() {
+      if (!musicTracks.length) return "";
+      if (musicTracks.length === 1) return musicTracks[0];
+      const alternatives = musicTracks.filter((track) => track !== currentMusicTrack);
+      const pool = alternatives.length ? alternatives : musicTracks;
+      const index = Math.floor(Math.random() * pool.length);
+      return pool[index];
+    }
+
+    function loadNextRandomTrack() {
+      const nextTrack = pickRandomMusicTrack();
+      if (!nextTrack) return "";
+      currentMusicTrack = nextTrack;
+      backgroundMusic.src = nextTrack;
+      backgroundMusic.load();
+      return nextTrack;
+    }
+
+    function stopBackgroundMusic() {
+      backgroundMusic.pause();
+      backgroundMusic.currentTime = 0;
+    }
+
+    async function tryStartBackgroundMusic() {
+      if (!musicEnabled) return false;
+      if (!backgroundMusic.src) {
+        loadNextRandomTrack();
+      }
+      try {
+        await backgroundMusic.play();
+        return true;
+      } catch {
+        return false;
+      }
     }
 
     function getCookie(name) {
@@ -1353,6 +1477,35 @@
           crazybunnyTimer = null;
         }, 2000);
       }, { once: true });
+    }
+
+    function bindMusicToggle() {
+      backgroundMusic.addEventListener("ended", async () => {
+        if (!musicEnabled) return;
+        loadNextRandomTrack();
+        await tryStartBackgroundMusic();
+        updateMusicToggleState();
+      });
+
+      updateMusicToggleState();
+      tryStartBackgroundMusic().finally(() => {
+        updateMusicToggleState();
+      });
+
+      musicToggle.addEventListener("click", async () => {
+        if (!backgroundMusic.paused) {
+          musicEnabled = false;
+          saveMusicPreference(false);
+          stopBackgroundMusic();
+          updateMusicToggleState();
+          return;
+        }
+
+        musicEnabled = true;
+        saveMusicPreference(true);
+        await tryStartBackgroundMusic();
+        updateMusicToggleState();
+      });
     }
 
     function renderMessageLinks(container, text, verifiedLinksByUrl) {
@@ -1714,11 +1867,13 @@
     bindSearch();
     bindLanguageSwitch();
     bindBunnyButton();
+    bindMusicToggle();
     bindJulehaChat();
     loadTools();
   </script>
 </body>
 </html>
+
 
 
 
