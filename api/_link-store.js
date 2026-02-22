@@ -179,22 +179,49 @@ async function seedMainFromFileIfEmpty(sql) {
   }
 }
 
-async function syncMainPricingFromFile(sql) {
+async function refreshMainPricingTiers(sql) {
   const initialLinks = readInitialLinkListFromFile();
-  for (const link of initialLinks) {
+  const pricingByUrl = new Map(initialLinks.map((entry) => [entry.url, entry.pricing]));
+  const rows = await sql`SELECT url, pricing_tier FROM ai_main_links`;
+
+  let scannedCount = 0;
+  let updatedCount = 0;
+  let missingReferenceCount = 0;
+
+  for (const row of rows) {
+    const normalizedUrl = normalizeUrl(row.url);
+    if (!normalizedUrl) continue;
+
+    scannedCount += 1;
+    const expectedPricing = pricingByUrl.get(normalizedUrl);
+    if (!expectedPricing) {
+      missingReferenceCount += 1;
+      continue;
+    }
+
+    const currentPricing = normalizePricing(row.pricing_tier);
+    if (currentPricing === expectedPricing) continue;
+
     await sql`
       UPDATE ai_main_links
-      SET pricing_tier = ${link.pricing}
-      WHERE url = ${link.url}
-        AND COALESCE(pricing_tier, '') <> ${link.pricing}
+      SET pricing_tier = ${expectedPricing}
+      WHERE url = ${normalizedUrl}
     `;
+    updatedCount += 1;
   }
+
+  return {
+    scannedCount,
+    updatedCount,
+    missingReferenceCount,
+    sourceCount: pricingByUrl.size
+  };
 }
 
 async function ensureStoreReady(sql) {
   await ensureSchema(sql);
   await seedMainFromFileIfEmpty(sql);
-  await syncMainPricingFromFile(sql);
+  await refreshMainPricingTiers(sql);
 }
 
 async function getMainLinks(sql) {
@@ -351,6 +378,7 @@ module.exports = {
   abilitiesToCsv,
   csvToAbilities,
   ensureStoreReady,
+  refreshMainPricingTiers,
   getMainLinks,
   getMainUrlSet,
   upsertCandidate,

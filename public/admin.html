@@ -58,6 +58,18 @@
       margin-top: 0.95rem;
     }
 
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    @media (max-width: 560px) {
+      .actions {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
     input, button {
       font: inherit;
       border-radius: 10px;
@@ -101,12 +113,15 @@
 </head>
 <body>
   <main class="card">
-    <h1>Admin: Update List</h1>
-    <p>Action flow: create rolling backup, merge pending candidate links into main list, keep max 30 backups.</p>
+    <h1>Admin: List Maintenance</h1>
+    <p>Use Update List to merge pending candidates. Use Update Tier to re-sync free/trial/paid tiers from curated seed.</p>
 
     <div class="row">
       <input id="admin-token" type="password" placeholder="Admin token">
-      <button id="update-list-btn" type="button">Update List</button>
+      <div class="actions">
+        <button id="update-list-btn" type="button">Update List</button>
+        <button id="update-tier-btn" type="button">Update Tier</button>
+      </div>
     </div>
 
     <div id="status" class="status" aria-live="polite"></div>
@@ -115,6 +130,7 @@
   <script>
     const tokenInput = document.getElementById("admin-token");
     const updateButton = document.getElementById("update-list-btn");
+    const updateTierButton = document.getElementById("update-tier-btn");
     const statusNode = document.getElementById("status");
 
     function setStatus(message, type) {
@@ -135,6 +151,7 @@
 
       try {
         updateButton.disabled = true;
+        updateTierButton.disabled = true;
         setStatus("Updating list...", "");
 
         const response = await fetch("/api/admin-update-list", {
@@ -166,10 +183,60 @@
         setStatus(`Update failed: ${error instanceof Error ? error.message : "unknown error"}`, "error");
       } finally {
         updateButton.disabled = false;
+        updateTierButton.disabled = false;
+      }
+    }
+
+    async function runUpdateTier() {
+      const adminToken = tokenInput.value.trim();
+      if (!adminToken) {
+        setStatus("Admin token is required.", "error");
+        return;
+      }
+
+      const confirmed = window.confirm("Confirm update-tier? This will resync pricing tiers (free/trial/paid) from curated source.");
+      if (!confirmed) return;
+
+      try {
+        updateButton.disabled = true;
+        updateTierButton.disabled = true;
+        setStatus("Updating tiers...", "");
+
+        const response = await fetch("/api/admin-update-tier", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-token": adminToken
+          },
+          body: JSON.stringify({ adminToken })
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
+        }
+
+        setStatus(
+          [
+            "Tier update completed.",
+            `Scanned links: ${payload.scannedCount || 0}`,
+            `Tiers updated: ${payload.updatedCount || 0}`,
+            `Missing curated reference: ${payload.missingReferenceCount || 0}`,
+            `Curated source count: ${payload.sourceCount || 0}`,
+            `Total links now: ${payload.totalLinks || 0}`
+          ].join("\n"),
+          "ok"
+        );
+      } catch (error) {
+        setStatus(`Tier update failed: ${error instanceof Error ? error.message : "unknown error"}`, "error");
+      } finally {
+        updateButton.disabled = false;
+        updateTierButton.disabled = false;
       }
     }
 
     updateButton.addEventListener("click", runUpdateList);
+    updateTierButton.addEventListener("click", runUpdateTier);
   </script>
 </body>
 </html>
