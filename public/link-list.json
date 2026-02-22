@@ -297,6 +297,14 @@
     ]
   },
   {
+    "name": "Musicful AI",
+    "url": "https://musicful.ai/",
+    "description": "AI music generation platform for creating full tracks, melody ideas, and prompt-driven audio concepts.",
+    "abilities": [
+      "audio"
+    ]
+  },
+  {
     "name": "Narakeet",
     "url": "https://www.narakeet.com/",
     "description": "Text-to-speech and slide-to-video platform for narrated content, localization, and automated voiceovers.",

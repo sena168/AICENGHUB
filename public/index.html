@@ -894,7 +894,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v33</div>
+    <div id="app-version" class="app-version">v34</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1703,10 +1703,8 @@
         if (!confirmed) return;
 
         clearSiteCookiesOnly();
-        agreementAccepted = loadAgreementAccepted();
-        if (!agreementAccepted) {
-          welcomePopup.hidden = false;
-        }
+        // Reload to re-run first-load logic (agreement popup, bunny visibility, and related cookie-gated behavior).
+        window.location.reload();
       });
     }
 
@@ -2077,6 +2075,7 @@
   </script>
 </body>
 </html>
+
 
 
 
