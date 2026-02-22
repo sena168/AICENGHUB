@@ -5,7 +5,8 @@
     "description": "Creative image generation and editing with Adobe workflow integration.",
     "abilities": [
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Agent Router",
@@ -15,7 +16,8 @@
       "automation",
       "code",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "AIVA",
@@ -23,7 +25,8 @@
     "description": "Instrumental composition engine for cinematic and game use.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Antigravity",
@@ -32,7 +35,8 @@
     "abilities": [
       "code",
       "automation"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "B12",
@@ -42,7 +46,8 @@
       "code",
       "text",
       "automation"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Bing Image Creator",
@@ -50,7 +55,8 @@
     "description": "Fast prompt-to-image generation integrated into Bing.",
     "abilities": [
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Bolt.new",
@@ -58,7 +64,8 @@
     "description": "In-browser AI coding environment for rapid app creation.",
     "abilities": [
       "code"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Boomy",
@@ -66,7 +73,8 @@
     "description": "Beginner-friendly tool for creating and publishing original tracks.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "ChatGPT",
@@ -76,7 +84,8 @@
       "text",
       "image",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Claude",
@@ -85,7 +94,8 @@
     "abilities": [
       "text",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Copilot",
@@ -95,7 +105,8 @@
       "text",
       "image",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Cursor",
@@ -103,7 +114,8 @@
     "description": "AI-native code editor for pair-programming and refactoring workflows.",
     "abilities": [
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "D-ID",
@@ -112,7 +124,8 @@
     "abilities": [
       "video",
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "DeepSeek",
@@ -121,7 +134,8 @@
     "abilities": [
       "text",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Flow by Google Labs",
@@ -129,7 +143,8 @@
     "description": "Google Labs video creation workflow for cinematic prompt-driven outputs.",
     "abilities": [
       "video"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Gemini",
@@ -139,7 +154,8 @@
       "text",
       "image",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Grok",
@@ -149,7 +165,8 @@
       "text",
       "image",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Hailuo AI",
@@ -157,7 +174,8 @@
     "description": "Prompt-based short video generation for social and ad content.",
     "abilities": [
       "video"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "HeyGen",
@@ -166,7 +184,8 @@
     "abilities": [
       "video",
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Higgsfield",
@@ -175,7 +194,8 @@
     "abilities": [
       "image",
       "video"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Ideogram",
@@ -183,7 +203,8 @@
     "description": "Strong text-in-image rendering for posters, ads, and typography-heavy visuals.",
     "abilities": [
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "IFTTT",
@@ -191,7 +212,8 @@
     "description": "Simple trigger-action automation across everyday apps and devices.",
     "abilities": [
       "automation"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Kling AI",
@@ -200,7 +222,8 @@
     "abilities": [
       "video",
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Le Chat (Mistral)",
@@ -209,7 +232,8 @@
     "abilities": [
       "text",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Leonardo AI",
@@ -217,7 +241,8 @@
     "description": "Asset-focused image generation for game, product, and marketing pipelines.",
     "abilities": [
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Lexica",
@@ -225,7 +250,8 @@
     "description": "Visual gallery of AI-generated artwork and prompt references.",
     "abilities": [
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "LMArena",
@@ -234,7 +260,8 @@
     "abilities": [
       "learning",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Lovable",
@@ -242,7 +269,8 @@
     "description": "Prompt-to-app builder focused on quickly shipping full-stack prototypes.",
     "abilities": [
       "code"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Luma Dream Machine",
@@ -250,7 +278,8 @@
     "description": "Cinematic video generation from text and image prompts.",
     "abilities": [
       "video"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Make",
@@ -258,7 +287,8 @@
     "description": "Visual workflow builder for complex multi-step process automation.",
     "abilities": [
       "automation"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "MegaLLM",
@@ -268,7 +298,8 @@
       "automation",
       "code",
       "text"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Meta AI",
@@ -278,7 +309,8 @@
       "text",
       "image",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Midjourney",
@@ -286,7 +318,8 @@
     "description": "High-style image generation for concept art, branding, and visual ideation.",
     "abilities": [
       "image"
-    ]
+    ],
+    "pricing": "paid"
   },
   {
     "name": "Mureka",
@@ -294,7 +327,8 @@
     "description": "Song and music generation platform for fast track ideation.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Musicful AI",
@@ -302,7 +336,8 @@
     "description": "AI music generation platform for creating full tracks, melody ideas, and prompt-driven audio concepts.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Narakeet",
@@ -311,7 +346,8 @@
     "abilities": [
       "audio",
       "video"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "NotebookLM",
@@ -320,7 +356,8 @@
     "abilities": [
       "learning",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Notta",
@@ -329,7 +366,8 @@
     "abilities": [
       "audio",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "OpenRouter",
@@ -339,7 +377,8 @@
       "automation",
       "code",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "PartyRock",
@@ -349,7 +388,8 @@
       "automation",
       "learning",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Perplexity",
@@ -358,7 +398,8 @@
     "abilities": [
       "text",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Pika",
@@ -367,7 +408,8 @@
     "abilities": [
       "video",
       "image"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Pippit AI",
@@ -376,7 +418,8 @@
     "abilities": [
       "image",
       "video"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "PixVerse",
@@ -384,7 +427,8 @@
     "description": "Fast AI clip generation with cinematic and stylized output options.",
     "abilities": [
       "video"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Producer.ai",
@@ -392,7 +436,8 @@
     "description": "AI-powered music workflow support for creators and producers.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Qwen Chat",
@@ -401,7 +446,8 @@
     "abilities": [
       "text",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Replit",
@@ -410,7 +456,8 @@
     "abilities": [
       "code",
       "automation"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Runway",
@@ -420,7 +467,8 @@
       "video",
       "image",
       "audio"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "SadTalker",
@@ -430,7 +478,8 @@
       "video",
       "audio",
       "code"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "SeaArt AI",
@@ -439,7 +488,8 @@
     "abilities": [
       "image",
       "video"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Sora",
@@ -448,7 +498,8 @@
     "abilities": [
       "video",
       "audio"
-    ]
+    ],
+    "pricing": "paid"
   },
   {
     "name": "Sora 2",
@@ -457,7 +508,8 @@
     "abilities": [
       "video",
       "audio"
-    ]
+    ],
+    "pricing": "paid"
   },
   {
     "name": "Soundraw",
@@ -465,7 +517,8 @@
     "description": "Royalty-friendly music generator for creators and agencies.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Stable Audio",
@@ -473,7 +526,8 @@
     "description": "Prompt-based audio generation for background tracks and sound elements.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Suno",
@@ -481,7 +535,8 @@
     "description": "Generates full songs including vocals from text prompts.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Sync.so",
@@ -490,7 +545,8 @@
     "abilities": [
       "video",
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Synthesia",
@@ -499,7 +555,8 @@
     "abilities": [
       "video",
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "TokkingHeads",
@@ -508,7 +565,8 @@
     "abilities": [
       "image",
       "video"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Trae",
@@ -517,7 +575,8 @@
     "abilities": [
       "code",
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Udio",
@@ -525,7 +584,8 @@
     "description": "AI music generation with strong style and arrangement control.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "v0",
@@ -533,7 +593,8 @@
     "description": "Prompt-driven UI and frontend code generation tool.",
     "abilities": [
       "code"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Vocalize",
@@ -541,7 +602,8 @@
     "description": "AI voice conversion and text-to-speech platform for vocal covers, cloning, and music experimentation.",
     "abilities": [
       "audio"
-    ]
+    ],
+    "pricing": "trial"
   },
   {
     "name": "Windsurf",
@@ -549,7 +611,8 @@
     "description": "AI coding environment focused on end-to-end software development speed.",
     "abilities": [
       "text"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Z.ai",
@@ -559,7 +622,8 @@
       "text",
       "image",
       "learning"
-    ]
+    ],
+    "pricing": "free"
   },
   {
     "name": "Zapier AI",
@@ -567,6 +631,7 @@
     "description": "App integrations and AI-powered no-code automations for business workflows.",
     "abilities": [
       "automation"
-    ]
+    ],
+    "pricing": "free"
   }
 ]

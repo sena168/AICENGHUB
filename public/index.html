@@ -443,6 +443,46 @@
     .ability-automation { background: #8b5e34; color: #fff2e4; }
     .ability-learning { background: #d64545; color: #fff3f3; }
 
+    .pricing-row {
+      margin: 0.15rem 0 0.68rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 0.24rem 0.5rem 0.24rem 0.38rem;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .pricing-pill {
+      width: 0.72rem;
+      height: 0.72rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .pricing-pill-free {
+      background: #000;
+    }
+
+    .pricing-pill-trial {
+      background: linear-gradient(90deg, #000 50%, #fff 50%);
+    }
+
+    .pricing-pill-paid {
+      background: #fff;
+    }
+
+    .pricing-text {
+      color: #e8f9ff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+
     .card p {
       margin: 0.3rem 0 0.72rem;
       color: var(--muted);
@@ -1106,7 +1146,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v37</div>
+    <div id="app-version" class="app-version">v38</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1259,6 +1299,11 @@
         searchBarLabel: "AI tool search",
         languageSwitchLabel: "Language selector",
         openLink: "Open Link",
+        pricingLabels: {
+          free: "Free",
+          trial: "Free Trial",
+          paid: "Paid"
+        },
         noMatchingTitle: "No matching tools",
         noMatchingDescription: "Try a different filter or broader search keyword.",
         loadError: "Unable to load link-list.json. Ensure this file exists in the public folder.",
@@ -1310,6 +1355,11 @@
         searchBarLabel: "Pencarian alat AI",
         languageSwitchLabel: "Pemilih bahasa",
         openLink: "Buka Tautan",
+        pricingLabels: {
+          free: "Gratis",
+          trial: "Uji Coba",
+          paid: "Berbayar"
+        },
         noMatchingTitle: "Tidak ada alat yang cocok",
         noMatchingDescription: "Coba filter lain atau kata kunci yang lebih umum.",
         loadError: "Tidak dapat memuat link-list.json. Pastikan file ini ada di folder public.",
@@ -1412,6 +1462,8 @@
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
     let julehaActiveRouteLabel = "loading...";
+    let julehaThinkingDotsTimer = null;
+    let julehaThinkingDotsStep = 0;
     const JULEHA_API_ENDPOINT = "/api/juleha-chat";
     const JULEHA_MEMORY_TURNS = 12;
     const JULEHA_HISTORY_STORAGE_KEY = "aicenghub.juleha.history.v2";
@@ -1423,6 +1475,7 @@
       "Persona: calm, tactical, slightly playful, and focused on helping the user decide quickly.",
       "Style rules: concise, practical, no fluff, and prefer short lists when useful.",
       "Priority: recommend tools from AICENGHUB catalog first and include their direct links.",
+      "When offering options, always prefer this order: free first, then trial, then paid.",
       "If a user asks for an AI that is not in catalog, you may use your own knowledge to suggest external tools.",
       "When suggesting external tools, clearly label them as external (not in AICENGHUB catalog).",
       "If possible, still include closest in-catalog alternatives."
@@ -1447,6 +1500,12 @@
       learning: ["learning", "belajar", "tutorial", "research", "edukasi", "education"]
     };
     const ALLOWED_ABILITIES = new Set(Object.keys(ABILITY_SEARCH_ALIASES).filter((ability) => ability !== "all"));
+    const PRICING_TIER_ORDER = { free: 0, trial: 1, paid: 2 };
+    const PRICING_SEARCH_ALIASES = {
+      free: ["free", "gratis", "no-cost", "tanpa-biaya"],
+      trial: ["trial", "freemium", "coba", "uji-coba"],
+      paid: ["paid", "berbayar", "premium", "pro-only"]
+    };
     const TAG_TO_ABILITIES = {
       text: ["text"],
       image: ["image"],
@@ -1474,6 +1533,13 @@
         });
         return accumulator;
       }, {});
+    const SEARCH_TOKEN_TO_PRICING = Object.entries(PRICING_SEARCH_ALIASES)
+      .reduce((accumulator, [tier, aliases]) => {
+        aliases.forEach((alias) => {
+          accumulator[alias] = tier;
+        });
+        return accumulator;
+      }, {});
 
     function getDictionary() {
       return I18N[currentLanguage] || I18N.en;
@@ -1481,6 +1547,25 @@
 
     function getAbilityLabel(filterKey) {
       return getDictionary().abilityLabels[filterKey] || String(filterKey || "").toUpperCase();
+    }
+
+    function normalizePricingTier(rawPricing) {
+      const raw = normalize(rawPricing).replace(/\s+/g, "-");
+      if (raw === "free" || raw === "full-free" || raw === "totally-free" || raw === "gratis") return "free";
+      if (raw === "trial" || raw === "free-trial" || raw === "freemium" || raw === "uji-coba") return "trial";
+      if (raw === "paid" || raw === "full-paid" || raw === "berbayar" || raw === "premium") return "paid";
+      return "trial";
+    }
+
+    function getPricingRank(pricingTier) {
+      const normalized = normalizePricingTier(pricingTier);
+      return Number.isInteger(PRICING_TIER_ORDER[normalized]) ? PRICING_TIER_ORDER[normalized] : 99;
+    }
+
+    function getPricingLabel(pricingTier) {
+      const normalized = normalizePricingTier(pricingTier);
+      const labels = getDictionary().pricingLabels || I18N.en.pricingLabels;
+      return labels[normalized] || labels.trial;
     }
 
     function detectInitialLanguage() {
@@ -1854,12 +1939,14 @@
 
     function sanitizeTool(rawTool) {
       const abilities = normalizeAbilities(rawTool);
+      const pricing = normalizePricingTier(rawTool && (rawTool.pricing || rawTool.pricingTier || rawTool.priceTier));
 
       return {
         name: String(rawTool.name || "Unknown Tool"),
         url: sanitizeUrl(rawTool.url),
         description: String(rawTool.description || ""),
-        abilities
+        abilities,
+        pricing
       };
     }
 
@@ -1867,6 +1954,16 @@
       const pill = document.createElement("span");
       pill.className = `ability-pill ability-${ability}`;
       const label = getAbilityLabel(ability);
+      pill.setAttribute("aria-label", label);
+      pill.title = label;
+      return pill;
+    }
+
+    function createPricingPill(pricingTier) {
+      const normalized = normalizePricingTier(pricingTier);
+      const pill = document.createElement("span");
+      pill.className = `pricing-pill pricing-pill-${normalized}`;
+      const label = getPricingLabel(normalized);
       pill.setAttribute("aria-label", label);
       pill.title = label;
       return pill;
@@ -1893,13 +1990,21 @@
       const description = document.createElement("p");
       description.textContent = tool.description;
 
+      const pricingRow = document.createElement("div");
+      pricingRow.className = "pricing-row";
+      const pricingPill = createPricingPill(tool.pricing);
+      const pricingText = document.createElement("span");
+      pricingText.className = "pricing-text";
+      pricingText.textContent = getPricingLabel(tool.pricing);
+      pricingRow.append(pricingPill, pricingText);
+
       const link = document.createElement("a");
       link.href = tool.url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = getDictionary().openLink;
 
-      card.append(head, description, link);
+      card.append(head, description, pricingRow, link);
       return card;
     }
 
@@ -1912,12 +2017,16 @@
       const abilityAliasText = tool.abilities
         .flatMap((ability) => ABILITY_SEARCH_ALIASES[ability] || [ability])
         .join(" ");
+      const pricingAliasText = PRICING_SEARCH_ALIASES[normalizePricingTier(tool.pricing)] || [];
       const haystack = normalize([
         tool.name,
         tool.url,
         tool.description,
         tool.abilities.join(" "),
-        abilityAliasText
+        abilityAliasText,
+        normalizePricingTier(tool.pricing),
+        getPricingLabel(tool.pricing),
+        pricingAliasText.join(" ")
       ].join(" "));
 
       if (haystack.includes(normalizedQuery)) return true;
@@ -1925,7 +2034,9 @@
       return tokens.some((token) => {
         if (haystack.includes(token)) return true;
         const mappedAbility = SEARCH_TOKEN_TO_ABILITY[token];
-        return mappedAbility ? tool.abilities.includes(mappedAbility) : false;
+        if (mappedAbility && tool.abilities.includes(mappedAbility)) return true;
+        const mappedPricing = SEARCH_TOKEN_TO_PRICING[token];
+        return mappedPricing ? normalizePricingTier(tool.pricing) === mappedPricing : false;
       });
     }
 
@@ -1938,7 +2049,7 @@
       const effectiveQuery = searchQuery || (activeFilter !== "all" ? activeFilter : "");
       return tools
         .filter((tool) => matchesSearch(tool, effectiveQuery))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => getPricingRank(a.pricing) - getPricingRank(b.pricing) || a.name.localeCompare(b.name));
     }
 
     function updateFilterButtonState() {
@@ -2307,11 +2418,14 @@
       const descText = normalize(tool.description);
       const urlText = normalize(tool.url);
       const abilityText = normalize(tool.abilities.join(" "));
+      const pricingTier = normalizePricingTier(tool.pricing);
+      const pricingText = normalize([pricingTier, getPricingLabel(pricingTier), ...(PRICING_SEARCH_ALIASES[pricingTier] || [])].join(" "));
 
       if (nameText.includes(normalizedQuery)) score += 8;
       if (descText.includes(normalizedQuery)) score += 5;
       if (abilityText.includes(normalizedQuery)) score += 4;
       if (urlText.includes(normalizedQuery)) score += 2;
+      if (pricingText.includes(normalizedQuery)) score += 3;
 
       queryTokens.forEach((token) => {
         if (!token) return;
@@ -2321,6 +2435,11 @@
 
         const mappedAbility = SEARCH_TOKEN_TO_ABILITY[token];
         if (mappedAbility && tool.abilities.includes(mappedAbility)) {
+          score += 4;
+        }
+
+        const mappedPricing = SEARCH_TOKEN_TO_PRICING[token];
+        if (mappedPricing && pricingTier === mappedPricing) {
           score += 4;
         }
       });
@@ -2340,7 +2459,11 @@
           tool,
           score: scoreToolForJuleha(tool, normalizedQuery, queryTokens)
         }))
-        .sort((a, b) => b.score - a.score || a.tool.name.localeCompare(b.tool.name));
+        .sort((a, b) =>
+          getPricingRank(a.tool.pricing) - getPricingRank(b.tool.pricing)
+          || b.score - a.score
+          || a.tool.name.localeCompare(b.tool.name)
+        );
 
       const picked = ranked
         .filter((entry) => normalizedQuery ? entry.score > 0 : true)
@@ -2358,6 +2481,9 @@
           return `${ability}:${count}`;
         })
         .join(", ");
+      const pricingCounts = ["free", "trial", "paid"]
+        .map((tier) => `${tier}:${tools.filter((tool) => normalizePricingTier(tool.pricing) === tier).length}`)
+        .join(", ");
 
       const catalogLines = finalPicked
         .map((tool) => {
@@ -2365,18 +2491,21 @@
           const url = compactPromptText(tool.url, 120);
           const description = compactPromptText(tool.description, 100);
           const abilities = tool.abilities.join(", ") || "none";
-          return `- ${name} | abilities: ${abilities} | url: ${url} | description: ${description}`;
+          const pricing = normalizePricingTier(tool.pricing);
+          return `- ${name} | pricing: ${pricing} | abilities: ${abilities} | url: ${url} | description: ${description}`;
         })
         .join("\n");
 
       return [
         "AICENGHUB catalog policy:",
         "- Prioritize tools listed below first.",
+        "- Strict pricing priority for suggestions: free, then trial, then paid.",
         "- If user asks for tools outside this list, you may suggest external options from your own knowledge.",
         "- Clearly label external options as: external (not in AICENGHUB catalog).",
         "- Also provide closest listed alternatives when possible.",
         `Catalog totals: ${tools.length} tools.`,
         `Ability counts: ${abilityCounts}`,
+        `Pricing counts: ${pricingCounts}`,
         "Relevant catalog entries:",
         catalogLines
       ].join("\n");
@@ -2401,15 +2530,56 @@
       saveJulehaHistory();
     }
 
+    function startJulehaThinkingAnimation() {
+      if (julehaThinkingDotsTimer) return;
+      julehaChatSendButton.textContent = "Thinking";
+      julehaThinkingDotsStep = 0;
+      julehaThinkingDotsTimer = setInterval(() => {
+        julehaThinkingDotsStep = (julehaThinkingDotsStep + 1) % 4;
+        const dots = ".".repeat(julehaThinkingDotsStep);
+        julehaChatSendButton.textContent = `Thinking${dots}`;
+      }, 320);
+    }
+
+    function stopJulehaThinkingAnimation() {
+      if (julehaThinkingDotsTimer) {
+        clearInterval(julehaThinkingDotsTimer);
+        julehaThinkingDotsTimer = null;
+      }
+      julehaThinkingDotsStep = 0;
+      julehaChatSendButton.textContent = "Send";
+    }
+
+    function normalizeJulehaRouteLabel(label) {
+      const raw = String(label || "").trim();
+      if (!raw) return "unknown";
+
+      if (raw.toLowerCase() === "policy-guardrail") {
+        return "Safety Policy";
+      }
+
+      const cleaned = raw
+        .replace(/\s*\((?:primary|secondary|tertiary|quaternary|backup|fallback)\)\s*/gi, " ")
+        .replace(/\s*-\s*(?:primary|secondary|tertiary|quaternary|backup|fallback)\b/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+      return cleaned || "unknown";
+    }
+
     function setJulehaPendingState(isPending) {
       isJulehaRequestInFlight = isPending;
       julehaChatInput.disabled = isPending;
       julehaChatSendButton.disabled = isPending;
-      julehaChatSendButton.textContent = isPending ? "Thinking..." : "Send";
+      if (isPending) {
+        startJulehaThinkingAnimation();
+      } else {
+        stopJulehaThinkingAnimation();
+      }
     }
 
     function setJulehaActiveRoute(label) {
-      julehaActiveRouteLabel = String(label || "loading...");
+      julehaActiveRouteLabel = normalizeJulehaRouteLabel(label || "loading...");
       julehaChatMeta.textContent = `Powered by: ${julehaActiveRouteLabel}`;
     }
 
@@ -2563,6 +2733,7 @@
   </script>
 </body>
 </html>
+
 
 
 
