@@ -648,8 +648,15 @@
       font-size: 0.94rem;
     }
 
-    .consent-legal-link {
+    .consent-legal-row {
       margin-top: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+    }
+
+    .consent-legal-link {
       display: inline-block;
       color: #9be8ff;
       text-decoration: underline;
@@ -660,6 +667,32 @@
 
     .consent-legal-link:hover {
       color: #cbf5ff;
+    }
+
+    .consent-lang-toggle {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      color: #d9f6ff;
+      border-radius: 999px;
+      padding: 0.3rem 0.62rem;
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      min-width: 3.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: filter 130ms ease, transform 130ms ease;
+    }
+
+    .consent-lang-toggle:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .consent-lang-toggle:focus-visible {
+      outline: 2px solid #cbf6ff;
+      outline-offset: 2px;
     }
 
     .consent-actions {
@@ -1073,7 +1106,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v36</div>
+    <div id="app-version" class="app-version">v37</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1141,7 +1174,7 @@
       <h3>Ask Juleha</h3>
       <button id="juleha-chat-close" class="juleha-chat-close" type="button" aria-label="Close chat">Close</button>
     </header>
-    <p id="juleha-chat-meta" class="juleha-chat-meta">AI active: auto fallback</p>
+    <p id="juleha-chat-meta" class="juleha-chat-meta">Powered by: loading...</p>
     <div id="juleha-chat-log" class="juleha-chat-log" role="log" aria-live="polite"></div>
     <form id="juleha-chat-form" class="juleha-chat-form">
       <input id="juleha-chat-input" class="juleha-chat-input" type="text" maxlength="500" placeholder="Type your message..." autocomplete="off">
@@ -1155,7 +1188,10 @@
     <div class="welcome-popup-card">
       <h3 id="consent-title">Welcome to AICENGHUB</h3>
       <p id="consent-description">AICENGHUB processes chat messages through third-party AI providers and stores AI-generated or user-suggested tool links to keep the directory up to date. Essential processing is required for the platform to function.</p>
-      <a id="consent-legal-link" class="consent-legal-link" href="./legal.html" target="_blank" rel="noopener noreferrer">See full agreement</a>
+      <div class="consent-legal-row">
+        <a id="consent-legal-link" class="consent-legal-link" href="./legal.html" target="_blank" rel="noopener noreferrer">See full agreement</a>
+        <button id="consent-lang-toggle" class="consent-lang-toggle" type="button" aria-label="Switch language to Indonesian">EN</button>
+      </div>
       <div class="consent-actions">
         <button id="consent-accept-btn" class="consent-btn primary" type="button">Agree &amp; Continue</button>
         <button id="consent-manage-btn" class="consent-btn" type="button">Manage Settings</button>
@@ -1239,7 +1275,9 @@
           analyticsDescription: "Used to understand usage trends and improve platform performance.",
           personalizationLabel: "Personalization",
           personalizationDescription: "Stores language and sound preferences on this device.",
-          soundTip: "Suggested: turn on sound for full experience."
+          soundTip: "Suggested: turn on sound for full experience.",
+          switchToEnglish: "Switch language to English",
+          switchToIndonesian: "Switch language to Indonesian"
         },
         abilityLabels: {
           all: "ALL",
@@ -1288,7 +1326,9 @@
           analyticsDescription: "Digunakan untuk memahami tren penggunaan dan meningkatkan performa platform.",
           personalizationLabel: "Personalisasi",
           personalizationDescription: "Menyimpan preferensi bahasa dan suara pada perangkat ini.",
-          soundTip: "Saran: nyalakan suara untuk pengalaman penuh."
+          soundTip: "Saran: nyalakan suara untuk pengalaman penuh.",
+          switchToEnglish: "Ganti bahasa ke English",
+          switchToIndonesian: "Ganti bahasa ke Indonesia"
         },
         abilityLabels: {
           all: "SEMUA",
@@ -1329,6 +1369,7 @@
     const consentTitle = document.getElementById("consent-title");
     const consentDescription = document.getElementById("consent-description");
     const consentLegalLink = document.getElementById("consent-legal-link");
+    const consentLangToggle = document.getElementById("consent-lang-toggle");
     const consentAcceptButton = document.getElementById("consent-accept-btn");
     const consentManageButton = document.getElementById("consent-manage-btn");
     const consentSettings = document.getElementById("consent-settings");
@@ -1370,7 +1411,7 @@
     let crazybunnyPreloadedImage = null;
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
-    let julehaActiveRouteLabel = "auto fallback";
+    let julehaActiveRouteLabel = "loading...";
     const JULEHA_API_ENDPOINT = "/api/juleha-chat";
     const JULEHA_MEMORY_TURNS = 12;
     const JULEHA_HISTORY_STORAGE_KEY = "aicenghub.juleha.history.v2";
@@ -1695,6 +1736,17 @@
       });
     }
 
+    function updateConsentLanguageToggle() {
+      if (!consentLangToggle) return;
+      const consent = getDictionary().consent;
+      const nextLabel = currentLanguage === "id"
+        ? consent.switchToEnglish
+        : consent.switchToIndonesian;
+      consentLangToggle.textContent = currentLanguage === "id" ? "ID" : "EN";
+      consentLangToggle.setAttribute("aria-label", nextLabel);
+      consentLangToggle.title = nextLabel;
+    }
+
     function applyConsentTranslations() {
       const dictionary = getDictionary();
       const consent = dictionary.consent;
@@ -1711,6 +1763,7 @@
       consentPersonalizationLabel.textContent = consent.personalizationLabel;
       consentPersonalizationDescription.textContent = consent.personalizationDescription;
       consentSoundTip.textContent = consent.soundTip;
+      updateConsentLanguageToggle();
     }
 
     function applyTranslations() {
@@ -1751,6 +1804,11 @@
       buttons.forEach((button) => {
         button.addEventListener("click", () => setLanguage(button.dataset.lang));
       });
+      if (consentLangToggle) {
+        consentLangToggle.addEventListener("click", () => {
+          setLanguage(currentLanguage === "id" ? "en" : "id");
+        });
+      }
     }
 
     function normalize(text) {
@@ -2351,8 +2409,8 @@
     }
 
     function setJulehaActiveRoute(label) {
-      julehaActiveRouteLabel = String(label || "auto fallback");
-      julehaChatMeta.textContent = `AI active: ${julehaActiveRouteLabel}`;
+      julehaActiveRouteLabel = String(label || "loading...");
+      julehaChatMeta.textContent = `Powered by: ${julehaActiveRouteLabel}`;
     }
 
     function extractAssistantText(rawContent) {
@@ -2420,7 +2478,7 @@
           appendJulehaMessage(entry.content, entry.role);
         });
       } else {
-        appendJulehaMessage("Hi. I am Juleha. I am now connected. Ask me anything.", "assistant");
+        appendJulehaMessage("Selamat datang di AICENGHUB! Juleha disini siap membantu! AI apa yang Anda cari?", "assistant");
       }
 
       julehaFab.addEventListener("click", () => {
@@ -2505,6 +2563,7 @@
   </script>
 </body>
 </html>
+
 
 
 
