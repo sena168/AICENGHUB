@@ -514,12 +514,31 @@
       margin: 0;
     }
 
+    .footer-title {
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .footer-subtitle {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
     .footer-links {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       flex-wrap: wrap;
       justify-content: center;
+    }
+
+    .footer-dot {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.9rem;
+      line-height: 1;
     }
 
     .footer-link-btn,
@@ -541,6 +560,12 @@
     .footer-link-anchor:hover {
       filter: brightness(1.08);
       transform: translateY(-1px);
+    }
+
+    .footer-meta {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.78rem;
+      line-height: 1.25;
     }
 
     .bunny-fab {
@@ -1146,7 +1171,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v39</div>
+    <div id="app-version" class="app-version">v40</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1190,11 +1215,15 @@
     </section>
 
     <footer class="footer-shell">
-      <p id="footer-text">AICENGHUB curated link directory.</p>
+      <p id="footer-title" class="footer-title">AICENGHUB — AI-Curated Evolving Network of Generative Hubs</p>
+      <p id="footer-subtitle" class="footer-subtitle">A continuously updated AI tools directory.</p>
       <div class="footer-links">
         <button id="privacy-settings-trigger" class="footer-link-btn" type="button">Privacy Settings</button>
-        <a id="legal-link-footer" class="footer-link-anchor" href="./legal.html" target="_blank" rel="noopener noreferrer">See full agreement</a>
+        <span class="footer-dot" aria-hidden="true">·</span>
+        <a id="legal-link-footer" class="footer-link-anchor" href="./legal.html" target="_blank" rel="noopener noreferrer">Full Agreement</a>
       </div>
+      <p id="footer-copyright" class="footer-meta">© 2026 AICENGHUB</p>
+      <p id="footer-credit" class="footer-meta">Built by Murid SUHU AICENG</p>
     </footer>
   </main>
   <button id="bunny-fab" class="bunny-fab" type="button" aria-label="Bunny">
@@ -1292,9 +1321,12 @@
         panelTitle: "Master AI Directory",
         panelSubtitle: "Use tabs as quick filters. When you type in search, results are matched across all tools.",
         loadingTools: "Loading tools...",
-        footerText: "AICENGHUB curated link directory.",
+        footerTitle: "AICENGHUB — AI-Curated Evolving Network of Generative Hubs",
+        footerSubtitle: "A continuously updated AI tools directory.",
+        footerCopyright: "© 2026 AICENGHUB",
+        footerCredit: "Built by Murid SUHU AICENG",
         privacySettingsLabel: "Privacy Settings",
-        legalLinkLabel: "See full agreement",
+        legalLinkLabel: "Full Agreement",
         filterBarLabel: "AI ability filters",
         searchBarLabel: "AI tool search",
         languageSwitchLabel: "Language selector",
@@ -1348,9 +1380,12 @@
         panelTitle: "Direktori AI Utama",
         panelSubtitle: "Gunakan tab sebagai filter cepat. Saat Anda mengetik pada pencarian, hasil dicocokkan ke semua alat.",
         loadingTools: "Memuat alat...",
-        footerText: "Direktori tautan kurasi AICENGHUB.",
+        footerTitle: "AICENGHUB — AI-Curated Evolving Network of Generative Hubs",
+        footerSubtitle: "Direktori alat AI yang diperbarui terus-menerus.",
+        footerCopyright: "© 2026 AICENGHUB",
+        footerCredit: "Built by Murid SUHU AICENG",
         privacySettingsLabel: "Pengaturan Privasi",
-        legalLinkLabel: "Lihat perjanjian lengkap",
+        legalLinkLabel: "Perjanjian Lengkap",
         filterBarLabel: "Filter kemampuan AI",
         searchBarLabel: "Pencarian alat AI",
         languageSwitchLabel: "Pemilih bahasa",
@@ -1407,7 +1442,10 @@
     const searchShell = document.getElementById("search-shell");
     const panelTitle = document.getElementById("panel-title");
     const panelSubtitle = document.getElementById("panel-subtitle");
-    const footerText = document.getElementById("footer-text");
+    const footerTitle = document.getElementById("footer-title");
+    const footerSubtitle = document.getElementById("footer-subtitle");
+    const footerCopyright = document.getElementById("footer-copyright");
+    const footerCredit = document.getElementById("footer-credit");
     const privacySettingsTrigger = document.getElementById("privacy-settings-trigger");
     const legalLinkFooter = document.getElementById("legal-link-footer");
     const appVersion = document.getElementById("app-version");
@@ -1860,7 +1898,10 @@
       globalSearchBtn.textContent = dictionary.searchButton;
       panelTitle.textContent = dictionary.panelTitle;
       panelSubtitle.textContent = dictionary.panelSubtitle;
-      footerText.textContent = dictionary.footerText;
+      footerTitle.textContent = dictionary.footerTitle;
+      footerSubtitle.textContent = dictionary.footerSubtitle;
+      footerCopyright.textContent = dictionary.footerCopyright;
+      footerCredit.textContent = dictionary.footerCredit;
       privacySettingsTrigger.textContent = dictionary.privacySettingsLabel;
       legalLinkFooter.textContent = dictionary.legalLinkLabel;
       tablist.setAttribute("aria-label", dictionary.filterBarLabel);
@@ -2733,6 +2774,7 @@
   </script>
 </body>
 </html>
+
 
 
 
