@@ -71,7 +71,17 @@
       text-transform: uppercase;
       color: rgba(248, 247, 245, 0.42);
       user-select: none;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
+      width: fit-content;
+      border-radius: 6px;
+      padding: 0.08rem 0.22rem;
+      transition: color 130ms ease, background-color 130ms ease;
+    }
+
+    .app-version:hover {
+      color: rgba(248, 247, 245, 0.62);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     .hero {
@@ -618,7 +628,7 @@
     .welcome-popup-actions {
       margin-top: 0.92rem;
       display: flex;
-      justify-content: flex-end;
+      justify-content: stretch;
       gap: 0.55rem;
     }
 
@@ -627,11 +637,13 @@
       background: linear-gradient(180deg, #f7ca6f, #f0a933);
       color: #1a1310;
       border-radius: 9px;
-      padding: 0.5rem 0.86rem;
+      padding: 0.78rem 0.92rem;
       font: inherit;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
+      width: 100%;
+      min-height: 3rem;
     }
 
     .welcome-popup-agree:hover {
@@ -882,7 +894,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v32</div>
+    <div id="app-version" class="app-version">v33</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1056,6 +1068,7 @@
     const panelTitle = document.getElementById("panel-title");
     const panelSubtitle = document.getElementById("panel-subtitle");
     const footerText = document.getElementById("footer-text");
+    const appVersion = document.getElementById("app-version");
     const langSwitch = document.getElementById("lang-switch");
     const bunnyFab = document.getElementById("bunny-fab");
     const musicToggleHero = document.getElementById("music-toggle-hero");
@@ -1111,7 +1124,7 @@
     const BUNNY_HIDE_DAYS = 365;
     const BUNNY_RETURN_CHANCE = 0.05;
     const MUSIC_PREFERENCE_KEY = "aicenghub.music.enabled";
-    const AGREEMENT_ACCEPTED_KEY = "aicenghub.agreement.accepted.v1";
+    const AGREEMENT_ACCEPTED_COOKIE_NAME = "aicenghub_agreement_accepted";
     let musicEnabled = loadMusicPreference();
     let agreementAccepted = loadAgreementAccepted();
     const ABILITY_SEARCH_ALIASES = {
@@ -1198,17 +1211,11 @@
     }
 
     function loadAgreementAccepted() {
-      try {
-        return localStorage.getItem(AGREEMENT_ACCEPTED_KEY) === "1";
-      } catch {
-        return false;
-      }
+      return getCookie(AGREEMENT_ACCEPTED_COOKIE_NAME) === "1";
     }
 
     function saveAgreementAccepted() {
-      try {
-        localStorage.setItem(AGREEMENT_ACCEPTED_KEY, "1");
-      } catch {}
+      setCookie(AGREEMENT_ACCEPTED_COOKIE_NAME, "1", 3650);
     }
 
     function getMusicToggleButtons() {
@@ -1293,6 +1300,30 @@
         }
       }
       return "";
+    }
+
+    function clearSiteCookiesOnly() {
+      const cookieNames = String(document.cookie || "")
+        .split(";")
+        .map((token) => token.trim().split("=")[0].trim())
+        .filter(Boolean);
+
+      if (!cookieNames.length) return 0;
+
+      const host = String(location.hostname || "").trim();
+      const domainAttrs = [
+        "",
+        host ? `; Domain=${host}` : "",
+        host && host.includes(".") ? `; Domain=.${host}` : ""
+      ].filter((value, index, all) => all.indexOf(value) === index);
+
+      for (const name of cookieNames) {
+        for (const domainAttr of domainAttrs) {
+          document.cookie = `${name}=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/${domainAttr}; SameSite=Lax`;
+        }
+      }
+
+      return cookieNames.length;
     }
 
     function hideBunnyButton() {
@@ -1666,6 +1697,19 @@
       });
     }
 
+    function bindVersionReset() {
+      appVersion.addEventListener("click", () => {
+        const confirmed = window.confirm("Clear cookies for this site only?");
+        if (!confirmed) return;
+
+        clearSiteCookiesOnly();
+        agreementAccepted = loadAgreementAccepted();
+        if (!agreementAccepted) {
+          welcomePopup.hidden = false;
+        }
+      });
+    }
+
     function renderMessageLinks(container, text, verifiedLinksByUrl) {
       const pattern = /https?:\/\/[^\s<>"')\]]+/gi;
       const source = String(text || "");
@@ -2027,11 +2071,13 @@
     bindBunnyButton();
     bindMusicToggle();
     bindWelcomePopup();
+    bindVersionReset();
     bindJulehaChat();
     loadTools();
   </script>
 </body>
 </html>
+
 
 
 
