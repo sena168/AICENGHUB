@@ -111,6 +111,14 @@
       margin-top: 0.2rem;
     }
 
+    .hero-controls {
+      margin-top: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
     .lang-btn {
       border: 1px solid rgba(255, 255, 255, 0.3);
       background: rgba(255, 255, 255, 0.07);
@@ -516,25 +524,21 @@
     }
 
     .music-toggle {
-      position: fixed;
-      left: 1rem;
-      bottom: 1rem;
-      z-index: 6;
       border: 1px solid rgba(244, 183, 63, 0.78);
       background: rgba(10, 8, 19, 0.86);
       color: #ffe9b3;
       border-radius: 999px;
-      min-width: 7.4rem;
-      height: 2.6rem;
+      min-width: 7.8rem;
+      height: 2.3rem;
       padding: 0 0.95rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font: inherit;
-      font-size: 0.84rem;
+      font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.02em;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
       cursor: pointer;
       transition: filter 130ms ease, transform 130ms ease;
     }
@@ -553,6 +557,85 @@
     .music-toggle:focus-visible {
       outline: 2px solid #fff2c9;
       outline-offset: 2px;
+    }
+
+    .welcome-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      background: rgba(6, 4, 14, 0.75);
+      backdrop-filter: blur(4px);
+    }
+
+    .welcome-popup[hidden] {
+      display: none;
+    }
+
+    .welcome-popup-card {
+      width: min(560px, 100%);
+      border: 1px solid rgba(244, 183, 63, 0.45);
+      border-radius: 14px;
+      background:
+        linear-gradient(145deg, rgba(30, 184, 199, 0.12), rgba(202, 58, 40, 0.1)),
+        rgba(14, 12, 28, 0.96);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.42);
+      padding: 1rem 1rem 0.95rem;
+    }
+
+    .welcome-popup-card h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: #b9f5ff;
+    }
+
+    .welcome-popup-card p {
+      margin: 0.62rem 0 0;
+      color: #d8f2ff;
+      line-height: 1.45;
+      font-size: 0.94rem;
+    }
+
+    .welcome-popup-sound {
+      margin-top: 0.88rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    .welcome-popup-sound p {
+      margin: 0;
+      color: #d9d3c0;
+      font-size: 0.88rem;
+    }
+
+    .welcome-popup-actions {
+      margin-top: 0.92rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.55rem;
+    }
+
+    .welcome-popup-agree {
+      border: 1px solid rgba(244, 183, 63, 0.82);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 9px;
+      padding: 0.5rem 0.86rem;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .welcome-popup-agree:hover {
+      filter: brightness(1.05);
     }
 
     .juleha-chat-window {
@@ -799,7 +882,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v31</div>
+    <div id="app-version" class="app-version">v32</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -807,6 +890,16 @@
         <div id="lang-switch" class="lang-switch" role="group" aria-label="Language selector">
           <button class="lang-btn" type="button" data-lang="en" aria-pressed="true">EN</button>
           <button class="lang-btn" type="button" data-lang="id" aria-pressed="false">ID</button>
+        </div>
+        <div class="hero-controls">
+          <button
+            id="music-toggle-hero"
+            class="music-toggle"
+            type="button"
+            aria-label="Toggle background sound"
+            aria-pressed="false">
+            Play Sound
+          </button>
         </div>
       </div>
       <figure class="hero-image-wrap">
@@ -838,14 +931,6 @@
     <img src="./transparentbunny.png" alt="" aria-hidden="true">
   </button>
   <button
-    id="music-toggle"
-    class="music-toggle"
-    type="button"
-    aria-label="Toggle background music"
-    aria-pressed="false">
-    Play Music
-  </button>
-  <button
     id="juleha-fab"
     class="juleha-fab"
     type="button"
@@ -869,6 +954,27 @@
   <div id="crazybunny-overlay" class="crazybunny-overlay" aria-hidden="true">
     <img src="./crazybunny.jpg" alt="" aria-hidden="true">
   </div>
+  <section id="welcome-popup" class="welcome-popup" aria-label="Website agreement and sound preferences" hidden>
+    <div class="welcome-popup-card">
+      <h3>Welcome to AICENGHUB</h3>
+      <p>Using this website means agreeing to the agreement.</p>
+      <p>Agreement: You agree that all information you input on this website, and all content generated through this website, may be stored, processed, and used for platform operation and improvement.</p>
+      <div class="welcome-popup-sound">
+        <p>Suggested: turn on sound for full experience.</p>
+        <button
+          id="music-toggle-popup"
+          class="music-toggle"
+          type="button"
+          aria-label="Toggle background sound from welcome popup"
+          aria-pressed="false">
+          Play Sound
+        </button>
+      </div>
+      <div class="welcome-popup-actions">
+        <button id="welcome-agree-btn" class="welcome-popup-agree" type="button">Agree</button>
+      </div>
+    </div>
+  </section>
 
   <script>
     const ABILITY_FILTER_KEYS = ["all", "text", "image", "video", "audio", "code", "automation", "learning"];
@@ -952,7 +1058,10 @@
     const footerText = document.getElementById("footer-text");
     const langSwitch = document.getElementById("lang-switch");
     const bunnyFab = document.getElementById("bunny-fab");
-    const musicToggle = document.getElementById("music-toggle");
+    const musicToggleHero = document.getElementById("music-toggle-hero");
+    const musicTogglePopup = document.getElementById("music-toggle-popup");
+    const welcomePopup = document.getElementById("welcome-popup");
+    const welcomeAgreeButton = document.getElementById("welcome-agree-btn");
     const julehaFab = document.getElementById("juleha-fab");
     const julehaChatWindow = document.getElementById("juleha-chat-window");
     const julehaChatClose = document.getElementById("juleha-chat-close");
@@ -1002,7 +1111,9 @@
     const BUNNY_HIDE_DAYS = 365;
     const BUNNY_RETURN_CHANCE = 0.05;
     const MUSIC_PREFERENCE_KEY = "aicenghub.music.enabled";
+    const AGREEMENT_ACCEPTED_KEY = "aicenghub.agreement.accepted.v1";
     let musicEnabled = loadMusicPreference();
+    let agreementAccepted = loadAgreementAccepted();
     const ABILITY_SEARCH_ALIASES = {
       all: ["all", "semua", "any"],
       text: ["text", "teks", "chat", "tulis", "writing"],
@@ -1086,19 +1197,40 @@
       } catch {}
     }
 
+    function loadAgreementAccepted() {
+      try {
+        return localStorage.getItem(AGREEMENT_ACCEPTED_KEY) === "1";
+      } catch {
+        return false;
+      }
+    }
+
+    function saveAgreementAccepted() {
+      try {
+        localStorage.setItem(AGREEMENT_ACCEPTED_KEY, "1");
+      } catch {}
+    }
+
+    function getMusicToggleButtons() {
+      return [musicToggleHero, musicTogglePopup].filter(Boolean);
+    }
+
+    function setMusicToggleLabel(button, text, pressed) {
+      button.textContent = text;
+      button.setAttribute("aria-pressed", pressed ? "true" : "false");
+    }
+
     function updateMusicToggleState() {
+      const buttons = getMusicToggleButtons();
       if (!musicEnabled) {
-        musicToggle.textContent = "Music Off";
-        musicToggle.setAttribute("aria-pressed", "false");
+        buttons.forEach((button) => setMusicToggleLabel(button, "Sound Off", false));
         return;
       }
       if (!backgroundMusic.paused) {
-        musicToggle.textContent = "Music On";
-        musicToggle.setAttribute("aria-pressed", "true");
+        buttons.forEach((button) => setMusicToggleLabel(button, "Sound On", true));
         return;
       }
-      musicToggle.textContent = "Play Music";
-      musicToggle.setAttribute("aria-pressed", "false");
+      buttons.forEach((button) => setMusicToggleLabel(button, "Play Sound", false));
     }
 
     function pickRandomMusicTrack() {
@@ -1135,6 +1267,20 @@
       } catch {
         return false;
       }
+    }
+
+    async function setMusicEnabled(nextEnabled) {
+      musicEnabled = Boolean(nextEnabled);
+      saveMusicPreference(musicEnabled);
+
+      if (!musicEnabled) {
+        stopBackgroundMusic();
+        updateMusicToggleState();
+        return;
+      }
+
+      await tryStartBackgroundMusic();
+      updateMusicToggleState();
     }
 
     function getCookie(name) {
@@ -1492,19 +1638,31 @@
         updateMusicToggleState();
       });
 
-      musicToggle.addEventListener("click", async () => {
-        if (!backgroundMusic.paused) {
-          musicEnabled = false;
-          saveMusicPreference(false);
-          stopBackgroundMusic();
-          updateMusicToggleState();
-          return;
-        }
+      const buttons = getMusicToggleButtons();
+      buttons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          if (!musicEnabled || backgroundMusic.paused) {
+            await setMusicEnabled(true);
+            return;
+          }
+          await setMusicEnabled(false);
+        });
+      });
+    }
 
-        musicEnabled = true;
-        saveMusicPreference(true);
-        await tryStartBackgroundMusic();
-        updateMusicToggleState();
+    function bindWelcomePopup() {
+      if (!agreementAccepted) {
+        welcomePopup.hidden = false;
+      }
+
+      welcomeAgreeButton.addEventListener("click", async () => {
+        agreementAccepted = true;
+        saveAgreementAccepted();
+        welcomePopup.hidden = true;
+        if (musicEnabled && backgroundMusic.paused) {
+          await tryStartBackgroundMusic();
+          updateMusicToggleState();
+        }
       });
     }
 
@@ -1868,11 +2026,13 @@
     bindLanguageSwitch();
     bindBunnyButton();
     bindMusicToggle();
+    bindWelcomePopup();
     bindJulehaChat();
     loadTools();
   </script>
 </body>
 </html>
+
 
 
 
