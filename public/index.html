@@ -1073,7 +1073,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v35</div>
+    <div id="app-version" class="app-version">v36</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1644,6 +1644,28 @@
       return cookieNames.length;
     }
 
+    function clearSiteLocalAppState() {
+      const keysToRemove = [
+        CONSENT_STORAGE_KEY,
+        MUSIC_PREFERENCE_KEY,
+        "aicenghub.lang",
+        "aicenghub_lang",
+        JULEHA_HISTORY_STORAGE_KEY
+      ];
+
+      let removedCount = 0;
+      for (const key of keysToRemove) {
+        try {
+          if (localStorage.getItem(key) !== null) {
+            localStorage.removeItem(key);
+            removedCount += 1;
+          }
+        } catch {}
+      }
+
+      return removedCount;
+    }
+
     function hideBunnyButton() {
       bunnyFab.hidden = true;
       bunnyFab.style.display = "none";
@@ -2106,10 +2128,11 @@
 
     function bindVersionReset() {
       appVersion.addEventListener("click", () => {
-        const confirmed = window.confirm("Clear cookies for this site only?");
+        const confirmed = window.confirm("Clear this site's cookies and local app settings?");
         if (!confirmed) return;
 
         clearSiteCookiesOnly();
+        clearSiteLocalAppState();
         // Reload to re-run first-load logic (agreement popup, bunny visibility, and related cookie-gated behavior).
         window.location.reload();
       });
@@ -2482,6 +2505,7 @@
   </script>
 </body>
 </html>
+
 
 
 

@@ -57,9 +57,30 @@
       font-weight: 600;
     }
 
-    .lang-note {
+    .lang-toggle {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      color: #d9f6ff;
+      border-radius: 999px;
+      padding: 0.34rem 0.74rem;
+      font: inherit;
       font-size: 0.8rem;
-      color: rgba(248, 247, 245, 0.72);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      min-width: 3.4rem;
+      text-align: center;
+      transition: filter 130ms ease, transform 130ms ease;
+    }
+
+    .lang-toggle:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .lang-toggle:focus-visible {
+      outline: 2px solid #cbf6ff;
+      outline-offset: 2px;
     }
 
     .hero {
@@ -135,7 +156,7 @@
   <main class="container">
     <div class="topbar">
       <a class="back-link" href="./index.html">Back to AICENGHUB</a>
-      <span id="lang-note" class="lang-note">Language: English</span>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch language">EN</button>
     </div>
 
     <header class="hero">
@@ -263,17 +284,38 @@
 
   <script>
     (function syncLegalLanguage() {
-      const langNote = document.getElementById("lang-note");
+      const langToggle = document.getElementById("lang-toggle");
       let language = "en";
       try {
         const stored = localStorage.getItem("aicenghub.lang") || localStorage.getItem("aicenghub_lang");
         if (stored === "id" || stored === "en") language = stored;
       } catch {}
 
-      document.body.classList.toggle("lang-en-active", language === "en");
-      document.body.classList.toggle("lang-id-active", language === "id");
-      document.documentElement.lang = language;
-      langNote.textContent = language === "id" ? "Bahasa: Indonesia" : "Language: English";
+      function persistLanguage(nextLanguage) {
+        try {
+          localStorage.setItem("aicenghub.lang", nextLanguage);
+          localStorage.setItem("aicenghub_lang", nextLanguage);
+        } catch {}
+      }
+
+      function applyLanguage() {
+        document.body.classList.toggle("lang-en-active", language === "en");
+        document.body.classList.toggle("lang-id-active", language === "id");
+        document.documentElement.lang = language;
+        langToggle.textContent = language === "id" ? "ID" : "EN";
+        langToggle.setAttribute(
+          "aria-label",
+          language === "id" ? "Ganti bahasa ke English" : "Switch language to Indonesian"
+        );
+      }
+
+      langToggle.addEventListener("click", () => {
+        language = language === "id" ? "en" : "id";
+        persistLanguage(language);
+        applyLanguage();
+      });
+
+      applyLanguage();
     })();
   </script>
 </body>
