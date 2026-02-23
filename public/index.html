@@ -408,6 +408,7 @@
       align-items: flex-start;
       gap: 0.6rem;
       margin-bottom: 0.36rem;
+      flex-wrap: wrap;
     }
 
     .card h3 {
@@ -422,6 +423,7 @@
       flex-wrap: wrap;
       gap: 0.32rem;
       justify-content: flex-end;
+      max-width: 100%;
     }
 
     .ability-pill {
@@ -442,6 +444,32 @@
     .ability-code { background: #8b5cf6; color: #f6efff; }
     .ability-automation { background: #8b5e34; color: #fff2e4; }
     .ability-learning { background: #d64545; color: #fff3f3; }
+
+    .tool-tag-list {
+      margin: 0.1rem 0 0.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.34rem;
+    }
+
+    .tool-tag {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.06);
+      color: #def8ff;
+      border-radius: 999px;
+      padding: 0.18rem 0.46rem;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: normal;
+    }
+
+    .tool-tag-watermarked {
+      border-color: rgba(255, 255, 255, 0.38);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.22));
+      color: #f7f7f7;
+    }
 
     .pricing-row {
       margin: 0.15rem 0 0.68rem;
@@ -1148,6 +1176,10 @@
         right: 1rem;
         bottom: 8.6rem;
       }
+
+      .ability-list {
+        justify-content: flex-start;
+      }
     }
 
     @media (max-width: 680px) {
@@ -1171,7 +1203,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v41</div>
+    <div id="app-version" class="app-version">v42</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1221,6 +1253,8 @@
         <button id="privacy-settings-trigger" class="footer-link-btn" type="button">Privacy Settings</button>
         <span class="footer-dot" aria-hidden="true">·</span>
         <a id="legal-link-footer" class="footer-link-anchor" href="./legal.html" target="_blank" rel="noopener noreferrer">Full Agreement</a>
+        <span class="footer-dot" aria-hidden="true">·</span>
+        <a class="footer-link-anchor" href="mailto:contact@aicenghub.web.id">contact@aicenghub.web.id</a>
       </div>
       <p id="footer-copyright" class="footer-meta">© 2026 AICENGHUB</p>
       <p id="footer-credit" class="footer-meta">Built by Murid SUHU AICENG</p>
@@ -1336,6 +1370,9 @@
           trial: "Free Trial",
           paid: "Paid"
         },
+        tagLabels: {
+          watermarked: "Watermarked"
+        },
         noMatchingTitle: "No matching tools",
         noMatchingDescription: "Try a different filter or broader search keyword.",
         loadError: "Unable to load link-list.json. Ensure this file exists in the public folder.",
@@ -1381,7 +1418,7 @@
         panelSubtitle: "Gunakan tab sebagai filter cepat. Saat Anda mengetik pada pencarian, hasil dicocokkan ke semua alat.",
         loadingTools: "Memuat alat...",
         footerTitle: "AICENGHUB-Adalah Integrasi Cerdas Ekosistem Network Generatif Hub",
-        footerSubtitle: "Direktori alat AI yang diperbarui terus-menerus",
+        footerSubtitle: "Daftar AI Terbarui Automatis",
         footerCopyright: "© 2026 AICENGHUB",
         footerCredit: "Built by Murid SUHU AICENG",
         privacySettingsLabel: "Pengaturan Privasi",
@@ -1394,6 +1431,9 @@
           free: "Gratis",
           trial: "Uji Coba",
           paid: "Berbayar"
+        },
+        tagLabels: {
+          watermarked: "Ber-watermark"
         },
         noMatchingTitle: "Tidak ada alat yang cocok",
         noMatchingDescription: "Coba filter lain atau kata kunci yang lebih umum.",
@@ -1544,6 +1584,10 @@
       trial: ["trial", "freemium", "coba", "uji-coba"],
       paid: ["paid", "berbayar", "premium", "pro-only"]
     };
+    const ALLOWED_TOOL_TAGS = new Set(["watermarked"]);
+    const TAG_SEARCH_ALIASES = {
+      watermarked: ["watermarked", "watermark", "wm", "ber-watermark", "bertanda-air"]
+    };
     const TAG_TO_ABILITIES = {
       text: ["text"],
       image: ["image"],
@@ -1562,7 +1606,8 @@
       sfx: ["audio"],
       speech: ["audio"],
       app: ["code"],
-      avatar: ["video"]
+      avatar: ["video"],
+      watermarked: ["image", "video"]
     };
     const SEARCH_TOKEN_TO_ABILITY = Object.entries(ABILITY_SEARCH_ALIASES)
       .reduce((accumulator, [ability, aliases]) => {
@@ -1575,6 +1620,13 @@
       .reduce((accumulator, [tier, aliases]) => {
         aliases.forEach((alias) => {
           accumulator[alias] = tier;
+        });
+        return accumulator;
+      }, {});
+    const SEARCH_TOKEN_TO_TAG = Object.entries(TAG_SEARCH_ALIASES)
+      .reduce((accumulator, [tag, aliases]) => {
+        aliases.forEach((alias) => {
+          accumulator[alias] = tag;
         });
         return accumulator;
       }, {});
@@ -1604,6 +1656,25 @@
       const normalized = normalizePricingTier(pricingTier);
       const labels = getDictionary().pricingLabels || I18N.en.pricingLabels;
       return labels[normalized] || labels.trial;
+    }
+
+    function normalizeToolTags(rawTags) {
+      if (!Array.isArray(rawTags)) return [];
+      const normalized = [];
+      const seen = new Set();
+      rawTags.forEach((rawTag) => {
+        const tag = normalize(rawTag).replace(/\s+/g, "-");
+        if (!ALLOWED_TOOL_TAGS.has(tag)) return;
+        if (seen.has(tag)) return;
+        seen.add(tag);
+        normalized.push(tag);
+      });
+      return normalized;
+    }
+
+    function getTagLabel(tagKey) {
+      const labels = getDictionary().tagLabels || I18N.en.tagLabels;
+      return labels[tagKey] || String(tagKey || "").replace(/-/g, " ");
     }
 
     function detectInitialLanguage() {
@@ -1970,9 +2041,7 @@
       const normalizedDirectAbilities = [...new Set(directAbilities)].filter((ability) => ALLOWED_ABILITIES.has(ability));
       if (normalizedDirectAbilities.length) return normalizedDirectAbilities;
 
-      const tags = Array.isArray(rawTool.tags)
-        ? rawTool.tags.map((tag) => normalize(tag)).filter(Boolean)
-        : [];
+      const tags = normalizeToolTags(rawTool.tags);
       const inferredAbilities = [...new Set(tags.flatMap((tag) => TAG_TO_ABILITIES[tag] || []))]
         .filter((ability) => ALLOWED_ABILITIES.has(ability));
       return inferredAbilities;
@@ -1981,13 +2050,15 @@
     function sanitizeTool(rawTool) {
       const abilities = normalizeAbilities(rawTool);
       const pricing = normalizePricingTier(rawTool && (rawTool.pricing || rawTool.pricingTier || rawTool.priceTier));
+      const tags = normalizeToolTags(rawTool && rawTool.tags);
 
       return {
         name: String(rawTool.name || "Unknown Tool"),
         url: sanitizeUrl(rawTool.url),
         description: String(rawTool.description || ""),
         abilities,
-        pricing
+        pricing,
+        tags
       };
     }
 
@@ -2008,6 +2079,16 @@
       pill.setAttribute("aria-label", label);
       pill.title = label;
       return pill;
+    }
+
+    function createToolTag(tagKey) {
+      const normalized = normalize(tagKey).replace(/\s+/g, "-");
+      const chip = document.createElement("span");
+      chip.className = `tool-tag tool-tag-${normalized}`;
+      const label = getTagLabel(normalized);
+      chip.textContent = label;
+      chip.setAttribute("aria-label", label);
+      return chip;
     }
 
     function createToolCard(tool) {
@@ -2031,6 +2112,14 @@
       const description = document.createElement("p");
       description.textContent = tool.description;
 
+      const tagList = document.createElement("div");
+      tagList.className = "tool-tag-list";
+      if (Array.isArray(tool.tags) && tool.tags.length) {
+        tool.tags.forEach((tag) => {
+          tagList.appendChild(createToolTag(tag));
+        });
+      }
+
       const pricingRow = document.createElement("div");
       pricingRow.className = "pricing-row";
       const pricingPill = createPricingPill(tool.pricing);
@@ -2045,7 +2134,11 @@
       link.rel = "noopener noreferrer";
       link.textContent = getDictionary().openLink;
 
-      card.append(head, description, pricingRow, link);
+      card.append(head, description);
+      if (tagList.childElementCount) {
+        card.appendChild(tagList);
+      }
+      card.append(pricingRow, link);
       return card;
     }
 
@@ -2058,12 +2151,17 @@
       const abilityAliasText = tool.abilities
         .flatMap((ability) => ABILITY_SEARCH_ALIASES[ability] || [ability])
         .join(" ");
+      const tagAliasText = (Array.isArray(tool.tags) ? tool.tags : [])
+        .flatMap((tag) => TAG_SEARCH_ALIASES[tag] || [tag])
+        .join(" ");
       const pricingAliasText = PRICING_SEARCH_ALIASES[normalizePricingTier(tool.pricing)] || [];
       const haystack = normalize([
         tool.name,
         tool.url,
         tool.description,
         tool.abilities.join(" "),
+        (Array.isArray(tool.tags) ? tool.tags.join(" ") : ""),
+        tagAliasText,
         abilityAliasText,
         normalizePricingTier(tool.pricing),
         getPricingLabel(tool.pricing),
@@ -2076,6 +2174,8 @@
         if (haystack.includes(token)) return true;
         const mappedAbility = SEARCH_TOKEN_TO_ABILITY[token];
         if (mappedAbility && tool.abilities.includes(mappedAbility)) return true;
+        const mappedTag = SEARCH_TOKEN_TO_TAG[token];
+        if (mappedTag && Array.isArray(tool.tags) && tool.tags.includes(mappedTag)) return true;
         const mappedPricing = SEARCH_TOKEN_TO_PRICING[token];
         return mappedPricing ? normalizePricingTier(tool.pricing) === mappedPricing : false;
       });
@@ -2459,12 +2559,14 @@
       const descText = normalize(tool.description);
       const urlText = normalize(tool.url);
       const abilityText = normalize(tool.abilities.join(" "));
+      const tagText = normalize((Array.isArray(tool.tags) ? tool.tags : []).join(" "));
       const pricingTier = normalizePricingTier(tool.pricing);
       const pricingText = normalize([pricingTier, getPricingLabel(pricingTier), ...(PRICING_SEARCH_ALIASES[pricingTier] || [])].join(" "));
 
       if (nameText.includes(normalizedQuery)) score += 8;
       if (descText.includes(normalizedQuery)) score += 5;
       if (abilityText.includes(normalizedQuery)) score += 4;
+      if (tagText.includes(normalizedQuery)) score += 4;
       if (urlText.includes(normalizedQuery)) score += 2;
       if (pricingText.includes(normalizedQuery)) score += 3;
 
@@ -2481,6 +2583,10 @@
 
         const mappedPricing = SEARCH_TOKEN_TO_PRICING[token];
         if (mappedPricing && pricingTier === mappedPricing) {
+          score += 4;
+        }
+        const mappedTag = SEARCH_TOKEN_TO_TAG[token];
+        if (mappedTag && Array.isArray(tool.tags) && tool.tags.includes(mappedTag)) {
           score += 4;
         }
       });
@@ -2532,8 +2638,9 @@
           const url = compactPromptText(tool.url, 120);
           const description = compactPromptText(tool.description, 100);
           const abilities = tool.abilities.join(", ") || "none";
+          const tags = (Array.isArray(tool.tags) && tool.tags.length) ? tool.tags.join(", ") : "none";
           const pricing = normalizePricingTier(tool.pricing);
-          return `- ${name} | pricing: ${pricing} | abilities: ${abilities} | url: ${url} | description: ${description}`;
+          return `- ${name} | pricing: ${pricing} | tags: ${tags} | abilities: ${abilities} | url: ${url} | description: ${description}`;
         })
         .join("\n");
 
@@ -2774,6 +2881,7 @@
   </script>
 </body>
 </html>
+
 
 
 

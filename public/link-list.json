@@ -175,7 +175,10 @@
     "abilities": [
       "video"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "HeyGen",
@@ -185,7 +188,10 @@
       "video",
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "Higgsfield",
@@ -223,7 +229,10 @@
       "video",
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "Le Chat (Mistral)",
@@ -409,7 +418,10 @@
       "video",
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "Pippit AI",
@@ -428,7 +440,10 @@
     "abilities": [
       "video"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "Producer.ai",
@@ -468,7 +483,10 @@
       "image",
       "audio"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "SadTalker",
@@ -556,7 +574,10 @@
       "video",
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "watermarked"
+    ]
   },
   {
     "name": "TokkingHeads",

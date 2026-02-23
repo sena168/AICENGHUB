@@ -5,6 +5,7 @@ const path = require("path");
 
 const ALLOWED_ABILITIES = new Set(["text", "image", "video", "audio", "code", "automation", "learning"]);
 const ALLOWED_PRICING_TIERS = new Set(["free", "trial", "paid"]);
+const ALLOWED_TOOL_TAGS = new Set(["watermarked"]);
 const MAX_BACKUPS = 30;
 
 function getConnectionString() {
@@ -68,6 +69,20 @@ function normalizePricing(rawPricing) {
   return "trial";
 }
 
+function normalizeTags(rawTags) {
+  if (!Array.isArray(rawTags)) return [];
+  const deduped = [];
+  const seen = new Set();
+  for (const rawTag of rawTags) {
+    const tag = String(rawTag || "").trim().toLowerCase().replace(/\s+/g, "-");
+    if (!ALLOWED_TOOL_TAGS.has(tag)) continue;
+    if (seen.has(tag)) continue;
+    seen.add(tag);
+    deduped.push(tag);
+  }
+  return deduped;
+}
+
 function abilitiesToCsv(rawAbilities) {
   return normalizeAbilities(rawAbilities).join(",");
 }
@@ -80,13 +95,26 @@ function csvToAbilities(rawCsv) {
   return normalizeAbilities(parts);
 }
 
+function tagsToCsv(rawTags) {
+  return normalizeTags(rawTags).join(",");
+}
+
+function csvToTags(rawCsv) {
+  const parts = String(rawCsv || "")
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+  return normalizeTags(parts);
+}
+
 function rowToLink(row) {
   return {
     name: String(row.name || ""),
     url: String(row.url || ""),
     description: String(row.description || ""),
     abilities: csvToAbilities(row.abilities_csv),
-    pricing: normalizePricing(row.pricing_tier)
+    pricing: normalizePricing(row.pricing_tier),
+    tags: csvToTags(row.tags_csv)
   };
 }
 
@@ -99,6 +127,7 @@ async function ensureSchema(sql) {
       description TEXT NOT NULL DEFAULT '',
       abilities_csv TEXT NOT NULL DEFAULT '',
       pricing_tier TEXT NOT NULL DEFAULT 'trial',
+      tags_csv TEXT NOT NULL DEFAULT '',
       source TEXT NOT NULL DEFAULT 'manual',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -113,6 +142,7 @@ async function ensureSchema(sql) {
       description TEXT NOT NULL DEFAULT '',
       abilities_csv TEXT NOT NULL DEFAULT '',
       pricing_tier TEXT NOT NULL DEFAULT 'trial',
+      tags_csv TEXT NOT NULL DEFAULT '',
       evidence_json TEXT NOT NULL DEFAULT '{}',
       status TEXT NOT NULL DEFAULT 'pending',
       discovered_count INTEGER NOT NULL DEFAULT 1,
@@ -130,8 +160,18 @@ async function ensureSchema(sql) {
   `;
 
   await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS tags_csv TEXT NOT NULL DEFAULT ''
+  `;
+
+  await sql`
     ALTER TABLE ai_candidate_links
     ADD COLUMN IF NOT EXISTS pricing_tier TEXT NOT NULL DEFAULT 'trial'
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS tags_csv TEXT NOT NULL DEFAULT ''
   `;
 
   await sql`
@@ -159,7 +199,8 @@ function readInitialLinkListFromFile() {
     url: normalizeUrl(entry && entry.url ? entry.url : ""),
     description: String(entry && entry.description ? entry.description : "").trim(),
     abilities: normalizeAbilities(Array.isArray(entry && entry.abilities) ? entry.abilities : []),
-    pricing: normalizePricing(entry && (entry.pricing || entry.pricingTier || entry.priceTier))
+    pricing: normalizePricing(entry && (entry.pricing || entry.pricingTier || entry.priceTier)),
+    tags: normalizeTags(Array.isArray(entry && entry.tags) ? entry.tags : [])
   }))
     .filter((entry) => entry.name && entry.url);
 }
@@ -172,8 +213,8 @@ async function seedMainFromFileIfEmpty(sql) {
   const initialLinks = readInitialLinkListFromFile();
   for (const link of initialLinks) {
     await sql`
-      INSERT INTO ai_main_links (name, url, description, abilities_csv, pricing_tier, source, updated_at)
-      VALUES (${link.name}, ${link.url}, ${link.description}, ${abilitiesToCsv(link.abilities)}, ${link.pricing}, 'seed:file', NOW())
+      INSERT INTO ai_main_links (name, url, description, abilities_csv, pricing_tier, tags_csv, source, updated_at)
+      VALUES (${link.name}, ${link.url}, ${link.description}, ${abilitiesToCsv(link.abilities)}, ${link.pricing}, ${tagsToCsv(link.tags)}, 'seed:file', NOW())
       ON CONFLICT (url) DO NOTHING
     `;
   }
@@ -181,8 +222,8 @@ async function seedMainFromFileIfEmpty(sql) {
 
 async function refreshMainPricingTiers(sql) {
   const initialLinks = readInitialLinkListFromFile();
-  const pricingByUrl = new Map(initialLinks.map((entry) => [entry.url, entry.pricing]));
-  const rows = await sql`SELECT url, pricing_tier FROM ai_main_links`;
+  const metadataByUrl = new Map(initialLinks.map((entry) => [entry.url, { pricing: entry.pricing, tagsCsv: tagsToCsv(entry.tags) }]));
+  const rows = await sql`SELECT url, pricing_tier, tags_csv FROM ai_main_links`;
 
   let scannedCount = 0;
   let updatedCount = 0;
@@ -193,18 +234,20 @@ async function refreshMainPricingTiers(sql) {
     if (!normalizedUrl) continue;
 
     scannedCount += 1;
-    const expectedPricing = pricingByUrl.get(normalizedUrl);
-    if (!expectedPricing) {
+    const expected = metadataByUrl.get(normalizedUrl);
+    if (!expected) {
       missingReferenceCount += 1;
       continue;
     }
 
     const currentPricing = normalizePricing(row.pricing_tier);
-    if (currentPricing === expectedPricing) continue;
+    const currentTagsCsv = tagsToCsv(csvToTags(row.tags_csv));
+    if (currentPricing === expected.pricing && currentTagsCsv === expected.tagsCsv) continue;
 
     await sql`
       UPDATE ai_main_links
-      SET pricing_tier = ${expectedPricing}
+      SET pricing_tier = ${expected.pricing},
+          tags_csv = ${expected.tagsCsv}
       WHERE url = ${normalizedUrl}
     `;
     updatedCount += 1;
@@ -214,7 +257,7 @@ async function refreshMainPricingTiers(sql) {
     scannedCount,
     updatedCount,
     missingReferenceCount,
-    sourceCount: pricingByUrl.size
+    sourceCount: metadataByUrl.size
   };
 }
 
@@ -226,7 +269,7 @@ async function ensureStoreReady(sql) {
 
 async function getMainLinks(sql) {
   const rows = await sql`
-    SELECT name, url, description, abilities_csv, pricing_tier
+    SELECT name, url, description, abilities_csv, pricing_tier, tags_csv
     FROM ai_main_links
     ORDER BY LOWER(name) ASC
   `;
@@ -246,14 +289,15 @@ async function upsertCandidate(sql, candidate) {
   const description = String(candidate && candidate.description ? candidate.description : "").trim();
   const abilitiesCsv = abilitiesToCsv(Array.isArray(candidate && candidate.abilities) ? candidate.abilities : []);
   const pricingTier = normalizePricing(candidate && (candidate.pricing || candidate.pricingTier || candidate.priceTier));
+  const tagsCsv = tagsToCsv(Array.isArray(candidate && candidate.tags) ? candidate.tags : []);
   const evidenceJson = JSON.stringify(candidate && candidate.evidence ? candidate.evidence : {});
   const discoveredBy = String(candidate && candidate.discoveredBy ? candidate.discoveredBy : "juleha").trim() || "juleha";
 
   await sql`
     INSERT INTO ai_candidate_links
-      (name, url, description, abilities_csv, pricing_tier, evidence_json, status, discovered_count, discovered_by, last_seen_at, updated_at)
+      (name, url, description, abilities_csv, pricing_tier, tags_csv, evidence_json, status, discovered_count, discovered_by, last_seen_at, updated_at)
     VALUES
-      (${name}, ${url}, ${description}, ${abilitiesCsv}, ${pricingTier}, ${evidenceJson}, 'pending', 1, ${discoveredBy}, NOW(), NOW())
+      (${name}, ${url}, ${description}, ${abilitiesCsv}, ${pricingTier}, ${tagsCsv}, ${evidenceJson}, 'pending', 1, ${discoveredBy}, NOW(), NOW())
     ON CONFLICT (url) DO UPDATE SET
       name = CASE
         WHEN ai_candidate_links.name = '' THEN EXCLUDED.name
@@ -270,6 +314,10 @@ async function upsertCandidate(sql, candidate) {
       pricing_tier = CASE
         WHEN ai_candidate_links.pricing_tier = '' THEN EXCLUDED.pricing_tier
         ELSE ai_candidate_links.pricing_tier
+      END,
+      tags_csv = CASE
+        WHEN ai_candidate_links.tags_csv = '' THEN EXCLUDED.tags_csv
+        ELSE ai_candidate_links.tags_csv
       END,
       evidence_json = EXCLUDED.evidence_json,
       status = CASE
@@ -306,7 +354,7 @@ async function mergePendingCandidates(sql) {
   const mainUrlSet = new Set(currentLinks.map((link) => normalizeUrl(link.url)).filter(Boolean));
 
   const pending = await sql`
-    SELECT id, name, url, description, abilities_csv, pricing_tier
+    SELECT id, name, url, description, abilities_csv, pricing_tier, tags_csv
     FROM ai_candidate_links
     WHERE status = 'pending'
     ORDER BY created_at ASC
@@ -337,13 +385,14 @@ async function mergePendingCandidates(sql) {
     }
 
     await sql`
-      INSERT INTO ai_main_links (name, url, description, abilities_csv, pricing_tier, source, updated_at)
+      INSERT INTO ai_main_links (name, url, description, abilities_csv, pricing_tier, tags_csv, source, updated_at)
       VALUES (
         ${String(row.name || "").trim() || normalizedUrl},
         ${normalizedUrl},
         ${String(row.description || "").trim()},
         ${String(row.abilities_csv || "").trim()},
         ${normalizePricing(row.pricing_tier)},
+        ${tagsToCsv(csvToTags(row.tags_csv))},
         'candidate-merge',
         NOW()
       )
@@ -375,8 +424,11 @@ module.exports = {
   normalizeUrl,
   normalizeAbilities,
   normalizePricing,
+  normalizeTags,
   abilitiesToCsv,
   csvToAbilities,
+  tagsToCsv,
+  csvToTags,
   ensureStoreReady,
   refreshMainPricingTiers,
   getMainLinks,

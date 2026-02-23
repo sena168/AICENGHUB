@@ -4,6 +4,7 @@ const {
   createSqlClient,
   ensureStoreReady,
   csvToAbilities,
+  csvToTags,
   normalizePricing
 } = require("./_link-store");
 
@@ -39,7 +40,7 @@ module.exports = async function handler(req, res) {
     const sql = createSqlClient();
     await ensureStoreReady(sql);
     const rows = await sql`
-      SELECT id, name, url, description, abilities_csv, pricing_tier, status, discovered_count, created_at, updated_at
+      SELECT id, name, url, description, abilities_csv, pricing_tier, tags_csv, status, discovered_count, created_at, updated_at
       FROM ai_candidate_links
       ORDER BY created_at DESC
       LIMIT 500
@@ -52,6 +53,7 @@ module.exports = async function handler(req, res) {
       description: String(row.description || ""),
       abilities: csvToAbilities(row.abilities_csv),
       pricing: normalizePricing(row.pricing_tier),
+      tags: csvToTags(row.tags_csv),
       status: String(row.status || ""),
       discoveredCount: Number(row.discovered_count || 0),
       createdAt: row.created_at,
