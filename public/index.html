@@ -43,6 +43,10 @@
       overflow: hidden;
     }
 
+    body.tool-detail-open {
+      overflow: hidden;
+    }
+
     body::before {
       content: "";
       position: fixed;
@@ -400,6 +404,19 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(30, 184, 199, 0.04));
       padding: 0.9rem;
+      cursor: pointer;
+      transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(30, 184, 199, 0.58);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.26);
+    }
+
+    .card:focus-visible {
+      outline: 2px solid rgba(30, 184, 199, 0.88);
+      outline-offset: 2px;
     }
 
     .card-head-row {
@@ -526,6 +543,261 @@
     .card a:hover {
       text-decoration: underline;
       color: #cbf6ff;
+    }
+
+    .tool-detail-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: grid;
+      place-items: center;
+      padding: 1.1rem;
+      background: rgba(8, 6, 18, 0.82);
+      backdrop-filter: blur(6px);
+    }
+
+    .tool-detail-overlay[hidden] {
+      display: none;
+    }
+
+    .tool-detail-card {
+      position: relative;
+      width: min(940px, 100%);
+      max-height: calc(100vh - 2.2rem);
+      border: 1px solid rgba(30, 184, 199, 0.42);
+      border-radius: 16px;
+      background:
+        linear-gradient(160deg, rgba(30, 184, 199, 0.14), rgba(244, 183, 63, 0.12)),
+        rgba(12, 10, 25, 0.98);
+      box-shadow: 0 22px 52px rgba(0, 0, 0, 0.52);
+      overflow: auto;
+      animation: tool-detail-pop 200ms ease;
+    }
+
+    @keyframes tool-detail-pop {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .tool-detail-close {
+      position: absolute;
+      top: 0.72rem;
+      right: 0.72rem;
+      width: 2.1rem;
+      height: 2.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8f7f5;
+      border-radius: 10px;
+      font: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tool-detail-close:hover {
+      filter: brightness(1.08);
+    }
+
+    .tool-detail-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 1rem;
+      padding: 1rem 1rem 1.05rem;
+    }
+
+    .tool-detail-visual {
+      display: grid;
+      gap: 0.7rem;
+      align-content: flex-start;
+    }
+
+    .tool-detail-logo-wrap {
+      position: relative;
+      width: 100%;
+      min-height: 230px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      overflow: hidden;
+      background:
+        radial-gradient(130% 110% at 20% 10%, rgba(30, 184, 199, 0.35), transparent 55%),
+        radial-gradient(130% 110% at 80% 90%, rgba(244, 183, 63, 0.28), transparent 50%),
+        rgba(8, 10, 20, 0.7);
+      display: grid;
+      place-items: center;
+      padding: 0.95rem;
+    }
+
+    .tool-detail-logo {
+      max-width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+    }
+
+    .tool-detail-logo-fallback {
+      width: 100%;
+      min-height: 180px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      display: grid;
+      place-items: center;
+      color: #ecfbff;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 3rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tool-detail-logo-fallback[hidden] {
+      display: none;
+    }
+
+    .tool-detail-favicon-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      border: 1px solid rgba(255, 255, 255, 0.23);
+      border-radius: 999px;
+      padding: 0.28rem 0.56rem;
+      width: fit-content;
+      max-width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .tool-detail-favicon {
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 50%;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      flex: 0 0 auto;
+    }
+
+    .tool-detail-domain {
+      min-width: 0;
+      color: #def8ff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tool-detail-main {
+      min-width: 0;
+    }
+
+    .tool-detail-eyebrow {
+      margin: 0;
+      color: rgba(203, 246, 255, 0.82);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .tool-detail-title {
+      margin: 0.28rem 0 0;
+      font-size: clamp(1.35rem, 2.5vw, 2rem);
+      line-height: 1.15;
+      color: #fff2c9;
+    }
+
+    .tool-detail-description {
+      margin: 0.72rem 0 0;
+      color: #d8f2ff;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      max-width: 68ch;
+    }
+
+    .tool-detail-sections {
+      margin-top: 0.86rem;
+      display: grid;
+      gap: 0.72rem;
+    }
+
+    .tool-detail-block {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.62rem 0.7rem;
+    }
+
+    .tool-detail-block strong {
+      display: block;
+      margin: 0;
+      color: #ffe9af;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .tool-detail-pill-list {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.34rem;
+    }
+
+    .tool-detail-ability-tag {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 999px;
+      padding: 0.2rem 0.48rem;
+      font-size: 0.74rem;
+      line-height: 1.2;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.07);
+      color: #def8ff;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .tool-detail-pricing-row {
+      margin: 0.48rem 0 0;
+    }
+
+    .tool-detail-actions {
+      margin-top: 0.86rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .tool-detail-open-link {
+      border: 1px solid rgba(244, 183, 63, 0.8);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
+      border-radius: 9px;
+      padding: 0.52rem 0.78rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.25rem;
+    }
+
+    .tool-detail-open-link:hover {
+      filter: brightness(1.06);
     }
 
     .footer-shell {
@@ -1185,6 +1457,14 @@
       .ability-list {
         justify-content: flex-start;
       }
+
+      .tool-detail-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-detail-logo-wrap {
+        min-height: 200px;
+      }
     }
 
     @media (max-width: 680px) {
@@ -1203,12 +1483,53 @@
       .consent-actions {
         grid-template-columns: minmax(0, 1fr);
       }
+
+      .tool-detail-overlay {
+        padding: 0.7rem;
+      }
+
+      .tool-detail-card {
+        max-height: calc(100vh - 1.4rem);
+      }
+
+      .tool-detail-layout {
+        padding: 0.9rem 0.82rem 0.92rem;
+        gap: 0.8rem;
+      }
+
+      .tool-detail-logo-wrap {
+        min-height: 170px;
+      }
+
+      .tool-detail-logo {
+        max-height: 132px;
+      }
+
+      .tool-detail-logo-fallback {
+        min-height: 128px;
+      }
+
+      .tool-detail-actions {
+        margin-top: 0.78rem;
+      }
+
+      .tool-detail-open-link {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card,
+      .tool-detail-card {
+        transition: none;
+        animation: none;
+      }
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v44</div>
+    <div id="app-version" class="app-version">v45</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1265,6 +1586,47 @@
       <p id="footer-credit" class="footer-meta">Built by Murid SUHU AICENG</p>
     </footer>
   </main>
+  <section id="tool-detail-overlay" class="tool-detail-overlay" aria-hidden="true" hidden>
+    <article class="tool-detail-card" role="dialog" aria-modal="true" aria-labelledby="tool-detail-title">
+      <button id="tool-detail-close" class="tool-detail-close" type="button" aria-label="Close details">x</button>
+      <div class="tool-detail-layout">
+        <aside class="tool-detail-visual" aria-label="Tool visual">
+          <div class="tool-detail-logo-wrap">
+            <img id="tool-detail-logo" class="tool-detail-logo" src="" alt="">
+            <div id="tool-detail-logo-fallback" class="tool-detail-logo-fallback" hidden>AI</div>
+          </div>
+          <div class="tool-detail-favicon-row">
+            <img id="tool-detail-favicon" class="tool-detail-favicon" src="" alt="">
+            <span id="tool-detail-domain" class="tool-detail-domain">-</span>
+          </div>
+        </aside>
+        <section class="tool-detail-main">
+          <p id="tool-detail-eyebrow" class="tool-detail-eyebrow">AI Tool Spotlight</p>
+          <h3 id="tool-detail-title" class="tool-detail-title">Tool Name</h3>
+          <p id="tool-detail-description" class="tool-detail-description"></p>
+
+          <div class="tool-detail-sections">
+            <div class="tool-detail-block">
+              <strong id="tool-detail-pricing-heading">Pricing</strong>
+              <div id="tool-detail-pricing-row" class="pricing-row tool-detail-pricing-row"></div>
+            </div>
+            <div class="tool-detail-block">
+              <strong id="tool-detail-abilities-heading">Abilities</strong>
+              <div id="tool-detail-abilities" class="tool-detail-pill-list"></div>
+            </div>
+            <div class="tool-detail-block">
+              <strong id="tool-detail-tags-heading">Tags</strong>
+              <div id="tool-detail-tags" class="tool-detail-pill-list"></div>
+            </div>
+          </div>
+
+          <div class="tool-detail-actions">
+            <a id="tool-detail-open-link" class="tool-detail-open-link" href="#" target="_blank" rel="noopener noreferrer">Open Link</a>
+          </div>
+        </section>
+      </div>
+    </article>
+  </section>
   <button id="bunny-fab" class="bunny-fab" type="button" aria-label="Bunny">
     <img src="./transparentbunny.png" alt="" aria-hidden="true">
   </button>
@@ -1370,6 +1732,14 @@
         searchBarLabel: "AI tool search",
         languageSwitchLabel: "Language selector",
         openLink: "Open Link",
+        toolDetail: {
+          eyebrow: "AI Tool Spotlight",
+          pricingHeading: "Pricing",
+          abilitiesHeading: "Abilities",
+          tagsHeading: "Tags",
+          closeLabel: "Close details",
+          openLink: "Open Official Site"
+        },
         pricingLabels: {
           free: "Free",
           trial: "Free Trial",
@@ -1432,6 +1802,14 @@
         searchBarLabel: "Pencarian alat AI",
         languageSwitchLabel: "Pemilih bahasa",
         openLink: "Buka Tautan",
+        toolDetail: {
+          eyebrow: "Sorotan Alat AI",
+          pricingHeading: "Harga",
+          abilitiesHeading: "Kemampuan",
+          tagsHeading: "Tag",
+          closeLabel: "Tutup detail",
+          openLink: "Buka Situs Resmi"
+        },
         pricingLabels: {
           free: "Gratis",
           trial: "Uji Coba",
@@ -1517,6 +1895,22 @@
     const consentAnalyticsToggle = document.getElementById("consent-analytics-toggle");
     const consentPersonalizationToggle = document.getElementById("consent-personalization-toggle");
     const consentSaveButton = document.getElementById("consent-save-btn");
+    const toolDetailOverlay = document.getElementById("tool-detail-overlay");
+    const toolDetailCloseButton = document.getElementById("tool-detail-close");
+    const toolDetailLogo = document.getElementById("tool-detail-logo");
+    const toolDetailLogoFallback = document.getElementById("tool-detail-logo-fallback");
+    const toolDetailFavicon = document.getElementById("tool-detail-favicon");
+    const toolDetailDomain = document.getElementById("tool-detail-domain");
+    const toolDetailEyebrow = document.getElementById("tool-detail-eyebrow");
+    const toolDetailTitle = document.getElementById("tool-detail-title");
+    const toolDetailDescription = document.getElementById("tool-detail-description");
+    const toolDetailPricingHeading = document.getElementById("tool-detail-pricing-heading");
+    const toolDetailPricingRow = document.getElementById("tool-detail-pricing-row");
+    const toolDetailAbilitiesHeading = document.getElementById("tool-detail-abilities-heading");
+    const toolDetailAbilities = document.getElementById("tool-detail-abilities");
+    const toolDetailTagsHeading = document.getElementById("tool-detail-tags-heading");
+    const toolDetailTags = document.getElementById("tool-detail-tags");
+    const toolDetailOpenLink = document.getElementById("tool-detail-open-link");
     const julehaFab = document.getElementById("juleha-fab");
     const julehaChatWindow = document.getElementById("juleha-chat-window");
     const julehaChatClose = document.getElementById("juleha-chat-close");
@@ -1542,6 +1936,8 @@
     let searchDebounceTimer = null;
     let crazybunnyTimer = null;
     let crazybunnyPreloadedImage = null;
+    let activeToolDetail = null;
+    let activeToolDetailTrigger = null;
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
     let julehaActiveRouteLabel = "loading...";
@@ -1682,6 +2078,162 @@
     function getTagLabel(tagKey) {
       const labels = getDictionary().tagLabels || I18N.en.tagLabels;
       return labels[tagKey] || String(tagKey || "").replace(/-/g, " ");
+    }
+
+    function extractHostname(rawUrl) {
+      try {
+        const parsed = new URL(String(rawUrl || ""));
+        return parsed.hostname.replace(/^www\./i, "");
+      } catch {
+        return "";
+      }
+    }
+
+    function getToolInitials(name) {
+      const tokens = String(name || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (!tokens.length) return "AI";
+      if (tokens.length === 1) return tokens[0].slice(0, 2).toUpperCase();
+      return `${tokens[0][0] || ""}${tokens[1][0] || ""}`.toUpperCase();
+    }
+
+    function createDetailAbilityTag(ability) {
+      const chip = document.createElement("span");
+      chip.className = "tool-detail-ability-tag";
+      chip.textContent = getAbilityLabel(ability);
+      return chip;
+    }
+
+    function applyToolDetailTranslations() {
+      const detail = getDictionary().toolDetail || I18N.en.toolDetail;
+      toolDetailEyebrow.textContent = detail.eyebrow;
+      toolDetailPricingHeading.textContent = detail.pricingHeading;
+      toolDetailAbilitiesHeading.textContent = detail.abilitiesHeading;
+      toolDetailTagsHeading.textContent = detail.tagsHeading;
+      toolDetailOpenLink.textContent = detail.openLink;
+      toolDetailCloseButton.setAttribute("aria-label", detail.closeLabel);
+      toolDetailCloseButton.title = detail.closeLabel;
+    }
+
+    function populateToolDetailModal(tool) {
+      if (!tool) return;
+      activeToolDetail = tool;
+      applyToolDetailTranslations();
+
+      toolDetailTitle.textContent = tool.name || "Unknown Tool";
+      toolDetailDescription.textContent = tool.description || "-";
+
+      toolDetailPricingRow.innerHTML = "";
+      const pricingPill = createPricingPill(tool.pricing);
+      const pricingText = document.createElement("span");
+      pricingText.className = "pricing-text";
+      pricingText.textContent = getPricingLabel(tool.pricing);
+      toolDetailPricingRow.append(pricingPill, pricingText);
+
+      toolDetailAbilities.innerHTML = "";
+      const abilities = Array.isArray(tool.abilities) ? tool.abilities : [];
+      if (abilities.length) {
+        abilities.forEach((ability) => {
+          toolDetailAbilities.appendChild(createDetailAbilityTag(ability));
+        });
+      } else {
+        const noneAbility = document.createElement("span");
+        noneAbility.className = "tool-detail-ability-tag";
+        noneAbility.textContent = "-";
+        toolDetailAbilities.appendChild(noneAbility);
+      }
+
+      toolDetailTags.innerHTML = "";
+      if (Array.isArray(tool.tags) && tool.tags.length) {
+        tool.tags.forEach((tag) => {
+          toolDetailTags.appendChild(createToolTag(tag));
+        });
+      } else {
+        const noneTag = document.createElement("span");
+        noneTag.className = "tool-detail-ability-tag";
+        noneTag.textContent = "-";
+        toolDetailTags.appendChild(noneTag);
+      }
+
+      const safeUrl = sanitizeUrl(tool.url);
+      const hostname = extractHostname(safeUrl);
+      toolDetailDomain.textContent = hostname || "unknown-domain";
+
+      if (safeUrl === "#") {
+        toolDetailOpenLink.href = "#";
+        toolDetailOpenLink.setAttribute("aria-disabled", "true");
+        toolDetailOpenLink.style.opacity = "0.6";
+        toolDetailOpenLink.style.pointerEvents = "none";
+      } else {
+        toolDetailOpenLink.href = safeUrl;
+        toolDetailOpenLink.removeAttribute("aria-disabled");
+        toolDetailOpenLink.style.opacity = "";
+        toolDetailOpenLink.style.pointerEvents = "";
+      }
+
+      const initials = getToolInitials(tool.name);
+      toolDetailLogoFallback.textContent = initials;
+      toolDetailLogoFallback.hidden = false;
+      toolDetailLogo.hidden = true;
+
+      toolDetailFavicon.hidden = !hostname;
+      toolDetailFavicon.alt = hostname ? `${hostname} favicon` : "";
+      toolDetailFavicon.src = hostname
+        ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=128`
+        : "";
+      toolDetailFavicon.onerror = () => {
+        toolDetailFavicon.hidden = true;
+      };
+
+      if (!hostname) {
+        toolDetailLogo.removeAttribute("src");
+        toolDetailLogo.alt = "";
+        return;
+      }
+
+      toolDetailLogo.alt = `${tool.name} logo`;
+      toolDetailLogo.src = `https://logo.clearbit.com/${hostname}`;
+      toolDetailLogo.hidden = false;
+      toolDetailLogo.onload = () => {
+        toolDetailLogoFallback.hidden = true;
+      };
+      toolDetailLogo.onerror = () => {
+        toolDetailLogo.hidden = true;
+        toolDetailLogoFallback.hidden = false;
+      };
+    }
+
+    function openToolDetailModal(tool, triggerNode) {
+      populateToolDetailModal(tool);
+      activeToolDetailTrigger = triggerNode || null;
+      toolDetailOverlay.hidden = false;
+      toolDetailOverlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("tool-detail-open");
+      window.setTimeout(() => {
+        toolDetailCloseButton.focus();
+      }, 0);
+    }
+
+    function closeToolDetailModal() {
+      if (toolDetailOverlay.hidden) return;
+      toolDetailOverlay.hidden = true;
+      toolDetailOverlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("tool-detail-open");
+      if (activeToolDetailTrigger && typeof activeToolDetailTrigger.focus === "function") {
+        activeToolDetailTrigger.focus();
+      }
+      activeToolDetailTrigger = null;
+    }
+
+    function bindToolDetailModal() {
+      toolDetailCloseButton.addEventListener("click", closeToolDetailModal);
+      toolDetailOverlay.addEventListener("click", (event) => {
+        if (event.target === toolDetailOverlay) {
+          closeToolDetailModal();
+        }
+      });
     }
 
     function detectInitialLanguage() {
@@ -1986,6 +2538,10 @@
       searchShell.setAttribute("aria-label", dictionary.searchBarLabel);
       langSwitch.setAttribute("aria-label", dictionary.languageSwitchLabel);
       applyConsentTranslations();
+      applyToolDetailTranslations();
+      if (activeToolDetail && !toolDetailOverlay.hidden) {
+        populateToolDetailModal(activeToolDetail);
+      }
 
       if (!tools.length) {
         searchStatus.textContent = dictionary.loadingTools;
@@ -2101,6 +2657,24 @@
     function createToolCard(tool) {
       const card = document.createElement("article");
       card.className = "card";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `${tool.name} details`);
+
+      const openDetails = () => openToolDetailModal(tool, card);
+      card.addEventListener("click", (event) => {
+        const clicked = event.target;
+        if (clicked instanceof Element && clicked.closest("a")) return;
+        openDetails();
+      });
+      card.addEventListener("keydown", (event) => {
+        const target = event.target;
+        if (target instanceof Element && target.closest("a")) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openDetails();
+        }
+      });
 
       const head = document.createElement("div");
       head.className = "card-head-row";
@@ -2140,6 +2714,9 @@
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = getDictionary().openLink;
+      link.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
 
       card.append(head, description);
       if (tagList.childElementCount) {
@@ -2843,6 +3420,10 @@
       });
 
       document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !toolDetailOverlay.hidden) {
+          closeToolDetailModal();
+          return;
+        }
         if (event.key === "Escape" && !julehaChatWindow.hidden) {
           closeJulehaChat();
         }
@@ -2879,12 +3460,14 @@
     bindBunnyButton();
     bindMusicToggle();
     bindWelcomePopup();
+    bindToolDetailModal();
     bindVersionReset();
     bindJulehaChat();
     loadTools();
   </script>
 </body>
 </html>
+
 
 
 
