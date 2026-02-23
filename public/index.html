@@ -1088,6 +1088,11 @@
       padding: 0.52rem 0.72rem;
       font: inherit;
       font-weight: 700;
+      width: 7.2rem;
+      min-width: 7.2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
     }
 
@@ -1203,7 +1208,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v43</div>
+    <div id="app-version" class="app-version">v44</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1552,6 +1557,8 @@
       "You are Juleha, the AI copilot inside AICENGHUB.",
       "Persona: calm, tactical, slightly playful, and focused on helping the user decide quickly.",
       "Style rules: concise, practical, no fluff, and prefer short lists when useful.",
+      "Capability: use server-side URL checks for specific links when user asks to verify/browse links.",
+      "If user asks whether you can browse/check, explain you can verify provided URLs and ask for exact links when needed.",
       "Priority: recommend tools from AICENGHUB catalog first and include their direct links.",
       "When offering options, always prefer this order: free first, then trial, then paid.",
       "If a user asks for an AI that is not in catalog, you may use your own knowledge to suggest external tools.",
@@ -2878,6 +2885,7 @@
   </script>
 </body>
 </html>
+
 
 
 
