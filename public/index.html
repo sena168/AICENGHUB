@@ -1527,7 +1527,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v46</div>
+    <div id="app-version" class="app-version">v47</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1938,6 +1938,7 @@
     let activeToolDetail = null;
     let activeToolDetailTrigger = null;
     let toolDetailOpenAnimation = null;
+    let isToolDetailClosing = false;
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
     let julehaActiveRouteLabel = "loading...";
@@ -2266,6 +2267,77 @@
         });
     }
 
+    function animateToolDetailCloseToCard(triggerNode) {
+      if (!toolDetailCard) return Promise.resolve();
+      if (!triggerNode || !(triggerNode instanceof Element)) return Promise.resolve();
+      if (prefersReducedMotion()) return Promise.resolve();
+
+      const sourceRect = triggerNode.getBoundingClientRect();
+      const targetRect = toolDetailCard.getBoundingClientRect();
+      if (!sourceRect.width || !sourceRect.height || !targetRect.width || !targetRect.height) {
+        return Promise.resolve();
+      }
+
+      const sourceCenterX = sourceRect.left + (sourceRect.width / 2);
+      const sourceCenterY = sourceRect.top + (sourceRect.height / 2);
+      const targetCenterX = targetRect.left + (targetRect.width / 2);
+      const targetCenterY = targetRect.top + (targetRect.height / 2);
+
+      const translateX = sourceCenterX - targetCenterX;
+      const translateY = sourceCenterY - targetCenterY;
+      const scaleX = Math.max(0.24, Math.min(1, sourceRect.width / targetRect.width));
+      const scaleY = Math.max(0.2, Math.min(1, sourceRect.height / targetRect.height));
+
+      if (toolDetailOpenAnimation) {
+        try {
+          toolDetailOpenAnimation.cancel();
+        } catch {}
+      }
+
+      toolDetailCard.style.willChange = "transform, opacity, filter";
+      toolDetailOpenAnimation = toolDetailCard.animate(
+        [
+          {
+            transform: "translate(0px, 0px) scale(1, 1)",
+            opacity: 1,
+            filter: "saturate(1)"
+          },
+          {
+            transform: `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`,
+            opacity: 0.76,
+            filter: "saturate(0.92)"
+          }
+        ],
+        {
+          duration: 220,
+          easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+          fill: "both"
+        }
+      );
+
+      return toolDetailOpenAnimation.finished
+        .catch(() => {})
+        .finally(() => {
+          if (!toolDetailCard) return;
+          toolDetailCard.style.willChange = "";
+          toolDetailCard.style.transform = "";
+          toolDetailCard.style.opacity = "";
+          toolDetailCard.style.filter = "";
+          toolDetailOpenAnimation = null;
+        });
+    }
+
+    function finalizeToolDetailClose() {
+      toolDetailOverlay.hidden = true;
+      toolDetailOverlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("tool-detail-open");
+      if (activeToolDetailTrigger && typeof activeToolDetailTrigger.focus === "function") {
+        activeToolDetailTrigger.focus();
+      }
+      activeToolDetailTrigger = null;
+      isToolDetailClosing = false;
+    }
+
     function openToolDetailModal(tool, triggerNode) {
       populateToolDetailModal(tool);
       activeToolDetailTrigger = triggerNode || null;
@@ -2281,9 +2353,26 @@
       }, 0);
     }
 
-    function closeToolDetailModal() {
+    function closeToolDetailModal(options = {}) {
       if (toolDetailOverlay.hidden) return;
+      if (isToolDetailClosing) return;
+      isToolDetailClosing = true;
+      const reverseToCard = Boolean(options && options.reverseToCard);
+
+      const canReverse = reverseToCard
+        && activeToolDetailTrigger
+        && activeToolDetailTrigger instanceof Element
+        && document.contains(activeToolDetailTrigger)
+        && !prefersReducedMotion();
+
       toolDetailOverlay.classList.remove("is-open");
+      if (canReverse) {
+        animateToolDetailCloseToCard(activeToolDetailTrigger).finally(() => {
+          finalizeToolDetailClose();
+        });
+        return;
+      }
+
       if (toolDetailOpenAnimation) {
         try {
           toolDetailOpenAnimation.cancel();
@@ -2296,17 +2385,13 @@
         toolDetailCard.style.opacity = "";
         toolDetailCard.style.filter = "";
       }
-      toolDetailOverlay.hidden = true;
-      toolDetailOverlay.setAttribute("aria-hidden", "true");
-      document.body.classList.remove("tool-detail-open");
-      if (activeToolDetailTrigger && typeof activeToolDetailTrigger.focus === "function") {
-        activeToolDetailTrigger.focus();
-      }
-      activeToolDetailTrigger = null;
+      finalizeToolDetailClose();
     }
 
     function bindToolDetailModal() {
-      toolDetailCloseButton.addEventListener("click", closeToolDetailModal);
+      toolDetailCloseButton.addEventListener("click", () => {
+        closeToolDetailModal({ reverseToCard: true });
+      });
       toolDetailOverlay.addEventListener("click", (event) => {
         if (event.target === toolDetailOverlay) {
           closeToolDetailModal();
@@ -3545,6 +3630,7 @@
   </script>
 </body>
 </html>
+
 
 
 
