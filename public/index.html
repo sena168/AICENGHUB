@@ -554,6 +554,12 @@
       padding: 1.1rem;
       background: rgba(8, 6, 18, 0.82);
       backdrop-filter: blur(6px);
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    .tool-detail-overlay.is-open {
+      opacity: 1;
     }
 
     .tool-detail-overlay[hidden] {
@@ -571,18 +577,6 @@
         rgba(12, 10, 25, 0.98);
       box-shadow: 0 22px 52px rgba(0, 0, 0, 0.52);
       overflow: auto;
-      animation: tool-detail-pop 200ms ease;
-    }
-
-    @keyframes tool-detail-pop {
-      from {
-        opacity: 0;
-        transform: translateY(16px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
     }
 
     .tool-detail-close {
@@ -1524,12 +1518,16 @@
         transition: none;
         animation: none;
       }
+
+      .tool-detail-overlay {
+        transition: none;
+      }
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v45</div>
+    <div id="app-version" class="app-version">v46</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1896,6 +1894,7 @@
     const consentPersonalizationToggle = document.getElementById("consent-personalization-toggle");
     const consentSaveButton = document.getElementById("consent-save-btn");
     const toolDetailOverlay = document.getElementById("tool-detail-overlay");
+    const toolDetailCard = toolDetailOverlay.querySelector(".tool-detail-card");
     const toolDetailCloseButton = document.getElementById("tool-detail-close");
     const toolDetailLogo = document.getElementById("tool-detail-logo");
     const toolDetailLogoFallback = document.getElementById("tool-detail-logo-fallback");
@@ -1938,6 +1937,7 @@
     let crazybunnyPreloadedImage = null;
     let activeToolDetail = null;
     let activeToolDetailTrigger = null;
+    let toolDetailOpenAnimation = null;
     let currentLanguage = detectInitialLanguage();
     let isJulehaRequestInFlight = false;
     let julehaActiveRouteLabel = "loading...";
@@ -2205,12 +2205,77 @@
       };
     }
 
+    function prefersReducedMotion() {
+      return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
+    function animateToolDetailOpenFromCard(triggerNode) {
+      if (!toolDetailCard) return;
+      if (!triggerNode || !(triggerNode instanceof Element)) return;
+      if (prefersReducedMotion()) return;
+
+      const sourceRect = triggerNode.getBoundingClientRect();
+      const targetRect = toolDetailCard.getBoundingClientRect();
+      if (!sourceRect.width || !sourceRect.height || !targetRect.width || !targetRect.height) return;
+
+      const sourceCenterX = sourceRect.left + (sourceRect.width / 2);
+      const sourceCenterY = sourceRect.top + (sourceRect.height / 2);
+      const targetCenterX = targetRect.left + (targetRect.width / 2);
+      const targetCenterY = targetRect.top + (targetRect.height / 2);
+
+      const translateX = sourceCenterX - targetCenterX;
+      const translateY = sourceCenterY - targetCenterY;
+      const scaleX = Math.max(0.24, Math.min(1, sourceRect.width / targetRect.width));
+      const scaleY = Math.max(0.2, Math.min(1, sourceRect.height / targetRect.height));
+
+      if (toolDetailOpenAnimation) {
+        try {
+          toolDetailOpenAnimation.cancel();
+        } catch {}
+      }
+
+      toolDetailCard.style.willChange = "transform, opacity, filter";
+      toolDetailOpenAnimation = toolDetailCard.animate(
+        [
+          {
+            transform: `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`,
+            opacity: 0.78,
+            filter: "saturate(0.92)"
+          },
+          {
+            transform: "translate(0px, 0px) scale(1, 1)",
+            opacity: 1,
+            filter: "saturate(1)"
+          }
+        ],
+        {
+          duration: 260,
+          easing: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+          fill: "both"
+        }
+      );
+
+      toolDetailOpenAnimation.finished
+        .catch(() => {})
+        .finally(() => {
+          toolDetailCard.style.willChange = "";
+          toolDetailCard.style.transform = "";
+          toolDetailCard.style.opacity = "";
+          toolDetailCard.style.filter = "";
+          toolDetailOpenAnimation = null;
+        });
+    }
+
     function openToolDetailModal(tool, triggerNode) {
       populateToolDetailModal(tool);
       activeToolDetailTrigger = triggerNode || null;
       toolDetailOverlay.hidden = false;
       toolDetailOverlay.setAttribute("aria-hidden", "false");
       document.body.classList.add("tool-detail-open");
+      requestAnimationFrame(() => {
+        toolDetailOverlay.classList.add("is-open");
+        animateToolDetailOpenFromCard(activeToolDetailTrigger);
+      });
       window.setTimeout(() => {
         toolDetailCloseButton.focus();
       }, 0);
@@ -2218,6 +2283,19 @@
 
     function closeToolDetailModal() {
       if (toolDetailOverlay.hidden) return;
+      toolDetailOverlay.classList.remove("is-open");
+      if (toolDetailOpenAnimation) {
+        try {
+          toolDetailOpenAnimation.cancel();
+        } catch {}
+        toolDetailOpenAnimation = null;
+      }
+      if (toolDetailCard) {
+        toolDetailCard.style.willChange = "";
+        toolDetailCard.style.transform = "";
+        toolDetailCard.style.opacity = "";
+        toolDetailCard.style.filter = "";
+      }
       toolDetailOverlay.hidden = true;
       toolDetailOverlay.setAttribute("aria-hidden", "true");
       document.body.classList.remove("tool-detail-open");
@@ -3467,6 +3545,7 @@
   </script>
 </body>
 </html>
+
 
 
 
