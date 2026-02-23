@@ -52,6 +52,7 @@ module.exports = async function handler(req, res) {
       ok: true,
       scannedCount: result.scannedCount,
       updatedCount: result.updatedCount,
+      insertedCount: result.insertedCount || 0,
       missingReferenceCount: result.missingReferenceCount,
       sourceCount: result.sourceCount,
       totalLinks: links.length

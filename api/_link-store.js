@@ -1,8 +1,5 @@
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
-
 const ALLOWED_ABILITIES = new Set(["text", "image", "video", "audio", "code", "automation", "learning"]);
 const ALLOWED_PRICING_TIERS = new Set(["free", "trial", "paid"]);
 const ALLOWED_TOOL_TAGS = new Set(["watermarked"]);
@@ -189,82 +186,41 @@ async function ensureSchema(sql) {
   `;
 }
 
-function readInitialLinkListFromFile() {
-  const filePath = path.join(process.cwd(), "public", "link-list.json");
-  const raw = fs.readFileSync(filePath, "utf8");
-  const parsed = JSON.parse(raw);
-  if (!Array.isArray(parsed)) return [];
-  return parsed.map((entry) => ({
-    name: String(entry && entry.name ? entry.name : "").trim(),
-    url: normalizeUrl(entry && entry.url ? entry.url : ""),
-    description: String(entry && entry.description ? entry.description : "").trim(),
-    abilities: normalizeAbilities(Array.isArray(entry && entry.abilities) ? entry.abilities : []),
-    pricing: normalizePricing(entry && (entry.pricing || entry.pricingTier || entry.priceTier)),
-    tags: normalizeTags(Array.isArray(entry && entry.tags) ? entry.tags : [])
-  }))
-    .filter((entry) => entry.name && entry.url);
-}
-
-async function seedMainFromFileIfEmpty(sql) {
-  const countRows = await sql`SELECT COUNT(*) AS count FROM ai_main_links`;
-  const count = Number(countRows[0] && countRows[0].count ? countRows[0].count : 0);
-  if (count > 0) return;
-
-  const initialLinks = readInitialLinkListFromFile();
-  for (const link of initialLinks) {
-    await sql`
-      INSERT INTO ai_main_links (name, url, description, abilities_csv, pricing_tier, tags_csv, source, updated_at)
-      VALUES (${link.name}, ${link.url}, ${link.description}, ${abilitiesToCsv(link.abilities)}, ${link.pricing}, ${tagsToCsv(link.tags)}, 'seed:file', NOW())
-      ON CONFLICT (url) DO NOTHING
-    `;
-  }
-}
-
 async function refreshMainPricingTiers(sql) {
-  const initialLinks = readInitialLinkListFromFile();
-  const metadataByUrl = new Map(initialLinks.map((entry) => [entry.url, { pricing: entry.pricing, tagsCsv: tagsToCsv(entry.tags) }]));
-  const rows = await sql`SELECT url, pricing_tier, tags_csv FROM ai_main_links`;
+  const rows = await sql`
+    SELECT id, pricing_tier, tags_csv
+    FROM ai_main_links
+  `;
 
-  let scannedCount = 0;
   let updatedCount = 0;
-  let missingReferenceCount = 0;
-
   for (const row of rows) {
-    const normalizedUrl = normalizeUrl(row.url);
-    if (!normalizedUrl) continue;
-
-    scannedCount += 1;
-    const expected = metadataByUrl.get(normalizedUrl);
-    if (!expected) {
-      missingReferenceCount += 1;
-      continue;
-    }
-
-    const currentPricing = normalizePricing(row.pricing_tier);
-    const currentTagsCsv = tagsToCsv(csvToTags(row.tags_csv));
-    if (currentPricing === expected.pricing && currentTagsCsv === expected.tagsCsv) continue;
+    const normalizedPricing = normalizePricing(row.pricing_tier);
+    const normalizedTagsCsv = tagsToCsv(csvToTags(row.tags_csv));
+    const currentPricing = String(row.pricing_tier || "").trim().toLowerCase();
+    const currentTagsCsv = String(row.tags_csv || "").trim().toLowerCase();
+    if (currentPricing === normalizedPricing && currentTagsCsv === normalizedTagsCsv) continue;
 
     await sql`
       UPDATE ai_main_links
-      SET pricing_tier = ${expected.pricing},
-          tags_csv = ${expected.tagsCsv}
-      WHERE url = ${normalizedUrl}
+      SET pricing_tier = ${normalizedPricing},
+          tags_csv = ${normalizedTagsCsv},
+          updated_at = NOW()
+      WHERE id = ${row.id}
     `;
     updatedCount += 1;
   }
 
   return {
-    scannedCount,
+    scannedCount: rows.length,
     updatedCount,
-    missingReferenceCount,
-    sourceCount: metadataByUrl.size
+    missingReferenceCount: 0,
+    sourceCount: rows.length,
+    insertedCount: 0
   };
 }
 
 async function ensureStoreReady(sql) {
   await ensureSchema(sql);
-  await seedMainFromFileIfEmpty(sql);
-  await refreshMainPricingTiers(sql);
 }
 
 async function getMainLinks(sql) {

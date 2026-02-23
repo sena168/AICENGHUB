@@ -6,7 +6,10 @@
     "abilities": [
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Agent Router",
@@ -17,7 +20,12 @@
       "code",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "api",
+      "routing"
+    ]
   },
   {
     "name": "AIVA",
@@ -26,7 +34,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Antigravity",
@@ -36,7 +47,13 @@
       "code",
       "automation"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "ide",
+      "install",
+      "agentic"
+    ]
   },
   {
     "name": "B12",
@@ -47,7 +64,10 @@
       "text",
       "automation"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "Bing Image Creator",
@@ -56,7 +76,10 @@
     "abilities": [
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Bolt.new",
@@ -65,7 +88,10 @@
     "abilities": [
       "code"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Boomy",
@@ -74,7 +100,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "ChatGPT",
@@ -85,7 +114,10 @@
       "image",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Claude",
@@ -95,7 +127,10 @@
       "text",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Copilot",
@@ -106,16 +141,26 @@
       "image",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Cursor",
     "url": "https://cursor.com/",
     "description": "AI-native code editor for pair-programming and refactoring workflows.",
     "abilities": [
+      "code",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "ide",
+      "install",
+      "agentic"
+    ]
   },
   {
     "name": "D-ID",
@@ -125,7 +170,13 @@
       "video",
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial",
+      "avatar",
+      "lipsync",
+      "watermarked"
+    ]
   },
   {
     "name": "DeepSeek",
@@ -135,7 +186,10 @@
       "text",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Flow by Google Labs",
@@ -144,7 +198,11 @@
     "abilities": [
       "video"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "video-workflow"
+    ]
   },
   {
     "name": "Gemini",
@@ -155,7 +213,10 @@
       "image",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Grok",
@@ -166,7 +227,10 @@
       "image",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Hailuo AI",
@@ -177,7 +241,8 @@
     ],
     "pricing": "free",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "free-tier"
     ]
   },
   {
@@ -190,7 +255,10 @@
     ],
     "pricing": "trial",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "trial",
+      "avatar",
+      "lipsync"
     ]
   },
   {
@@ -201,7 +269,10 @@
       "image",
       "video"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "Ideogram",
@@ -210,7 +281,10 @@
     "abilities": [
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "IFTTT",
@@ -219,7 +293,10 @@
     "abilities": [
       "automation"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Kling AI",
@@ -231,7 +308,8 @@
     ],
     "pricing": "free",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "free-tier"
     ]
   },
   {
@@ -242,7 +320,11 @@
       "text",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "mistral"
+    ]
   },
   {
     "name": "Leonardo AI",
@@ -251,7 +333,10 @@
     "abilities": [
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Lexica",
@@ -260,7 +345,10 @@
     "abilities": [
       "image"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "LMArena",
@@ -270,7 +358,12 @@
       "learning",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "leaderboard",
+      "evals"
+    ]
   },
   {
     "name": "Lovable",
@@ -279,7 +372,10 @@
     "abilities": [
       "code"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Luma Dream Machine",
@@ -288,7 +384,10 @@
     "abilities": [
       "video"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Make",
@@ -297,7 +396,10 @@
     "abilities": [
       "automation"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "MegaLLM",
@@ -308,7 +410,12 @@
       "code",
       "text"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial",
+      "api",
+      "routing"
+    ]
   },
   {
     "name": "Meta AI",
@@ -319,7 +426,10 @@
       "image",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Midjourney",
@@ -328,7 +438,10 @@
     "abilities": [
       "image"
     ],
-    "pricing": "paid"
+    "pricing": "paid",
+    "tags": [
+      "paid"
+    ]
   },
   {
     "name": "Mureka",
@@ -337,7 +450,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "Musicful AI",
@@ -346,7 +462,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "Narakeet",
@@ -356,7 +475,10 @@
       "audio",
       "video"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "NotebookLM",
@@ -366,7 +488,12 @@
       "learning",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "research",
+      "notes"
+    ]
   },
   {
     "name": "Notta",
@@ -376,7 +503,12 @@
       "audio",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "transcription",
+      "meeting-notes"
+    ]
   },
   {
     "name": "OpenRouter",
@@ -387,7 +519,12 @@
       "code",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "api",
+      "routing"
+    ]
   },
   {
     "name": "PartyRock",
@@ -398,7 +535,10 @@
       "learning",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Perplexity",
@@ -408,7 +548,10 @@
       "text",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Pika",
@@ -420,7 +563,8 @@
     ],
     "pricing": "free",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "free-tier"
     ]
   },
   {
@@ -431,7 +575,10 @@
       "image",
       "video"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "PixVerse",
@@ -442,7 +589,8 @@
     ],
     "pricing": "free",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "free-tier"
     ]
   },
   {
@@ -452,7 +600,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "Qwen Chat",
@@ -462,7 +613,27 @@
       "text",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
+  },
+  {
+    "name": "Recraft",
+    "url": "https://www.recraft.ai/",
+    "description": "Design-focused image generation with vector output, mockups, and editing tools.",
+    "abilities": [
+      "image"
+    ],
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "vector",
+      "design",
+      "logos",
+      "icons",
+      "mockups"
+    ]
   },
   {
     "name": "Replit",
@@ -472,7 +643,10 @@
       "code",
       "automation"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Runway",
@@ -485,7 +659,8 @@
     ],
     "pricing": "free",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "free-tier"
     ]
   },
   {
@@ -497,7 +672,12 @@
       "audio",
       "code"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "open-source",
+      "local-install"
+    ]
   },
   {
     "name": "SeaArt AI",
@@ -507,7 +687,12 @@
       "image",
       "video"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "community",
+      "watermarked"
+    ]
   },
   {
     "name": "Sora",
@@ -517,7 +702,10 @@
       "video",
       "audio"
     ],
-    "pricing": "paid"
+    "pricing": "paid",
+    "tags": [
+      "paid"
+    ]
   },
   {
     "name": "Sora 2",
@@ -527,7 +715,10 @@
       "video",
       "audio"
     ],
-    "pricing": "paid"
+    "pricing": "paid",
+    "tags": [
+      "paid"
+    ]
   },
   {
     "name": "Soundraw",
@@ -536,7 +727,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial"
+    ]
   },
   {
     "name": "Stable Audio",
@@ -545,7 +739,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Suno",
@@ -554,7 +751,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Sync.so",
@@ -564,7 +764,13 @@
       "video",
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial",
+      "lipsync",
+      "localization",
+      "api"
+    ]
   },
   {
     "name": "Synthesia",
@@ -576,7 +782,8 @@
     ],
     "pricing": "trial",
     "tags": [
-      "watermarked"
+      "watermarked",
+      "trial"
     ]
   },
   {
@@ -587,7 +794,12 @@
       "image",
       "video"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial",
+      "talking-photo",
+      "avatar"
+    ]
   },
   {
     "name": "Trae",
@@ -597,7 +809,13 @@
       "code",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "ide",
+      "install",
+      "agentic"
+    ]
   },
   {
     "name": "Udio",
@@ -606,7 +824,10 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "v0",
@@ -615,7 +836,10 @@
     "abilities": [
       "code"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Vocalize",
@@ -624,16 +848,30 @@
     "abilities": [
       "audio"
     ],
-    "pricing": "trial"
+    "pricing": "trial",
+    "tags": [
+      "trial",
+      "voice",
+      "voice-clone",
+      "tts",
+      "covers"
+    ]
   },
   {
     "name": "Windsurf",
     "url": "https://windsurf.com/",
     "description": "AI coding environment focused on end-to-end software development speed.",
     "abilities": [
+      "code",
       "text"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier",
+      "ide",
+      "install",
+      "agentic"
+    ]
   },
   {
     "name": "Z.ai",
@@ -644,7 +882,10 @@
       "image",
       "learning"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   },
   {
     "name": "Zapier AI",
@@ -653,6 +894,9 @@
     "abilities": [
       "automation"
     ],
-    "pricing": "free"
+    "pricing": "free",
+    "tags": [
+      "free-tier"
+    ]
   }
 ]

@@ -9,18 +9,18 @@ AICENGHUB is a static-first AI tools directory with a Juleha chat assistant, dep
 - AI Provider: OpenRouter Chat Completions API
 - Database: Neon Postgres via `@neondatabase/serverless`
 - Persistence:
-  - Cookies (`document.cookie`) for agreement/bunny visibility
+  - Cookies (`document.cookie`) for agreement/etc. visibility
   - Local storage for language + sound preferences + chat memory
 
 ## Project Structure
 
 - `public/index.html`: main app page
 - `public/admin.html`: admin update UI
-- `public/link-list.json`: static fallback link list
+- `public/link-list.json`: repository list snapshot (manual reference, not runtime source)
 - `api/juleha-chat.js`: Juleha chat API + policy guardrails + link verification + candidate capture
 - `api/link-list.js`: reads main list from Neon (with fallback seeding from static file)
 - `api/admin-update-list.js`: admin-triggered backup + merge candidates into main list
-- `api/admin-update-tier.js`: admin-triggered pricing tier sync (free/trial/paid) from curated seed
+- `api/admin-update-tier.js`: admin-triggered normalization of pricing/tag values in main DB
 - `api/candidate-link-list.js`: admin read endpoint for candidate queue
 - `api/_link-store.js`: shared Neon schema + list operations
 - `vercel.json`: headers + rewrites
@@ -66,4 +66,4 @@ Reference template: `.env.example`.
 4. Deploy.
 5. Visit `/admin.html` and run:
    - **Update List** to merge pending candidates into main list.
-   - **Update Tier** to refresh pricing tiers from curated `public/link-list.json`.
+   - **Update Tier** to normalize pricing/tag values in main DB.

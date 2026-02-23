@@ -1203,7 +1203,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v42</div>
+    <div id="app-version" class="app-version">v43</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1375,7 +1375,7 @@
         },
         noMatchingTitle: "No matching tools",
         noMatchingDescription: "Try a different filter or broader search keyword.",
-        loadError: "Unable to load link-list.json. Ensure this file exists in the public folder.",
+        loadError: "Unable to load main list from database.",
         consent: {
           title: "Welcome to AICENGHUB",
           description: "AICENGHUB processes chat messages through third-party AI providers and stores AI-generated or user-suggested tool links to keep the directory up to date. Essential processing is required for the platform to function.",
@@ -1437,7 +1437,7 @@
         },
         noMatchingTitle: "Tidak ada alat yang cocok",
         noMatchingDescription: "Coba filter lain atau kata kunci yang lebih umum.",
-        loadError: "Tidak dapat memuat link-list.json. Pastikan file ini ada di folder public.",
+        loadError: "Tidak dapat memuat daftar utama dari database.",
         consent: {
           title: "Selamat Datang di AICENGHUB",
           description: "AICENGHUB memproses pesan melalui penyedia AI pihak ketiga dan menyimpan link AI yang dihasilkan atau disarankan untuk menjaga direktori tetap terbaru. Pemrosesan penting diperlukan agar platform berfungsi.",
@@ -2852,10 +2852,7 @@
 
     async function loadTools() {
       try {
-        let response = await fetch("/api/link-list", { cache: "no-store" });
-        if (!response.ok) {
-          response = await fetch("./link-list.json", { cache: "no-store" });
-        }
+        const response = await fetch("/api/link-list", { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (!Array.isArray(data)) throw new Error("Invalid JSON shape");
@@ -2881,6 +2878,7 @@
   </script>
 </body>
 </html>
+
 
 
 

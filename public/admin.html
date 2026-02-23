@@ -109,12 +109,74 @@
     .status.ok {
       color: #b0f6c8;
     }
+
+    .candidate-panel {
+      margin-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      padding-top: 0.9rem;
+    }
+
+    .candidate-panel h2 {
+      margin: 0;
+      font-size: 1rem;
+      color: #d6f7ff;
+    }
+
+    .candidate-panel p {
+      margin-top: 0.35rem;
+      font-size: 0.86rem;
+    }
+
+    .candidate-list {
+      margin-top: 0.7rem;
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 0.6rem;
+      background: rgba(3, 8, 18, 0.72);
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .candidate-item {
+      border: 1px solid rgba(46, 197, 212, 0.3);
+      border-radius: 10px;
+      padding: 0.54rem;
+      background: rgba(46, 197, 212, 0.08);
+      display: grid;
+      gap: 0.24rem;
+    }
+
+    .candidate-item strong {
+      color: #f7edc7;
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+
+    .candidate-item a {
+      color: #9defff;
+      text-decoration: none;
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+
+    .candidate-item a:hover {
+      text-decoration: underline;
+    }
+
+    .candidate-meta {
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
   </style>
 </head>
 <body>
   <main class="card">
     <h1>Admin: List Maintenance</h1>
-    <p>Use Update List to merge pending candidates. Use Update Tier to re-sync free/trial/paid tiers from curated seed.</p>
+    <p>Use Update List to merge pending candidates into main list. Use Update Tier to normalize pricing/tags values in main database.</p>
 
     <div class="row">
       <input id="admin-token" type="password" placeholder="Admin token">
@@ -125,6 +187,13 @@
     </div>
 
     <div id="status" class="status" aria-live="polite"></div>
+
+    <section class="candidate-panel" aria-label="Candidate list panel">
+      <h2>Candidate List</h2>
+      <p>Scroll to load more pending/merged candidates from database.</p>
+      <div id="candidate-list" class="candidate-list" aria-live="polite"></div>
+      <div id="candidate-meta" class="candidate-meta"></div>
+    </section>
   </main>
 
   <script>
@@ -132,11 +201,137 @@
     const updateButton = document.getElementById("update-list-btn");
     const updateTierButton = document.getElementById("update-tier-btn");
     const statusNode = document.getElementById("status");
+    const candidateListNode = document.getElementById("candidate-list");
+    const candidateMetaNode = document.getElementById("candidate-meta");
+    const CANDIDATE_PAGE_SIZE = 40;
+    const CANDIDATE_SCROLL_THRESHOLD_PX = 120;
+    let candidateOffset = 0;
+    let candidateHasMore = true;
+    let candidateLoading = false;
 
     function setStatus(message, type) {
       statusNode.textContent = message;
       statusNode.classList.remove("ok", "error");
       if (type) statusNode.classList.add(type);
+    }
+
+    function setCandidateMeta(message) {
+      candidateMetaNode.textContent = message;
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleString();
+    }
+
+    function normalizeCandidatePayload(payload) {
+      if (Array.isArray(payload)) {
+        return {
+          items: payload,
+          paging: {
+            offset: candidateOffset,
+            nextOffset: candidateOffset + payload.length,
+            total: candidateOffset + payload.length,
+            hasMore: payload.length === CANDIDATE_PAGE_SIZE
+          }
+        };
+      }
+
+      const items = Array.isArray(payload && payload.items) ? payload.items : [];
+      const paging = payload && payload.paging ? payload.paging : {};
+      return {
+        items,
+        paging: {
+          offset: Number(paging.offset || 0),
+          nextOffset: Number(paging.nextOffset || items.length),
+          total: Number(paging.total || items.length),
+          hasMore: Boolean(paging.hasMore)
+        }
+      };
+    }
+
+    function createCandidateItem(entry) {
+      const item = document.createElement("article");
+      item.className = "candidate-item";
+
+      const name = document.createElement("strong");
+      name.textContent = entry && entry.name ? String(entry.name) : "Unnamed candidate";
+
+      const link = document.createElement("a");
+      const url = entry && entry.url ? String(entry.url) : "";
+      link.href = url || "#";
+      link.textContent = url || "-";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      const summary = document.createElement("span");
+      const status = entry && entry.status ? String(entry.status) : "-";
+      const discoveredCount = Number(entry && entry.discoveredCount ? entry.discoveredCount : 0);
+      summary.textContent = `status: ${status} · discovered: ${discoveredCount}`;
+
+      const abilities = document.createElement("span");
+      const abilityList = Array.isArray(entry && entry.abilities) ? entry.abilities.join(", ") : "";
+      const tagList = Array.isArray(entry && entry.tags) ? entry.tags.join(", ") : "";
+      abilities.textContent = `abilities: ${abilityList || "-"} · tags: ${tagList || "-"} · pricing: ${entry && entry.pricing ? String(entry.pricing) : "trial"}`;
+
+      const updated = document.createElement("span");
+      updated.textContent = `updated: ${formatDate(entry && entry.updatedAt)}`;
+
+      item.append(name, link, summary, abilities, updated);
+      return item;
+    }
+
+    async function loadCandidatePage(options = {}) {
+      const reset = Boolean(options.reset);
+      const adminToken = tokenInput.value.trim();
+      if (!adminToken) {
+        setCandidateMeta("Enter admin token to load candidates.");
+        return;
+      }
+      if (candidateLoading) return;
+
+      if (reset) {
+        candidateOffset = 0;
+        candidateHasMore = true;
+        candidateListNode.innerHTML = "";
+      }
+      if (!candidateHasMore) return;
+
+      candidateLoading = true;
+      setCandidateMeta("Loading candidates...");
+      try {
+        const response = await fetch(`/api/candidate-link-list?offset=${candidateOffset}&limit=${CANDIDATE_PAGE_SIZE}`, {
+          method: "GET",
+          headers: {
+            "x-admin-token": adminToken
+          }
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
+        }
+
+        const normalized = normalizeCandidatePayload(payload);
+        if (!normalized.items.length && candidateOffset === 0) {
+          setCandidateMeta("No candidates found.");
+        }
+
+        normalized.items.forEach((entry) => {
+          candidateListNode.appendChild(createCandidateItem(entry));
+        });
+
+        candidateOffset = normalized.paging.nextOffset;
+        candidateHasMore = normalized.paging.hasMore;
+        setCandidateMeta(
+          `Loaded ${candidateOffset} of ${normalized.paging.total} candidates${candidateHasMore ? " (scroll for more)" : ""}.`
+        );
+      } catch (error) {
+        setCandidateMeta(`Candidate list error: ${error instanceof Error ? error.message : "unknown error"}`);
+      } finally {
+        candidateLoading = false;
+      }
     }
 
     async function runUpdateList() {
@@ -179,6 +374,7 @@
           ].join("\n"),
           "ok"
         );
+        await loadCandidatePage({ reset: true });
       } catch (error) {
         setStatus(`Update failed: ${error instanceof Error ? error.message : "unknown error"}`, "error");
       } finally {
@@ -194,7 +390,7 @@
         return;
       }
 
-      const confirmed = window.confirm("Confirm update-tier? This will resync pricing tiers (free/trial/paid) from curated source.");
+      const confirmed = window.confirm("Confirm update-tier? This will normalize pricing/tags values in the main database.");
       if (!confirmed) return;
 
       try {
@@ -220,13 +416,12 @@
           [
             "Tier update completed.",
             `Scanned links: ${payload.scannedCount || 0}`,
-            `Tiers updated: ${payload.updatedCount || 0}`,
-            `Missing curated reference: ${payload.missingReferenceCount || 0}`,
-            `Curated source count: ${payload.sourceCount || 0}`,
+            `Rows normalized: ${payload.updatedCount || 0}`,
             `Total links now: ${payload.totalLinks || 0}`
           ].join("\n"),
           "ok"
         );
+        await loadCandidatePage({ reset: true });
       } catch (error) {
         setStatus(`Tier update failed: ${error instanceof Error ? error.message : "unknown error"}`, "error");
       } finally {
@@ -235,8 +430,26 @@
       }
     }
 
+    candidateListNode.addEventListener("scroll", () => {
+      const remaining = candidateListNode.scrollHeight - candidateListNode.scrollTop - candidateListNode.clientHeight;
+      if (remaining <= CANDIDATE_SCROLL_THRESHOLD_PX) {
+        loadCandidatePage({ reset: false });
+      }
+    });
+
+    tokenInput.addEventListener("change", () => {
+      loadCandidatePage({ reset: true });
+    });
+
+    tokenInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      loadCandidatePage({ reset: true });
+    });
+
     updateButton.addEventListener("click", runUpdateList);
     updateTierButton.addEventListener("click", runUpdateTier);
+    setCandidateMeta("Enter admin token to load candidates.");
   </script>
 </body>
 </html>

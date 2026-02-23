@@ -24,6 +24,21 @@ function isAuthorized(req) {
   return readAdminToken(req) === expected;
 }
 
+function parsePaging(req) {
+  let limit = 40;
+  let offset = 0;
+
+  try {
+    const requestUrl = new URL(String(req && req.url ? req.url : "/"), "http://localhost");
+    const limitRaw = Number.parseInt(String(requestUrl.searchParams.get("limit") || "40"), 10);
+    const offsetRaw = Number.parseInt(String(requestUrl.searchParams.get("offset") || "0"), 10);
+    if (Number.isFinite(limitRaw)) limit = Math.min(100, Math.max(1, limitRaw));
+    if (Number.isFinite(offsetRaw)) offset = Math.max(0, offsetRaw);
+  } catch {}
+
+  return { limit, offset };
+}
+
 module.exports = async function handler(req, res) {
   setHeaders(res);
 
@@ -39,11 +54,15 @@ module.exports = async function handler(req, res) {
   try {
     const sql = createSqlClient();
     await ensureStoreReady(sql);
+    const { limit, offset } = parsePaging(req);
+    const countRows = await sql`SELECT COUNT(*)::INT AS count FROM ai_candidate_links`;
+    const total = Number(countRows[0] && countRows[0].count ? countRows[0].count : 0);
     const rows = await sql`
       SELECT id, name, url, description, abilities_csv, pricing_tier, tags_csv, status, discovered_count, created_at, updated_at
       FROM ai_candidate_links
-      ORDER BY created_at DESC
-      LIMIT 500
+      ORDER BY created_at DESC, id DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
     `;
 
     const payload = rows.map((row) => ({
@@ -60,7 +79,18 @@ module.exports = async function handler(req, res) {
       updatedAt: row.updated_at
     }));
 
-    return res.status(200).json(payload);
+    const nextOffset = offset + payload.length;
+    const hasMore = nextOffset < total;
+    return res.status(200).json({
+      items: payload,
+      paging: {
+        limit,
+        offset,
+        nextOffset,
+        total,
+        hasMore
+      }
+    });
   } catch (error) {
     console.error("candidate-link-list failure", {
       error: error instanceof Error ? error.message : String(error)
