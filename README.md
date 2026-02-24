@@ -28,6 +28,8 @@ AICENGHUB is a static-first AI tools directory with a Juleha chat assistant, dep
 - `api/admin-logout.js`: clears admin session cookie
 - `api/_admin-auth.js`: shared admin auth/session helpers
 - `api/_link-store.js`: shared Neon schema + list operations
+- `api/_tools-client.js`: tools server client (`/health`, `/enrich`, `/search`)
+- `scripts-and-test/vps-worker/*`: VPS queue worker + stale-refresh scheduler + systemd units
 - `vercel.json`: headers + rewrites
 
 ## Environment Variables
@@ -45,6 +47,9 @@ Define these in Vercel Project Settings and local `.env` (never commit real valu
 - `OPENROUTER_LABEL_TERTIARY`
 - `OPENROUTER_HTTP_REFERER`
 - `OPENROUTER_APP_TITLE`
+- `TOOLS_BASE_URL`
+- `TOOLS_API_KEY`
+- `TOOLS_TIMEOUT_MS` (optional, default `6000`)
 - `NEON_DATABASE_URL`
 - `GOOGLE_OAUTH_CLIENT_ID`
 - `GOOGLE_OAUTH_CLIENT_SECRET` (optional today, reserved for future OAuth code-flow use)

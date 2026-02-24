@@ -1,0 +1,13 @@
+[Unit]
+Description=Run Juleha stale refresh scheduler every 24-72h
+
+[Timer]
+OnBootSec=15m
+OnUnitActiveSec=24h
+RandomizedDelaySec=48h
+Unit=juleha-scheduler.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

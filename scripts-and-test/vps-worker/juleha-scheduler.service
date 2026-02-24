@@ -1,0 +1,13 @@
+[Unit]
+Description=Juleha Stale Refresh Scheduler (oneshot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/aicenghub
+EnvironmentFile=/etc/aicenghub/worker.env
+ExecStart=/usr/bin/node scripts-and-test/vps-worker/scheduler.js
+StandardOutput=journal
+StandardError=journal
+

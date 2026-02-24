@@ -5,6 +5,16 @@ const ALLOWED_PRICING_TIERS = new Set(["free", "trial", "paid"]);
 const ALLOWED_TOOL_TAGS = new Set(["watermarked"]);
 const MAX_BACKUPS = 30;
 
+function parseJsonSafe(rawValue, fallback) {
+  if (rawValue === null || rawValue === undefined || rawValue === "") return fallback;
+  try {
+    const parsed = JSON.parse(String(rawValue));
+    return parsed === null || parsed === undefined ? fallback : parsed;
+  } catch {
+    return fallback;
+  }
+}
+
 function getConnectionString() {
   const direct = String(process.env.NEON_DATABASE_URL || "").trim();
   if (direct) return direct;
@@ -111,7 +121,18 @@ function rowToLink(row) {
     description: String(row.description || ""),
     abilities: csvToAbilities(row.abilities_csv),
     pricing: normalizePricing(row.pricing_tier),
-    tags: csvToTags(row.tags_csv)
+    tags: csvToTags(row.tags_csv),
+    features: parseJsonSafe(row.features_json, {}),
+    pricingText: String(row.pricing_text || ""),
+    pricingFlags: {
+      isFree: Boolean(row.is_free),
+      hasTrial: Boolean(row.has_trial),
+      isPaid: Boolean(row.is_paid)
+    },
+    faviconUrl: String(row.favicon_url || ""),
+    thumbnailUrl: String(row.thumbnail_url || ""),
+    pendingEnrichment: Boolean(row.pending_enrichment),
+    lastCheckedAt: row.last_checked_at || null
   };
 }
 
@@ -125,6 +146,15 @@ async function ensureSchema(sql) {
       abilities_csv TEXT NOT NULL DEFAULT '',
       pricing_tier TEXT NOT NULL DEFAULT 'trial',
       tags_csv TEXT NOT NULL DEFAULT '',
+      features_json TEXT NOT NULL DEFAULT '{}',
+      is_free BOOLEAN NOT NULL DEFAULT false,
+      has_trial BOOLEAN NOT NULL DEFAULT false,
+      is_paid BOOLEAN NOT NULL DEFAULT false,
+      pricing_text TEXT NOT NULL DEFAULT '',
+      favicon_url TEXT NOT NULL DEFAULT '',
+      thumbnail_url TEXT NOT NULL DEFAULT '',
+      pending_enrichment BOOLEAN NOT NULL DEFAULT false,
+      last_checked_at TIMESTAMPTZ,
       source TEXT NOT NULL DEFAULT 'manual',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -142,6 +172,15 @@ async function ensureSchema(sql) {
       abilities_csv TEXT NOT NULL DEFAULT '',
       pricing_tier TEXT NOT NULL DEFAULT 'trial',
       tags_csv TEXT NOT NULL DEFAULT '',
+      features_json TEXT NOT NULL DEFAULT '{}',
+      is_free BOOLEAN NOT NULL DEFAULT false,
+      has_trial BOOLEAN NOT NULL DEFAULT false,
+      is_paid BOOLEAN NOT NULL DEFAULT false,
+      pricing_text TEXT NOT NULL DEFAULT '',
+      favicon_url TEXT NOT NULL DEFAULT '',
+      thumbnail_url TEXT NOT NULL DEFAULT '',
+      pending_enrichment BOOLEAN NOT NULL DEFAULT false,
+      last_checked_at TIMESTAMPTZ,
       http_status INTEGER NOT NULL DEFAULT 0,
       content_type TEXT NOT NULL DEFAULT '',
       verified_at TIMESTAMPTZ,
@@ -169,6 +208,42 @@ async function ensureSchema(sql) {
     ALTER TABLE ai_main_links
     ADD COLUMN IF NOT EXISTS tags_csv TEXT NOT NULL DEFAULT ''
   `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS features_json TEXT NOT NULL DEFAULT '{}'
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS is_free BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS has_trial BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS is_paid BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS pricing_text TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS favicon_url TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS thumbnail_url TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS pending_enrichment BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_main_links
+    ADD COLUMN IF NOT EXISTS last_checked_at TIMESTAMPTZ
+  `;
 
   await sql`
     ALTER TABLE ai_candidate_links
@@ -178,6 +253,42 @@ async function ensureSchema(sql) {
   await sql`
     ALTER TABLE ai_candidate_links
     ADD COLUMN IF NOT EXISTS tags_csv TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS features_json TEXT NOT NULL DEFAULT '{}'
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS is_free BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS has_trial BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS is_paid BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS pricing_text TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS favicon_url TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS thumbnail_url TEXT NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS pending_enrichment BOOLEAN NOT NULL DEFAULT false
+  `;
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS last_checked_at TIMESTAMPTZ
   `;
 
   await sql`
@@ -258,6 +369,7 @@ async function ensureSchema(sql) {
       reason TEXT NOT NULL DEFAULT 'candidate-enrichment',
       status TEXT NOT NULL DEFAULT 'pending',
       attempts INTEGER NOT NULL DEFAULT 0,
+      next_run_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       payload_json TEXT NOT NULL DEFAULT '{}',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -269,7 +381,30 @@ async function ensureSchema(sql) {
 
   await sql`
     CREATE INDEX IF NOT EXISTS ai_scrape_queue_status_created_idx
-    ON ai_scrape_queue (status, created_at)
+    ON ai_scrape_queue (status, next_run_at, created_at)
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS ai_scrape_queue_status_next_run_idx
+    ON ai_scrape_queue (status, next_run_at)
+  `;
+  await sql`
+    ALTER TABLE ai_scrape_queue
+    ADD COLUMN IF NOT EXISTS next_run_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS tool_checks (
+      id BIGSERIAL PRIMARY KEY,
+      tool_id BIGINT REFERENCES ai_main_links(id) ON DELETE SET NULL,
+      checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      result_json TEXT NOT NULL DEFAULT '{}',
+      confidence NUMERIC(5,4),
+      sources TEXT NOT NULL DEFAULT '[]'
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS tool_checks_tool_id_checked_at_idx
+    ON tool_checks (tool_id, checked_at DESC)
   `;
 }
 
@@ -312,7 +447,22 @@ async function ensureStoreReady(sql) {
 
 async function getMainLinks(sql) {
   const rows = await sql`
-    SELECT name, url, description, abilities_csv, pricing_tier, tags_csv
+    SELECT
+      name,
+      url,
+      description,
+      abilities_csv,
+      pricing_tier,
+      tags_csv,
+      features_json,
+      is_free,
+      has_trial,
+      is_paid,
+      pricing_text,
+      favicon_url,
+      thumbnail_url,
+      pending_enrichment,
+      last_checked_at
     FROM ai_main_links
     ORDER BY LOWER(name) ASC
   `;
@@ -344,6 +494,15 @@ async function upsertCandidate(sql, candidate) {
   const contentType = String(candidate && candidate.contentType ? candidate.contentType : "").trim().slice(0, 120);
   const httpStatus = Number.isFinite(Number(candidate && candidate.httpStatus)) ? Number(candidate.httpStatus) : 0;
   const verifiedAt = candidate && candidate.verifiedAt ? String(candidate.verifiedAt) : null;
+  const featuresJson = JSON.stringify(candidate && candidate.features ? candidate.features : {});
+  const pricingText = String(candidate && candidate.pricingText ? candidate.pricingText : "").trim().slice(0, 500);
+  const isFree = Boolean(candidate && candidate.isFree);
+  const hasTrial = Boolean(candidate && candidate.hasTrial);
+  const isPaid = Boolean(candidate && candidate.isPaid);
+  const faviconUrl = normalizeUrl(candidate && candidate.faviconUrl ? candidate.faviconUrl : "") || "";
+  const thumbnailUrl = normalizeUrl(candidate && candidate.thumbnailUrl ? candidate.thumbnailUrl : "") || "";
+  const pendingEnrichment = Boolean(candidate && candidate.pendingEnrichment);
+  const lastCheckedAt = candidate && candidate.lastCheckedAt ? String(candidate.lastCheckedAt) : null;
 
   await sql`
     INSERT INTO ai_candidate_links
@@ -356,6 +515,15 @@ async function upsertCandidate(sql, candidate) {
         abilities_csv,
         pricing_tier,
         tags_csv,
+        features_json,
+        is_free,
+        has_trial,
+        is_paid,
+        pricing_text,
+        favicon_url,
+        thumbnail_url,
+        pending_enrichment,
+        last_checked_at,
         http_status,
         content_type,
         verified_at,
@@ -380,6 +548,15 @@ async function upsertCandidate(sql, candidate) {
         ${abilitiesCsv},
         ${pricingTier},
         ${tagsCsv},
+        ${featuresJson},
+        ${isFree},
+        ${hasTrial},
+        ${isPaid},
+        ${pricingText},
+        ${faviconUrl},
+        ${thumbnailUrl},
+        ${pendingEnrichment},
+        ${lastCheckedAt}::timestamptz,
         ${httpStatus},
         ${contentType},
         COALESCE(${verifiedAt}::timestamptz, NOW()),
@@ -420,6 +597,27 @@ async function upsertCandidate(sql, candidate) {
         WHEN ai_candidate_links.tags_csv = '' THEN EXCLUDED.tags_csv
         ELSE ai_candidate_links.tags_csv
       END,
+      features_json = CASE
+        WHEN EXCLUDED.features_json <> '{}' THEN EXCLUDED.features_json
+        ELSE ai_candidate_links.features_json
+      END,
+      is_free = EXCLUDED.is_free,
+      has_trial = EXCLUDED.has_trial,
+      is_paid = EXCLUDED.is_paid,
+      pricing_text = CASE
+        WHEN EXCLUDED.pricing_text <> '' THEN EXCLUDED.pricing_text
+        ELSE ai_candidate_links.pricing_text
+      END,
+      favicon_url = CASE
+        WHEN EXCLUDED.favicon_url <> '' THEN EXCLUDED.favicon_url
+        ELSE ai_candidate_links.favicon_url
+      END,
+      thumbnail_url = CASE
+        WHEN EXCLUDED.thumbnail_url <> '' THEN EXCLUDED.thumbnail_url
+        ELSE ai_candidate_links.thumbnail_url
+      END,
+      pending_enrichment = EXCLUDED.pending_enrichment,
+      last_checked_at = COALESCE(EXCLUDED.last_checked_at, ai_candidate_links.last_checked_at),
       http_status = CASE
         WHEN EXCLUDED.http_status > 0 THEN EXCLUDED.http_status
         ELSE ai_candidate_links.http_status
@@ -463,13 +661,91 @@ async function enqueueScrapeJob(sql, input) {
 
   const reason = String(input && input.reason ? input.reason : "candidate-enrichment").trim() || "candidate-enrichment";
   const payloadJson = JSON.stringify(input && input.payload ? input.payload : {});
+  const nextRunAt = input && input.nextRunAt ? String(input.nextRunAt) : null;
 
   await sql`
-    INSERT INTO ai_scrape_queue (canonical_url, requested_url, reason, status, attempts, payload_json, updated_at)
-    VALUES (${canonicalUrl}, ${requestedUrl}, ${reason}, 'pending', 0, ${payloadJson}, NOW())
+    INSERT INTO ai_scrape_queue (canonical_url, requested_url, reason, status, attempts, next_run_at, payload_json, updated_at)
+    VALUES (
+      ${canonicalUrl},
+      ${requestedUrl},
+      ${reason},
+      'pending',
+      0,
+      COALESCE(${nextRunAt}::timestamptz, NOW()),
+      ${payloadJson},
+      NOW()
+    )
   `;
 
   return { queued: true };
+}
+
+async function insertToolCheck(sql, input) {
+  const canonicalUrl = normalizeUrl(input && input.canonicalUrl ? input.canonicalUrl : "");
+  if (!canonicalUrl) return { inserted: false };
+
+  const rows = await sql`
+    SELECT id
+    FROM ai_main_links
+    WHERE url = ${canonicalUrl}
+    LIMIT 1
+  `;
+  const toolId = rows[0] && rows[0].id ? Number(rows[0].id) : null;
+  const checkedAt = input && input.checkedAt ? String(input.checkedAt) : null;
+  const resultJson = JSON.stringify(input && input.result ? input.result : {});
+  const confidenceRaw = Number(input && input.confidence);
+  const confidence = Number.isFinite(confidenceRaw)
+    ? Math.max(0, Math.min(1, confidenceRaw))
+    : null;
+  const sources = JSON.stringify(Array.isArray(input && input.sources) ? input.sources : []);
+
+  await sql`
+    INSERT INTO tool_checks (tool_id, checked_at, result_json, confidence, sources)
+    VALUES (
+      ${toolId},
+      COALESCE(${checkedAt}::timestamptz, NOW()),
+      ${resultJson},
+      ${confidence},
+      ${sources}
+    )
+  `;
+
+  return { inserted: true, toolId };
+}
+
+async function updateMainLinkEnrichment(sql, input) {
+  const canonicalUrl = normalizeUrl(input && input.canonicalUrl ? input.canonicalUrl : "");
+  if (!canonicalUrl) return { updated: false };
+
+  const featuresJson = JSON.stringify(input && input.features ? input.features : {});
+  const pricingText = String(input && input.pricingText ? input.pricingText : "").trim().slice(0, 500);
+  const isFree = Boolean(input && input.isFree);
+  const hasTrial = Boolean(input && input.hasTrial);
+  const isPaid = Boolean(input && input.isPaid);
+  const faviconUrl = normalizeUrl(input && input.faviconUrl ? input.faviconUrl : "") || "";
+  const thumbnailUrl = normalizeUrl(input && input.thumbnailUrl ? input.thumbnailUrl : "") || "";
+  const pendingEnrichment = Boolean(input && input.pendingEnrichment);
+  const lastCheckedAt = input && input.lastCheckedAt ? String(input.lastCheckedAt) : new Date().toISOString();
+
+  const rows = await sql`
+    UPDATE ai_main_links
+    SET
+      features_json = CASE WHEN ${featuresJson} <> '{}' THEN ${featuresJson} ELSE features_json END,
+      pricing_text = CASE WHEN ${pricingText} <> '' THEN ${pricingText} ELSE pricing_text END,
+      is_free = ${isFree},
+      has_trial = ${hasTrial},
+      is_paid = ${isPaid},
+      favicon_url = CASE WHEN ${faviconUrl} <> '' THEN ${faviconUrl} ELSE favicon_url END,
+      thumbnail_url = CASE WHEN ${thumbnailUrl} <> '' THEN ${thumbnailUrl} ELSE thumbnail_url END,
+      pending_enrichment = ${pendingEnrichment},
+      last_checked_at = COALESCE(${lastCheckedAt}::timestamptz, NOW()),
+      updated_at = NOW()
+    WHERE url = ${canonicalUrl}
+    RETURNING id
+  `;
+
+  if (!rows.length) return { updated: false, toolId: null };
+  return { updated: true, toolId: Number(rows[0].id || 0) || null };
 }
 
 async function createRollingBackup(sql, links) {
@@ -493,7 +769,23 @@ async function mergePendingCandidates(sql) {
   const mainUrlSet = new Set(currentLinks.map((link) => normalizeUrl(link.url)).filter(Boolean));
 
   const pending = await sql`
-    SELECT id, name, url, description, abilities_csv, pricing_tier, tags_csv
+    SELECT
+      id,
+      name,
+      url,
+      description,
+      abilities_csv,
+      pricing_tier,
+      tags_csv,
+      features_json,
+      is_free,
+      has_trial,
+      is_paid,
+      pricing_text,
+      favicon_url,
+      thumbnail_url,
+      pending_enrichment,
+      last_checked_at
     FROM ai_candidate_links
     WHERE status = 'pending'
     ORDER BY created_at ASC
@@ -524,7 +816,25 @@ async function mergePendingCandidates(sql) {
     }
 
     await sql`
-      INSERT INTO ai_main_links (name, url, description, abilities_csv, pricing_tier, tags_csv, source, updated_at)
+      INSERT INTO ai_main_links (
+        name,
+        url,
+        description,
+        abilities_csv,
+        pricing_tier,
+        tags_csv,
+        features_json,
+        is_free,
+        has_trial,
+        is_paid,
+        pricing_text,
+        favicon_url,
+        thumbnail_url,
+        pending_enrichment,
+        last_checked_at,
+        source,
+        updated_at
+      )
       VALUES (
         ${String(row.name || "").trim() || normalizedUrl},
         ${normalizedUrl},
@@ -532,6 +842,15 @@ async function mergePendingCandidates(sql) {
         ${String(row.abilities_csv || "").trim()},
         ${normalizePricing(row.pricing_tier)},
         ${tagsToCsv(csvToTags(row.tags_csv))},
+        ${String(row.features_json || "{}")},
+        ${Boolean(row.is_free)},
+        ${Boolean(row.has_trial)},
+        ${Boolean(row.is_paid)},
+        ${String(row.pricing_text || "")},
+        ${String(row.favicon_url || "")},
+        ${String(row.thumbnail_url || "")},
+        ${Boolean(row.pending_enrichment)},
+        ${row.last_checked_at || null},
         'candidate-merge',
         NOW()
       )
@@ -573,6 +892,8 @@ module.exports = {
   getMainLinks,
   getMainUrlSet,
   upsertCandidate,
+  updateMainLinkEnrichment,
+  insertToolCheck,
   enqueueScrapeJob,
   mergePendingCandidates
 };
