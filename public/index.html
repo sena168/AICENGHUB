@@ -28,6 +28,20 @@
       box-sizing: border-box;
     }
 
+    button {
+      transition: filter 130ms ease, transform 130ms ease, box-shadow 130ms ease;
+    }
+
+    button:not(:disabled):hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    button:not(:disabled):active {
+      filter: brightness(0.98);
+      transform: translateY(0) scale(0.98);
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -149,6 +163,11 @@
       letter-spacing: 0.04em;
       cursor: pointer;
       text-transform: uppercase;
+    }
+
+    .lang-btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
     .lang-btn[aria-pressed="true"] {
@@ -794,6 +813,11 @@
       filter: brightness(1.06);
     }
 
+    .tool-detail-open-link:active {
+      filter: brightness(0.98);
+      transform: translateY(0) scale(0.98);
+    }
+
     .footer-shell {
       margin-top: 1rem;
       text-align: center;
@@ -854,6 +878,12 @@
     .footer-link-anchor:hover {
       filter: brightness(1.08);
       transform: translateY(-1px);
+    }
+
+    .footer-link-btn:active,
+    .footer-link-anchor:active {
+      filter: brightness(0.98);
+      transform: translateY(0) scale(0.98);
     }
 
     .footer-meta {
@@ -1028,20 +1058,26 @@
       color: #cbf5ff;
     }
 
+    .consent-legal-link:active {
+      filter: brightness(0.98);
+      transform: translateY(0) scale(0.98);
+    }
+
     .consent-lang-toggle {
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.08);
-      color: #d9f6ff;
+      border: 1px solid rgba(244, 183, 63, 0.94);
+      background: linear-gradient(180deg, #f7ca6f, #f0a933);
+      color: #1a1310;
       border-radius: 999px;
-      padding: 0.3rem 0.62rem;
+      padding: 0.32rem 0.62rem;
       font: inherit;
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
       min-width: 3.2rem;
       text-align: center;
       cursor: pointer;
-      transition: filter 130ms ease, transform 130ms ease;
+      text-transform: uppercase;
+      box-shadow: 0 0 0 2px rgba(247, 202, 111, 0.16);
     }
 
     .consent-lang-toggle:hover {
@@ -1527,7 +1563,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v47</div>
+    <div id="app-version" class="app-version">v48</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -1556,7 +1592,7 @@
       <div class="tabs-top">
         <div id="tablist" class="tablist" role="toolbar" aria-label="AI ability filters"></div>
         <div id="search-shell" class="search-bar tab-search" aria-label="AI tool search">
-          <input id="global-search-input" class="search-input" type="search" placeholder="Search name, abilities, or keywords...">
+          <input id="global-search-input" class="search-input" type="search" autocomplete="off" placeholder="Search name, abilities, or keywords...">
           <button id="global-search-btn" class="search-btn" type="button">Search</button>
         </div>
       </div>
@@ -3045,6 +3081,12 @@
       });
     }
 
+    function resetSearchOnLoad() {
+      activeFilter = "all";
+      searchQuery = "";
+      globalSearchInput.value = "";
+    }
+
     function bindBunnyButton() {
       if (!shouldShowBunnyOnLoad()) {
         hideBunnyButton();
@@ -3618,6 +3660,8 @@
     applyTranslations();
     primeCrazyBunnyAssets();
     buildFilterTabs();
+    resetSearchOnLoad();
+    window.addEventListener("pageshow", resetSearchOnLoad);
     bindSearch();
     bindLanguageSwitch();
     bindBunnyButton();
@@ -3630,6 +3674,7 @@
   </script>
 </body>
 </html>
+
 
 
 

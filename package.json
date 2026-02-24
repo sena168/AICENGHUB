@@ -3,7 +3,11 @@
   "private": true,
   "version": "1.0.0",
   "description": "AICENGHUB static app with Vercel serverless APIs",
+  "scripts": {
+    "test": "node tests/safe-fetch.test.js && node tests/rate-limit.integration.test.js"
+  },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"
   }
 }
+

@@ -136,14 +136,23 @@ async function ensureSchema(sql) {
       id BIGSERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       url TEXT NOT NULL UNIQUE,
+      canonical_url TEXT NOT NULL DEFAULT '',
+      final_url TEXT NOT NULL DEFAULT '',
       description TEXT NOT NULL DEFAULT '',
       abilities_csv TEXT NOT NULL DEFAULT '',
       pricing_tier TEXT NOT NULL DEFAULT 'trial',
       tags_csv TEXT NOT NULL DEFAULT '',
+      http_status INTEGER NOT NULL DEFAULT 0,
+      content_type TEXT NOT NULL DEFAULT '',
+      verified_at TIMESTAMPTZ,
+      evidence_urls_json TEXT NOT NULL DEFAULT '[]',
       evidence_json TEXT NOT NULL DEFAULT '{}',
       status TEXT NOT NULL DEFAULT 'pending',
       discovered_count INTEGER NOT NULL DEFAULT 1,
       discovered_by TEXT NOT NULL DEFAULT 'juleha',
+      submitted_ip_hash TEXT NOT NULL DEFAULT '',
+      submitted_session_hash TEXT NOT NULL DEFAULT '',
+      capture_reason TEXT NOT NULL DEFAULT 'verified-link',
       last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       merged_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -172,6 +181,62 @@ async function ensureSchema(sql) {
   `;
 
   await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS canonical_url TEXT NOT NULL DEFAULT ''
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS final_url TEXT NOT NULL DEFAULT ''
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS http_status INTEGER NOT NULL DEFAULT 0
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS content_type TEXT NOT NULL DEFAULT ''
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS evidence_urls_json TEXT NOT NULL DEFAULT '[]'
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS submitted_ip_hash TEXT NOT NULL DEFAULT ''
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS submitted_session_hash TEXT NOT NULL DEFAULT ''
+  `;
+
+  await sql`
+    ALTER TABLE ai_candidate_links
+    ADD COLUMN IF NOT EXISTS capture_reason TEXT NOT NULL DEFAULT 'verified-link'
+  `;
+
+  await sql`
+    UPDATE ai_candidate_links
+    SET canonical_url = url
+    WHERE canonical_url = '' OR canonical_url IS NULL
+  `;
+
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS ai_candidate_links_canonical_url_idx
+    ON ai_candidate_links (canonical_url)
+  `;
+
+  await sql`
     CREATE TABLE IF NOT EXISTS ai_link_backups (
       id BIGSERIAL PRIMARY KEY,
       backup_number INTEGER NOT NULL,
@@ -183,6 +248,28 @@ async function ensureSchema(sql) {
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS ai_link_backups_backup_number_idx
     ON ai_link_backups (backup_number)
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS ai_scrape_queue (
+      id BIGSERIAL PRIMARY KEY,
+      canonical_url TEXT NOT NULL,
+      requested_url TEXT NOT NULL,
+      reason TEXT NOT NULL DEFAULT 'candidate-enrichment',
+      status TEXT NOT NULL DEFAULT 'pending',
+      attempts INTEGER NOT NULL DEFAULT 0,
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      started_at TIMESTAMPTZ,
+      finished_at TIMESTAMPTZ,
+      last_error TEXT NOT NULL DEFAULT ''
+    )
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS ai_scrape_queue_status_created_idx
+    ON ai_scrape_queue (status, created_at)
   `;
 }
 
@@ -238,26 +325,84 @@ async function getMainUrlSet(sql) {
 }
 
 async function upsertCandidate(sql, candidate) {
-  const url = normalizeUrl(candidate && candidate.url ? candidate.url : "");
-  if (!url) return { inserted: false };
+  const canonicalUrl = normalizeUrl(candidate && (candidate.canonicalUrl || candidate.url) ? (candidate.canonicalUrl || candidate.url) : "");
+  if (!canonicalUrl) return { inserted: false };
 
-  const name = String(candidate && candidate.name ? candidate.name : "").trim() || url;
+  const finalUrl = normalizeUrl(candidate && candidate.finalUrl ? candidate.finalUrl : canonicalUrl) || canonicalUrl;
+  const url = normalizeUrl(candidate && candidate.url ? candidate.url : canonicalUrl) || canonicalUrl;
+  const name = String(candidate && candidate.name ? candidate.name : "").trim() || canonicalUrl;
   const description = String(candidate && candidate.description ? candidate.description : "").trim();
   const abilitiesCsv = abilitiesToCsv(Array.isArray(candidate && candidate.abilities) ? candidate.abilities : []);
   const pricingTier = normalizePricing(candidate && (candidate.pricing || candidate.pricingTier || candidate.priceTier));
   const tagsCsv = tagsToCsv(Array.isArray(candidate && candidate.tags) ? candidate.tags : []);
   const evidenceJson = JSON.stringify(candidate && candidate.evidence ? candidate.evidence : {});
+  const evidenceUrlsJson = JSON.stringify(Array.isArray(candidate && candidate.evidenceUrls) ? candidate.evidenceUrls : []);
   const discoveredBy = String(candidate && candidate.discoveredBy ? candidate.discoveredBy : "juleha").trim() || "juleha";
+  const submittedIpHash = String(candidate && candidate.submittedIpHash ? candidate.submittedIpHash : "").trim();
+  const submittedSessionHash = String(candidate && candidate.submittedSessionHash ? candidate.submittedSessionHash : "").trim();
+  const captureReason = String(candidate && candidate.captureReason ? candidate.captureReason : "verified-link").trim() || "verified-link";
+  const contentType = String(candidate && candidate.contentType ? candidate.contentType : "").trim().slice(0, 120);
+  const httpStatus = Number.isFinite(Number(candidate && candidate.httpStatus)) ? Number(candidate.httpStatus) : 0;
+  const verifiedAt = candidate && candidate.verifiedAt ? String(candidate.verifiedAt) : null;
 
   await sql`
     INSERT INTO ai_candidate_links
-      (name, url, description, abilities_csv, pricing_tier, tags_csv, evidence_json, status, discovered_count, discovered_by, last_seen_at, updated_at)
+      (
+        name,
+        url,
+        canonical_url,
+        final_url,
+        description,
+        abilities_csv,
+        pricing_tier,
+        tags_csv,
+        http_status,
+        content_type,
+        verified_at,
+        evidence_urls_json,
+        evidence_json,
+        status,
+        discovered_count,
+        discovered_by,
+        submitted_ip_hash,
+        submitted_session_hash,
+        capture_reason,
+        last_seen_at,
+        updated_at
+      )
     VALUES
-      (${name}, ${url}, ${description}, ${abilitiesCsv}, ${pricingTier}, ${tagsCsv}, ${evidenceJson}, 'pending', 1, ${discoveredBy}, NOW(), NOW())
-    ON CONFLICT (url) DO UPDATE SET
+      (
+        ${name},
+        ${url},
+        ${canonicalUrl},
+        ${finalUrl},
+        ${description},
+        ${abilitiesCsv},
+        ${pricingTier},
+        ${tagsCsv},
+        ${httpStatus},
+        ${contentType},
+        COALESCE(${verifiedAt}::timestamptz, NOW()),
+        ${evidenceUrlsJson},
+        ${evidenceJson},
+        'pending',
+        1,
+        ${discoveredBy},
+        ${submittedIpHash},
+        ${submittedSessionHash},
+        ${captureReason},
+        NOW(),
+        NOW()
+      )
+    ON CONFLICT (canonical_url) DO UPDATE SET
       name = CASE
         WHEN ai_candidate_links.name = '' THEN EXCLUDED.name
         ELSE ai_candidate_links.name
+      END,
+      url = EXCLUDED.url,
+      final_url = CASE
+        WHEN EXCLUDED.final_url <> '' THEN EXCLUDED.final_url
+        ELSE ai_candidate_links.final_url
       END,
       description = CASE
         WHEN ai_candidate_links.description = '' THEN EXCLUDED.description
@@ -275,6 +420,16 @@ async function upsertCandidate(sql, candidate) {
         WHEN ai_candidate_links.tags_csv = '' THEN EXCLUDED.tags_csv
         ELSE ai_candidate_links.tags_csv
       END,
+      http_status = CASE
+        WHEN EXCLUDED.http_status > 0 THEN EXCLUDED.http_status
+        ELSE ai_candidate_links.http_status
+      END,
+      content_type = CASE
+        WHEN EXCLUDED.content_type <> '' THEN EXCLUDED.content_type
+        ELSE ai_candidate_links.content_type
+      END,
+      verified_at = COALESCE(EXCLUDED.verified_at, ai_candidate_links.verified_at),
+      evidence_urls_json = EXCLUDED.evidence_urls_json,
       evidence_json = EXCLUDED.evidence_json,
       status = CASE
         WHEN ai_candidate_links.status = 'pending' THEN ai_candidate_links.status
@@ -282,11 +437,39 @@ async function upsertCandidate(sql, candidate) {
       END,
       discovered_count = ai_candidate_links.discovered_count + 1,
       discovered_by = EXCLUDED.discovered_by,
+      submitted_ip_hash = CASE
+        WHEN EXCLUDED.submitted_ip_hash <> '' THEN EXCLUDED.submitted_ip_hash
+        ELSE ai_candidate_links.submitted_ip_hash
+      END,
+      submitted_session_hash = CASE
+        WHEN EXCLUDED.submitted_session_hash <> '' THEN EXCLUDED.submitted_session_hash
+        ELSE ai_candidate_links.submitted_session_hash
+      END,
+      capture_reason = CASE
+        WHEN EXCLUDED.capture_reason <> '' THEN EXCLUDED.capture_reason
+        ELSE ai_candidate_links.capture_reason
+      END,
       last_seen_at = NOW(),
       updated_at = NOW()
   `;
 
   return { inserted: true };
+}
+
+async function enqueueScrapeJob(sql, input) {
+  const canonicalUrl = normalizeUrl(input && input.canonicalUrl ? input.canonicalUrl : "");
+  const requestedUrl = normalizeUrl(input && input.requestedUrl ? input.requestedUrl : canonicalUrl) || canonicalUrl;
+  if (!canonicalUrl || !requestedUrl) return { queued: false };
+
+  const reason = String(input && input.reason ? input.reason : "candidate-enrichment").trim() || "candidate-enrichment";
+  const payloadJson = JSON.stringify(input && input.payload ? input.payload : {});
+
+  await sql`
+    INSERT INTO ai_scrape_queue (canonical_url, requested_url, reason, status, attempts, payload_json, updated_at)
+    VALUES (${canonicalUrl}, ${requestedUrl}, ${reason}, 'pending', 0, ${payloadJson}, NOW())
+  `;
+
+  return { queued: true };
 }
 
 async function createRollingBackup(sql, links) {
@@ -390,5 +573,6 @@ module.exports = {
   getMainLinks,
   getMainUrlSet,
   upsertCandidate,
+  enqueueScrapeJob,
   mergePendingCandidates
 };

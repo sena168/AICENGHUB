@@ -18,7 +18,7 @@ AICENGHUB is a static-first AI tools directory with a Juleha chat assistant, dep
 - `public/admin.html`: admin update UI
 - `public/link-list.json`: repository list snapshot (manual reference, not runtime source)
 - `api/juleha-chat.js`: Juleha chat API + policy guardrails + link verification + candidate capture
-- `api/link-list.js`: reads main list from Neon (with fallback seeding from static file)
+- `api/link-list.js`: reads main list from Neon (DB is runtime source)
 - `api/admin-update-list.js`: admin-triggered backup + merge candidates into main list
 - `api/admin-update-tier.js`: admin-triggered normalization of pricing/tag values in main DB
 - `api/candidate-link-list.js`: admin read endpoint for candidate queue
@@ -52,10 +52,13 @@ Reference template: `.env.example`.
 
 - API keys and DB credentials are server-side only.
 - `.env` is ignored by git.
-- Juleha backend has guardrails for:
-  - prompt/secret exfiltration refusal
-  - harmful request refusal baseline
-  - secret-like token redaction in model output
+- Juleha backend hardening includes:
+  - server-owned system/context prompts only (client `system`/`developer` ignored)
+  - prompt-injection and role-override refusal before model calls
+  - SSRF-safe URL verification/scraping (`safeFetch`) with DNS/private-range checks, redirect revalidation, and response limits
+  - per-IP rate limits with `429` + `Retry-After`
+  - structured redacted logging (`request_id`, safe route/error metadata)
+  - candidate audit metadata (IP/session hash + capture reason)
 - Admin merge endpoint requires `JULEHA_ADMIN_TOKEN`.
 
 ## Deployment
