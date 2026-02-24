@@ -807,10 +807,12 @@
       align-items: center;
       justify-content: center;
       min-height: 2.25rem;
+      transition: filter 130ms ease, transform 130ms ease, box-shadow 130ms ease;
     }
 
     .tool-detail-open-link:hover {
       filter: brightness(1.06);
+      transform: translateY(-1px);
     }
 
     .tool-detail-open-link:active {
@@ -1052,6 +1054,7 @@
       text-underline-offset: 2px;
       font-size: 0.88rem;
       font-weight: 600;
+      transition: filter 130ms ease, transform 130ms ease, color 130ms ease;
     }
 
     .consent-legal-link:hover {
@@ -1186,7 +1189,7 @@
       border: 1px solid rgba(255, 255, 255, 0.35);
       position: relative;
       cursor: pointer;
-      transition: background-color 130ms ease;
+      transition: background-color 130ms ease, border-color 130ms ease, transform 130ms ease, box-shadow 130ms ease;
     }
 
     .consent-switch::after {
@@ -1209,6 +1212,16 @@
     .consent-switch:checked::after {
       transform: translateX(1.02rem);
       background: #1a1310;
+    }
+
+    .consent-switch:not(:disabled):hover {
+      border-color: rgba(244, 183, 63, 0.92);
+      box-shadow: 0 0 0 2px rgba(244, 183, 63, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .consent-switch:not(:disabled):active {
+      transform: translateY(0) scale(0.96);
     }
 
     .consent-switch:disabled {
@@ -1443,6 +1456,12 @@
       .tabs-top {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.62rem;
+        padding: 0.72rem 0.72rem 0.62rem;
+      }
+
+      .tablist {
+        flex: 0 0 auto;
       }
 
       .tab-search {
@@ -1452,23 +1471,23 @@
         width: 100%;
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
-        gap: 0.55rem;
+        gap: 0.5rem;
         align-items: center;
       }
 
       .tab-search .search-input {
         min-width: 0;
         width: 100%;
-        height: 2.8rem;
-        max-height: 2.8rem;
+        height: 2.56rem;
+        max-height: 2.56rem;
         padding-top: 0;
         padding-bottom: 0;
       }
 
       .tab-search .search-btn {
-        height: 2.8rem;
-        max-height: 2.8rem;
-        padding: 0 1.05rem;
+        height: 2.56rem;
+        max-height: 2.56rem;
+        padding: 0 0.95rem;
         line-height: 1;
       }
 
@@ -1563,7 +1582,7 @@
 </head>
 <body>
   <main class="container">
-    <div id="app-version" class="app-version">v48</div>
+    <div id="app-version" class="app-version">v49</div>
     <section class="hero">
       <div class="hero-copy">
         <h1>AICENGHUB</h1>
@@ -3674,6 +3693,7 @@
   </script>
 </body>
 </html>
+
 
 
 
