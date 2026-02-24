@@ -17,6 +17,8 @@
 
     * { box-sizing: border-box; }
 
+    [hidden] { display: none !important; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -32,7 +34,7 @@
     }
 
     .card {
-      width: min(560px, 100%);
+      width: min(620px, 100%);
       border-radius: 14px;
       border: 1px solid rgba(46, 197, 212, 0.35);
       background: var(--panel);
@@ -51,10 +53,38 @@
       line-height: 1.45;
     }
 
-    .row {
+    .auth-panel {
+      margin-top: 0.95rem;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 0.8rem;
+      background: rgba(3, 8, 18, 0.55);
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
       gap: 0.7rem;
+    }
+
+    .auth-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .logout-btn {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.62rem 0.72rem;
+      background: rgba(3, 8, 18, 0.72);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .maintenance-panel {
       margin-top: 0.95rem;
     }
 
@@ -62,6 +92,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.7rem;
+      margin-top: 0.95rem;
     }
 
     @media (max-width: 560px) {
@@ -70,19 +101,14 @@
       }
     }
 
-    input, button {
+    button {
       font: inherit;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.25);
       padding: 0.62rem 0.72rem;
     }
 
-    input {
-      background: rgba(3, 8, 18, 0.75);
-      color: var(--ink);
-    }
-
-    button {
+    .action-btn {
       cursor: pointer;
       font-weight: 700;
       border-color: rgba(244, 183, 63, 0.7);
@@ -91,12 +117,12 @@
       transition: filter 130ms ease, transform 130ms ease, box-shadow 130ms ease;
     }
 
-    button:not(:disabled):hover {
+    .action-btn:not(:disabled):hover {
       filter: brightness(1.06);
       transform: translateY(-1px);
     }
 
-    button:not(:disabled):active {
+    .action-btn:not(:disabled):active {
       filter: brightness(0.98);
       transform: translateY(0) scale(0.98);
     }
@@ -176,54 +202,88 @@
       text-decoration: underline;
     }
 
-    .candidate-meta {
-      margin-top: 0.55rem;
+    .candidate-meta,
+    .auth-status {
       color: var(--muted);
       font-size: 0.82rem;
       line-height: 1.35;
+    }
+
+    .auth-status.error {
+      color: var(--danger);
+    }
+
+    .auth-status.ok {
+      color: #b0f6c8;
     }
   </style>
 </head>
 <body>
   <main class="card">
     <h1>Admin: List Maintenance</h1>
-    <p>Use Update List to merge pending candidates into main list. Use Update Tier to normalize pricing/tags values in main database.</p>
+    <p>Sign in with an approved Google account, then use Update List to merge pending candidates and Update Tier to normalize pricing/tags.</p>
 
-    <div class="row">
-      <input id="admin-token" type="password" placeholder="Admin token">
-      <div class="actions">
-        <button id="update-list-btn" type="button">Update List</button>
-        <button id="update-tier-btn" type="button">Update Tier</button>
+    <section class="auth-panel" aria-label="Admin authentication panel">
+      <p id="auth-note">Admin authentication is required.</p>
+      <div class="auth-row">
+        <div id="google-signin-button"></div>
+        <button id="logout-btn" class="logout-btn" type="button" hidden>Sign out</button>
       </div>
-    </div>
+      <div id="auth-status" class="auth-status" aria-live="polite"></div>
+    </section>
 
-    <div id="status" class="status" aria-live="polite"></div>
+    <section id="maintenance-panel" class="maintenance-panel" hidden>
+      <div class="actions">
+        <button id="update-list-btn" class="action-btn" type="button">Update List</button>
+        <button id="update-tier-btn" class="action-btn" type="button">Update Tier</button>
+      </div>
 
-    <section class="candidate-panel" aria-label="Candidate list panel">
-      <h2>Candidate List</h2>
-      <p>Scroll to load more pending/merged candidates from database.</p>
-      <div id="candidate-list" class="candidate-list" aria-live="polite"></div>
-      <div id="candidate-meta" class="candidate-meta"></div>
+      <div id="status" class="status" aria-live="polite"></div>
+
+      <section class="candidate-panel" aria-label="Candidate list panel">
+        <h2>Candidate List</h2>
+        <p>Scroll to load more pending/merged candidates from database.</p>
+        <div id="candidate-list" class="candidate-list" aria-live="polite"></div>
+        <div id="candidate-meta" class="candidate-meta"></div>
+      </section>
     </section>
   </main>
 
   <script>
-    const tokenInput = document.getElementById("admin-token");
     const updateButton = document.getElementById("update-list-btn");
     const updateTierButton = document.getElementById("update-tier-btn");
     const statusNode = document.getElementById("status");
     const candidateListNode = document.getElementById("candidate-list");
     const candidateMetaNode = document.getElementById("candidate-meta");
+    const maintenancePanelNode = document.getElementById("maintenance-panel");
+    const authNoteNode = document.getElementById("auth-note");
+    const authStatusNode = document.getElementById("auth-status");
+    const signInButtonHost = document.getElementById("google-signin-button");
+    const logoutButton = document.getElementById("logout-btn");
+
     const CANDIDATE_PAGE_SIZE = 40;
     const CANDIDATE_SCROLL_THRESHOLD_PX = 120;
     let candidateOffset = 0;
     let candidateHasMore = true;
     let candidateLoading = false;
 
+    const state = {
+      authenticated: false,
+      user: null,
+      googleClientId: "",
+      googleReady: false
+    };
+
     function setStatus(message, type) {
       statusNode.textContent = message;
       statusNode.classList.remove("ok", "error");
       if (type) statusNode.classList.add(type);
+    }
+
+    function setAuthStatus(message, type) {
+      authStatusNode.textContent = message;
+      authStatusNode.classList.remove("ok", "error");
+      if (type) authStatusNode.classList.add(type);
     }
 
     function setCandidateMeta(message) {
@@ -234,6 +294,24 @@
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return "-";
       return date.toLocaleString();
+    }
+
+    function setAuthState(authenticated, user) {
+      state.authenticated = Boolean(authenticated);
+      state.user = user || null;
+      maintenancePanelNode.hidden = !state.authenticated;
+
+      if (state.authenticated) {
+        authNoteNode.textContent = `Signed in as ${state.user && state.user.email ? state.user.email : "admin"}.`;
+        logoutButton.hidden = false;
+        signInButtonHost.hidden = true;
+      } else {
+        authNoteNode.textContent = "Admin authentication is required.";
+        logoutButton.hidden = true;
+        signInButtonHost.hidden = false;
+        candidateListNode.innerHTML = "";
+        setCandidateMeta("Sign in to load candidates.");
+      }
     }
 
     function normalizeCandidatePayload(payload) {
@@ -279,12 +357,12 @@
       const summary = document.createElement("span");
       const status = entry && entry.status ? String(entry.status) : "-";
       const discoveredCount = Number(entry && entry.discoveredCount ? entry.discoveredCount : 0);
-      summary.textContent = `status: ${status} · discovered: ${discoveredCount}`;
+      summary.textContent = `status: ${status} | discovered: ${discoveredCount}`;
 
       const abilities = document.createElement("span");
       const abilityList = Array.isArray(entry && entry.abilities) ? entry.abilities.join(", ") : "";
       const tagList = Array.isArray(entry && entry.tags) ? entry.tags.join(", ") : "";
-      abilities.textContent = `abilities: ${abilityList || "-"} · tags: ${tagList || "-"} · pricing: ${entry && entry.pricing ? String(entry.pricing) : "trial"}`;
+      abilities.textContent = `abilities: ${abilityList || "-"} | tags: ${tagList || "-"} | pricing: ${entry && entry.pricing ? String(entry.pricing) : "trial"}`;
 
       const updated = document.createElement("span");
       updated.textContent = `updated: ${formatDate(entry && entry.updatedAt)}`;
@@ -293,11 +371,22 @@
       return item;
     }
 
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options || {});
+      const payload = await response.json().catch(() => ({}));
+      return { response, payload };
+    }
+
+    async function handleUnauthorized() {
+      setAuthState(false, null);
+      setStatus("Session expired. Please sign in again.", "error");
+      setAuthStatus("Session expired. Sign in again.", "error");
+    }
+
     async function loadCandidatePage(options = {}) {
       const reset = Boolean(options.reset);
-      const adminToken = tokenInput.value.trim();
-      if (!adminToken) {
-        setCandidateMeta("Enter admin token to load candidates.");
+      if (!state.authenticated) {
+        setCandidateMeta("Sign in to load candidates.");
         return;
       }
       if (candidateLoading) return;
@@ -312,14 +401,15 @@
       candidateLoading = true;
       setCandidateMeta("Loading candidates...");
       try {
-        const response = await fetch(`/api/candidate-link-list?offset=${candidateOffset}&limit=${CANDIDATE_PAGE_SIZE}`, {
-          method: "GET",
-          headers: {
-            "x-admin-token": adminToken
-          }
+        const { response, payload } = await fetchJson(`/api/candidate-link-list?offset=${candidateOffset}&limit=${CANDIDATE_PAGE_SIZE}`, {
+          method: "GET"
         });
 
-        const payload = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          await handleUnauthorized();
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
         }
@@ -346,9 +436,8 @@
     }
 
     async function runUpdateList() {
-      const adminToken = tokenInput.value.trim();
-      if (!adminToken) {
-        setStatus("Admin token is required.", "error");
+      if (!state.authenticated) {
+        setStatus("Sign in first.", "error");
         return;
       }
 
@@ -360,16 +449,19 @@
         updateTierButton.disabled = true;
         setStatus("Updating list...", "");
 
-        const response = await fetch("/api/admin-update-list", {
+        const { response, payload } = await fetchJson("/api/admin-update-list", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "x-admin-token": adminToken
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify({ adminToken })
+          body: "{}"
         });
 
-        const payload = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          await handleUnauthorized();
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
         }
@@ -395,9 +487,8 @@
     }
 
     async function runUpdateTier() {
-      const adminToken = tokenInput.value.trim();
-      if (!adminToken) {
-        setStatus("Admin token is required.", "error");
+      if (!state.authenticated) {
+        setStatus("Sign in first.", "error");
         return;
       }
 
@@ -409,16 +500,19 @@
         updateTierButton.disabled = true;
         setStatus("Updating tiers...", "");
 
-        const response = await fetch("/api/admin-update-tier", {
+        const { response, payload } = await fetchJson("/api/admin-update-tier", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "x-admin-token": adminToken
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify({ adminToken })
+          body: "{}"
         });
 
-        const payload = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          await handleUnauthorized();
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
         }
@@ -441,26 +535,157 @@
       }
     }
 
+    function loadGoogleScript() {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector("script[data-google-gsi='1']");
+        if (existing) {
+          existing.addEventListener("load", () => resolve(), { once: true });
+          existing.addEventListener("error", () => reject(new Error("google_script_failed")), { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.dataset.googleGsi = "1";
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("google_script_failed"));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function loadAuthConfig() {
+      const { response, payload } = await fetchJson("/api/admin-auth-config", { method: "GET" });
+      if (!response.ok) {
+        throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${response.status}`);
+      }
+      if (!payload || !payload.enabled || !payload.googleClientId) {
+        throw new Error("Google admin auth is not configured in environment variables.");
+      }
+      state.googleClientId = String(payload.googleClientId);
+    }
+
+    async function onGoogleCredentialResponse(response) {
+      const credential = String(response && response.credential ? response.credential : "").trim();
+      if (!credential) {
+        setAuthStatus("Missing Google credential.", "error");
+        return;
+      }
+
+      setAuthStatus("Signing in...", "");
+      try {
+        const { response: loginResponse, payload } = await fetchJson("/api/admin-login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ credential })
+        });
+
+        if (!loginResponse.ok) {
+          throw new Error(payload && payload.error ? String(payload.error) : `HTTP ${loginResponse.status}`);
+        }
+
+        setAuthState(true, payload && payload.user ? payload.user : null);
+        setAuthStatus("Signed in.", "ok");
+        setStatus("", "");
+        await loadCandidatePage({ reset: true });
+      } catch (error) {
+        setAuthState(false, null);
+        setAuthStatus(`Sign in failed: ${error instanceof Error ? error.message : "unknown error"}`, "error");
+      }
+    }
+
+    function renderGoogleSignInButton() {
+      if (!(window.google && window.google.accounts && window.google.accounts.id)) {
+        throw new Error("Google Sign-In script not available.");
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: state.googleClientId,
+        callback: onGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        ux_mode: "popup"
+      });
+
+      signInButtonHost.innerHTML = "";
+      window.google.accounts.id.renderButton(signInButtonHost, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "signin_with",
+        shape: "rectangular",
+        width: 280
+      });
+      state.googleReady = true;
+    }
+
+    async function restoreSession() {
+      try {
+        const { response, payload } = await fetchJson("/api/admin-session", { method: "GET" });
+        if (!response.ok) {
+          setAuthState(false, null);
+          return;
+        }
+
+        setAuthState(true, payload && payload.user ? payload.user : null);
+        setAuthStatus("Session restored.", "ok");
+        await loadCandidatePage({ reset: true });
+      } catch {
+        setAuthState(false, null);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetchJson("/api/admin-logout", { method: "POST" });
+      } catch {}
+
+      if (state.googleReady && window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.disableAutoSelect();
+      }
+
+      setAuthState(false, null);
+      setStatus("Signed out.", "");
+      setAuthStatus("Signed out.", "");
+    }
+
     candidateListNode.addEventListener("scroll", () => {
+      if (!state.authenticated) return;
       const remaining = candidateListNode.scrollHeight - candidateListNode.scrollTop - candidateListNode.clientHeight;
       if (remaining <= CANDIDATE_SCROLL_THRESHOLD_PX) {
         loadCandidatePage({ reset: false });
       }
     });
 
-    tokenInput.addEventListener("change", () => {
-      loadCandidatePage({ reset: true });
-    });
-
-    tokenInput.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      loadCandidatePage({ reset: true });
-    });
-
     updateButton.addEventListener("click", runUpdateList);
     updateTierButton.addEventListener("click", runUpdateTier);
-    setCandidateMeta("Enter admin token to load candidates.");
+    logoutButton.addEventListener("click", logout);
+
+    async function init() {
+      setAuthState(false, null);
+      setStatus("", "");
+      setAuthStatus("Checking admin auth configuration...", "");
+      try {
+        await loadAuthConfig();
+        await loadGoogleScript();
+        renderGoogleSignInButton();
+        setAuthStatus("Use Google Sign-In with an approved admin account.", "");
+      } catch (error) {
+        setAuthStatus(`Authentication setup error: ${error instanceof Error ? error.message : "unknown error"}`, "error");
+        return;
+      }
+
+      await restoreSession();
+    }
+
+    init();
   </script>
 </body>
 </html>

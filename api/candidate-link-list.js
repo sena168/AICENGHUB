@@ -7,22 +7,7 @@ const {
   csvToTags,
   normalizePricing
 } = require("./_link-store");
-
-function setHeaders(res) {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-}
-
-function readAdminToken(req) {
-  return String((req && req.headers && req.headers["x-admin-token"]) || "").trim();
-}
-
-function isAuthorized(req) {
-  const expected = String(process.env.JULEHA_ADMIN_TOKEN || "").trim();
-  if (!expected) return false;
-  return readAdminToken(req) === expected;
-}
+const { setNoStoreHeaders, authorizeAdminRequest } = require("./_admin-auth");
 
 function parsePaging(req) {
   let limit = 40;
@@ -40,14 +25,14 @@ function parsePaging(req) {
 }
 
 module.exports = async function handler(req, res) {
-  setHeaders(res);
+  setNoStoreHeaders(res);
 
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  if (!isAuthorized(req)) {
+  if (!authorizeAdminRequest(req).ok) {
     return res.status(401).json({ error: "Unauthorized." });
   }
 

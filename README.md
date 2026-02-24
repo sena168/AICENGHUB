@@ -22,6 +22,11 @@ AICENGHUB is a static-first AI tools directory with a Juleha chat assistant, dep
 - `api/admin-update-list.js`: admin-triggered backup + merge candidates into main list
 - `api/admin-update-tier.js`: admin-triggered normalization of pricing/tag values in main DB
 - `api/candidate-link-list.js`: admin read endpoint for candidate queue
+- `api/admin-auth-config.js`: returns admin auth client config for `/admin.html`
+- `api/admin-login.js`: verifies Google ID token, issues HTTP-only admin session cookie
+- `api/admin-session.js`: validates current admin session cookie
+- `api/admin-logout.js`: clears admin session cookie
+- `api/_admin-auth.js`: shared admin auth/session helpers
 - `api/_link-store.js`: shared Neon schema + list operations
 - `vercel.json`: headers + rewrites
 
@@ -41,7 +46,11 @@ Define these in Vercel Project Settings and local `.env` (never commit real valu
 - `OPENROUTER_HTTP_REFERER`
 - `OPENROUTER_APP_TITLE`
 - `NEON_DATABASE_URL`
-- `JULEHA_ADMIN_TOKEN`
+- `GOOGLE_OAUTH_CLIENT_ID`
+- `GOOGLE_OAUTH_CLIENT_SECRET` (optional today, reserved for future OAuth code-flow use)
+- `ADMIN_ALLOWED_EMAILS`
+- `ADMIN_SESSION_SECRET`
+- `ADMIN_SESSION_TTL_SECONDS` (optional)
 - `JULEHA_ALLOWED_ORIGINS` (optional)
 - `JULEHA_VERIFY_LINKS` (optional, `1`/`0`)
 - `JULEHA_CAPTURE_CANDIDATES` (optional, `1`/`0`)
@@ -58,8 +67,8 @@ Reference template: `.env.example`.
   - SSRF-safe URL verification/scraping (`safeFetch`) with DNS/private-range checks, redirect revalidation, and response limits
   - per-IP rate limits with `429` + `Retry-After`
   - structured redacted logging (`request_id`, safe route/error metadata)
-  - candidate audit metadata (IP/session hash + capture reason)
-- Admin merge endpoint requires `JULEHA_ADMIN_TOKEN`.
+- candidate audit metadata (IP/session hash + capture reason)
+- Admin APIs require an authenticated admin session (Google login + allowed email list).
 
 ## Deployment
 
@@ -67,6 +76,6 @@ Reference template: `.env.example`.
 2. Connect project to Vercel.
 3. Set environment variables in Vercel.
 4. Deploy.
-5. Visit `/admin.html` and run:
+5. Visit `/admin.html`, sign in with an allowed admin Google account, then run:
    - **Update List** to merge pending candidates into main list.
    - **Update Tier** to normalize pricing/tag values in main DB.
